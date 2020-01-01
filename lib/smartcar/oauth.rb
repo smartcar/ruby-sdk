@@ -65,7 +65,7 @@ module Smartcar
       # @return [Hash] Hash of token, refresh token, expiry info and token type
       def refresh_token(token_hash)
         token_object = OAuth2::AccessToken.from_hash(client, token_hash)
-        token_object.refresh!
+        token_object = token_object.refresh!
         token_object.to_hash
       end
 

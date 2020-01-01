@@ -39,7 +39,7 @@ RSpec.describe Smartcar::Oauth do
       double_object = double("obj")
       allow(subject).to receive_message_chain(:client).and_return(obj)
       expect(OAuth2::AccessToken).to receive(:from_hash).with(obj,token_hash).and_return(double_object)
-      expect(double_object).to receive(:refresh!)
+      expect(double_object).to receive(:refresh!).and_return(double_object)
       expect(double_object).to receive(:to_hash)
       subject.refresh_token(token_hash)
     end
