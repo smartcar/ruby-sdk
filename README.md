@@ -20,6 +20,13 @@ Or install it yourself as:
 
 ## Usage
 
+Setup the environment variables for SMARTCAR_CLIENT_ID and SMARTCAR_SECRET. 
+```bash
+# Get your API keys from https://dashboard.smartcar.com/signup
+export SMARTCAR_CLIENT_ID=<client id>
+export SMARTCAR_SECRET=<client secret>
+``` 
+
 Example Usage for calling the reports API with oAuth token
 ```ruby
 2.5.5 :003 > require 'smartcar'
