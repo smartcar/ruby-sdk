@@ -22,7 +22,7 @@ GEM
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
     rack (2.0.8)
-    rake (10.5.0)
+    rake (13.0.1)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -43,7 +43,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.0)
   byebug (~> 11.0)
-  rake (~> 10.0)
+  rake (~> 13.0)
   rspec (~> 3.0)
   smartcar-ruby!
 
