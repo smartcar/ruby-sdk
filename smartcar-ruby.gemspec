@@ -3,10 +3,10 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "smartcar/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "smartcar-ruby"
+  spec.name          = "smartcar"
   spec.version       = Smartcar::VERSION
   spec.authors       = ["Ashwin Subramanian"]
-  spec.email         = ["Ashwin.Subramanian@ooma.com"]
+  spec.email         = ["sshwin.subramanian@smartcar.com"]
 
   spec.summary       = %q{Ruby Gem to access smartcar APIs (https://smartcar.com/docs/)}
   spec.description   = %q{This is a ruby gem to access the smartcar APIs. It includes the API classes and the OAuth system.}
@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_dependency "oauth2", "~> 1.4"

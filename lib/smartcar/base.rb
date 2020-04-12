@@ -1,5 +1,5 @@
 require 'oauth2'
-
+require 'base64'
 module Smartcar
   # The Base class for all of the other class.
   # Let other classes inherit from here and put common methods here.
@@ -7,6 +7,10 @@ module Smartcar
   # @author [ashwin]
   #
   class Base
+    class InvalidParameterValue < StandardError; end
+    BEARER = 'BEARER'.freeze
+    BASIC = 'BASIC'.freeze
+
     attr_accessor :token
     # meta programming and define all Restful methods.
     # @param path [String] the path to hit for the request.
@@ -17,6 +21,7 @@ module Smartcar
       define_method verb do |path, data=nil|
         response = service.send(verb) do |request|
           request.headers['Authorization'] = "BEARER #{token}"
+          request.headers['Authorization'] = "BASIC #{get_basic_auth}" if data[:auth] == BASIC
           request.headers['sc-unit-system'] = unit_system
           request.headers['Content-Type'] = "application/json"
           complete_path = "/#{API_VERSION}#{path}"
@@ -41,13 +46,20 @@ module Smartcar
     # @param token [String] Vechicle ID
     #
     # @return [Object]
-    def fetch(path: , options: {})
+    def fetch(path: , options: {}, auth: 'BEARER')
       _path = path
       _path += "?#{URI.encode_www_form(options)}" unless options.empty?
-      get(_path)
+      get(_path, {auth: auth})
     end
 
     private
+
+    # returns auth token for BASIC auth
+    #
+    # @return [String] Base64 encoding of CLIENT:SECRET
+    def get_basic_auth
+      Base64.strict_encode64("#{ENV['SMARTCAR_CLIENT_ID']}:#{ENV['SMARTCAR_SECRET']}")
+    end
 
     # gets a smartcar API service/client
     # @param token [String] Access token.

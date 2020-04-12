@@ -68,12 +68,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/s-ashwinkumar/smartcar-ruby. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+To contribute, please:
 
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the Smartcar project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/s-ashwinkumar/smartcar-ruby/blob/master/CODE_OF_CONDUCT.md).
+1. Open an issue for the feature (or bug) you would like to resolve.
+2. Resolve the issue and add tests in your feature branch.
+3. Open a PR from your feature branch into `develop` that tags the issue.

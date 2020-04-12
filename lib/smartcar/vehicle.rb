@@ -1,13 +1,14 @@
 module Smartcar
   # Vehicle class to connect to vehicle basic info,disconnect, lock unlock and get all vehicles API
   # For ease of use, this also has methods define to be able to call other resources on a vehicle object
-  # For Ex. Vehicle object will be treate as an entity and doing vehicle_object.battery should return Battery object.
+  # For Ex. Vehicle object will be treate as an entity and doing vehicle_object.
+  # Battery should return Battery object.
   #
   # @author [ashwin]
   #
   class Vehicle < Base
-    class InvalidParameterValue < StandardError; end
-    
+
+    COMPATIBLITY_PATH = '/compatibility'.freeze
     PATH = Proc.new{|id| "/vehicles/#{id}"}
     attr_accessor :token, :id, :unit_system
 
@@ -24,7 +25,7 @@ module Smartcar
     # Accessor method for vehicle attributes.
     %I(make model year).each do |method_name|
       define_method method_name do
-        vehicle_attributes.send(method_name)        
+        vehicle_attributes.send(method_name)
       end
     end
 
@@ -39,6 +40,25 @@ module Smartcar
         path: PATH.call(''),
         options: options
       )['vehicles']
+    end
+
+    # Class method Used to check compatiblity for VIN and scope
+    # API - https://smartcar.com/docs/api#connect-compatibility
+    # @param vin [String] VIN of the vehicle to be checked
+    # @param scope [Array of Strings] - array of scopes
+    #
+    # @return [Boolean] true or false
+    def self.compatible?(vin:, scope:)
+      raise InvalidParameterValue.new, "vin is a required field" if vin.nil?
+      raise InvalidParameterValue.new, "scope is a required field" if scope.nil?
+
+      new(token: 'none', id: 'none').fetch(path: COMPATIBLITY_PATH,
+        options: {
+          vin: vin,
+          scope: scope.join(' ')
+        },
+        auth: BASIC
+      )['compatible']
     end
 
     # Fetch the list of permissions that this application has been granted for
@@ -69,7 +89,7 @@ module Smartcar
     # @return [Boolean] true if success
     %w(lock unlock).each do |method_name|
       define_method "#{method_name}!" do
-        lock_or_unlock!(action: Smartcar.const_get(method_name.upcase))        
+        lock_or_unlock!(action: Smartcar.const_get(method_name.upcase))
       end
     end
 
@@ -77,7 +97,7 @@ module Smartcar
     # details of a vehicle. The key is the method name, and value is Class that
     # wraps the data.
     {
-      # Returns the state of charge (SOC) and remaining range of an electric or 
+      # Returns the state of charge (SOC) and remaining range of an electric or
       # plug-in hybrid vehicle's battery.
       # API - https://smartcar.com/docs/api#get-ev-battery
       #
@@ -101,7 +121,7 @@ module Smartcar
       # Returns the last known location of the vehicle in geographic coordinates.
       # API - https://smartcar.com/docs/api#get-location
       #
-      # @return [Location] object      
+      # @return [Location] object
       location: Location,
       # Returns the vehicle's last known odometer reading.
       # API - https://smartcar.com/docs/api#get-odometer
@@ -152,12 +172,12 @@ module Smartcar
     end
 
     private
-    
+
     def lock_or_unlock!(action:)
       response = post(PATH.call(id) + "/security", {action: action}.to_json)
       response['status'] == SUCCESS
     end
-    
+
     class VehicleAttributes
       include Utils
       attr_accessor :id, :make, :model, :year
