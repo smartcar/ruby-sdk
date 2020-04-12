@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.version       = Smartcar::VERSION
   spec.authors       = ["Ashwin Subramanian"]
   spec.email         = ["sshwin.subramanian@smartcar.com"]
-
+  spec.homepage      = 'https://rubygems.org/gems/smartcar'
   spec.summary       = %q{Ruby Gem to access smartcar APIs (https://smartcar.com/docs/)}
   spec.description   = %q{This is a ruby gem to access the smartcar APIs. It includes the API classes and the OAuth system.}
   spec.license       = "MIT"
@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", ">= 12.3.3"
+  spec.add_development_dependency 'rake', '~> 12.3', '>= 12.3.3'
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_dependency "oauth2", "~> 1.4"
