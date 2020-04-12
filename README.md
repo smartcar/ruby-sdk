@@ -20,11 +20,11 @@ Or install it yourself as:
 
 ## Usage
 
-Setup the environment variables for SMARTCAR_CLIENT_ID and SMARTCAR_SECRET. 
+Setup the environment variables for CLIENT_ID and CLIENT_SECRET. 
 ```bash
 # Get your API keys from https://dashboard.smartcar.com/signup
-export SMARTCAR_CLIENT_ID=<client id>
-export SMARTCAR_SECRET=<client secret>
+export CLIENT_ID=<client id>
+export CLIENT_SECRET=<client secret>
 ``` 
 
 Example Usage for calling the reports API with oAuth token

@@ -58,7 +58,7 @@ module Smartcar
     #
     # @return [String] Base64 encoding of CLIENT:SECRET
     def get_basic_auth
-      Base64.strict_encode64("#{ENV['SMARTCAR_CLIENT_ID']}:#{ENV['SMARTCAR_SECRET']}")
+      Base64.strict_encode64("#{ENV['CLIENT_ID']}:#{ENV['CLIENT_SECRET']}")
     end
 
     # gets a smartcar API service/client

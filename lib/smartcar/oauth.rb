@@ -32,7 +32,7 @@ module Smartcar
       # @return [String] URL where user needs to be redirected for authorization
       def authorization_url(options)
         parameters = {
-          redirect_uri: get_config('SMARTCAR_CALLBACK_URL'),
+          redirect_uri: get_config('REDIRECT_URI'),
           approval_prompt: options[:force_prompt] ? FORCE : AUTO,
           mode: options[:test_mode] ? TEST : LIVE,
           response_type: CODE
@@ -54,7 +54,7 @@ module Smartcar
         client.auth_code
           .get_token(
             auth_code,
-            redirect_uri: get_config('SMARTCAR_CALLBACK_URL')
+            redirect_uri: get_config('REDIRECT_URI')
           ).to_hash
       end
 
@@ -74,8 +74,8 @@ module Smartcar
       #
       # @return [OAuth2::Client] A Oauth Client object.
       def client
-        @client ||= OAuth2::Client.new( get_config('SMARTCAR_CLIENT_ID'),
-          get_config('SMARTCAR_SECRET'),
+        @client ||= OAuth2::Client.new( get_config('CLIENT_ID'),
+          get_config('CLIENT_SECRET'),
           :site => OAUTH_PATH
         )
       end
