@@ -7,7 +7,7 @@ Ruby gem library to quickly get started with the Smartcar API.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'smartcar-ruby'
+gem 'smartcar'
 ```
 
 And then execute:
@@ -16,7 +16,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install smartcar-ruby
+    $ gem install smartcar
 
 ## Usage
 
