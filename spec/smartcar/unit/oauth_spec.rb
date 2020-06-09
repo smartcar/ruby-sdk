@@ -1,4 +1,3 @@
-require 'byebug'
 RSpec.describe Smartcar::Oauth do
   subject { Smartcar::Oauth }
   let(:obj) { double("dummy object for client") }

@@ -1,12 +1,10 @@
 module Smartcar
-  # class to represent Engine oil life
-  #
-  # @author [ashwin]
-  #
+  # class to represent Engine oil info
+  #@attr [Number] lifeRemaining Remaining life of the engine oil
   class EngineOil < Base
-    include Utils
+    # Path Proc for hitting engine oil end point
     PATH = Proc.new{|id| "/vehicles/#{id}/engine/oil"}
-    attr_accessor :lifeRemaining
+    attr_reader :lifeRemaining
 
     # just to have Ruby-esque method names
     alias_method :life_remaining, :lifeRemaining
