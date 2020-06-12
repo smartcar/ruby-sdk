@@ -27,9 +27,9 @@
   def get_error(response)
     status = response.status
     return nil if [200,204].include?(status)
-    return Smartcar::ServiceUnavailableError.new, "Service Unavailable - #{response.body}" if status == 404
-    return Smartcar::BadRequestError.new, "Bad Request - #{response.body}" if status == 400
-    return Smartcar::AuthenticationError.new, "Authentication error" if status == 401
-    return Smartcar::ExternalServiceError.new, "API error - #{response.body}"
+    return Smartcar::ServiceUnavailableError.new("Service Unavailable - #{response.body}") if status == 404
+    return Smartcar::BadRequestError.new("Bad Request - #{response.body}") if status == 400
+    return Smartcar::AuthenticationError.new("Authentication error") if status == 401
+    return Smartcar::ExternalServiceError.new("API error - #{response.body}")
   end
 end
