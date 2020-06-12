@@ -3,21 +3,24 @@ require 'base64'
 module Smartcar
   # The Base class for all of the other class.
   # Let other classes inherit from here and put common methods here.
-  #
-  # @author [ashwin]
-  #
   class Base
+    include Utils
+
+    # Error raised when an invalid parameter is passed.
     class InvalidParameterValue < StandardError; end
+    # Constant for Bearer auth type
     BEARER = 'BEARER'.freeze
+    # Constant for Basic auth type
     BASIC = 'BASIC'.freeze
 
-    attr_accessor :token
-    # meta programming and define all Restful methods.
-    # @param path [String] the path to hit for the request.
-    # @param token [String] the access token to be used.
-    #
-    # @return [Hash] The response Json parsed as a hash.
+    attr_accessor :token, :error, :meta
+
     %i{get post patch put delete}.each do |verb|
+      # meta programming and define all Restful methods.
+      # @param path [String] the path to hit for the request.
+      # @param data [Hash] request body if needed.
+      #
+      # @return [Hash] The response Json parsed as a hash.
       define_method verb do |path, data=nil|
         response = service.send(verb) do |request|
           request.headers['Authorization'] = "BEARER #{token}"
@@ -29,21 +32,19 @@ module Smartcar
             request.url complete_path, data
           else
             request.url complete_path
-            request.body = data if data
+            request.body = data.to_json if data
           end
         end
-        status = response.status
-        raise ServiceUnavailableError.new, "Service Unavailable - #{response.body}" if status == 404
-        raise BadRequestError.new, "Bad Request - #{response.body}" if status == 400
-        raise AuthenticationError.new, "Authentication error" if status == 401
-        raise ExternalServiceError.new, "API error - #{response.body}" unless [200,204].include?(status)
-        JSON.parse(response.body)
+        error = get_error(response)
+        raise error if error
+        [JSON.parse(response.body), response.headers]
       end
     end
 
     # This requires a proc 'PATH' to be defined in the class
-    # @param token [String] Access token
-    # @param token [String] Vechicle ID
+    # @param path [String] resource path
+    # @param options [Hash] query params
+    # @param auth [String] type of auth
     #
     # @return [Object]
     def fetch(path: , options: {}, auth: 'BEARER')
@@ -58,11 +59,10 @@ module Smartcar
     #
     # @return [String] Base64 encoding of CLIENT:SECRET
     def get_basic_auth
-      Base64.strict_encode64("#{ENV['CLIENT_ID']}:#{ENV['CLIENT_SECRET']}")
+      Base64.strict_encode64("#{get_config('CLIENT_ID')}:#{get_config('CLIENT_SECRET')}")
     end
 
     # gets a smartcar API service/client
-    # @param token [String] Access token.
     #
     # @return [OAuth2::AccessToken] An initialized AccessToken instance that acts as service client
     def service

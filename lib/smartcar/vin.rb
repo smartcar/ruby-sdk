@@ -1,11 +1,10 @@
 module Smartcar
-  # class to represent Engine oil life
+  # Hidden class to represent vin
   #
-  # @author [ashwin]
-  #
+  #@attr [String] vin Vin of the vehicle
   class Vin < Base
-    include Utils
+    # Path Proc for hitting vin end point
     PATH = Proc.new{|id| "/vehicles/#{id}/vin"}
-    attr_accessor :vin
+    attr_reader :vin
   end
 end

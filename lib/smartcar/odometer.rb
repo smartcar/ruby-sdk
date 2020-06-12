@@ -1,11 +1,9 @@
 module Smartcar
-  # class to get Charge info
-  #
-  # @author [ashwin]
-  #
+  # class to represent Odometer
+  #@attr [Number] distanceLast recorded odometer reading.
   class Odometer < Base
-    include Utils
+    # Path Proc for hitting odometer end point
     PATH = Proc.new{|id| "/vehicles/#{id}/odometer"}
-    attr_accessor :distance
+    attr_reader :distance
   end
 end

@@ -1,12 +1,12 @@
 module Smartcar
   # class to represent Fuel info
-  #
-  # @author [ashwin]
-  #
+  #@attr [Number] amountRemaining Amount of fuel remaining.
+  #@attr [Number] percentageRemaining Decimal value representing the remaining fuel percent.
+  #@attr [Number] range Remaining range of the vehicle.
   class Fuel < Base
-    include Utils
+    # Path Proc for hitting fuel end point
     PATH = Proc.new{|id| "/vehicles/#{id}/fuel"}
-    attr_accessor :amountRemaining, :percentRemaining, :range
+    attr_reader :amountRemaining, :percentRemaining, :range
 
     # just to have Ruby-esque method names
     alias_method :amount_remaining, :amountRemaining
