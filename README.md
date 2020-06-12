@@ -91,7 +91,9 @@ Example Usage for calling the reports API with oAuth token
  => #<Smartcar::Battery:0x00005564210fcb18 @range=105.63, @percentRemaining=0.98, @meta={"date"=>"Fri, 12 Jun 2020 06:04:44 GMT", "content-type"=>"application/json; charset=utf-8", "content-length"=>"40", "connection"=>"keep-alive", "access-control-allow-origin"=>"*", "sc-data-age"=>"2020-06-12T06:04:28.843Z", "sc-unit-system"=>"imperial", "sc-request-id"=>"455ed4b0-b768-4961-86d7-436ad71cf0fa"}>
 2.5.7 :009 > vehicle.lock!
  => true
-2.5.7 :010 > vehicle.start_charge!
+2.5.7 :010 > vehicle.batch(["charge","battery"])
+=> {:charge=>#<Smartcar::Charge:0x000055853d1fd7c8 @state="NOT_CHARGING", @isPluggedIn=false, @meta={"sc-data-age"=>"2020-06-12T06:18:50.581Z"}>, :battery=>#<Smartcar::Battery:0x000055853d1fd638 @range=105.63, @percentRemaining=0.98, @meta={"sc-data-age"=>"2020-06-12T06:18:50.581Z", "sc-unit-system"=>"imperial"}>}
+2.5.7 :011 > vehicle.start_charge!
 Traceback (most recent call last):
         5: from /usr/share/rvm/rubies/ruby-2.5.7/bin/irb:11:in `<main>'
         4: from (irb):5
@@ -99,6 +101,7 @@ Traceback (most recent call last):
         2: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.7/gems/smartcar-1.0.0/lib/smartcar/vehicle.rb:290:in `start_or_stop_charge!'
         1: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.7/gems/smartcar-1.0.0/lib/smartcar/base.rb:39:in `block (2 levels) in <class:Base>'
 Smartcar::ExternalServiceError (API error - {"error":"vehicle_state_error","message":"Charging plug is not connected to the vehicle.","code":"VS_004"})
+
 ```
 
 Example Usage for oAuth -
