@@ -79,32 +79,25 @@ export CLIENT_SECRET=<client secret>
 
 Example Usage for calling the reports API with oAuth token
 ```ruby
-2.5.5 :003 > require 'smartcar'
+2.5.7 :001 > require 'smartcar'
  => true
-2.5.5 :009 > ids =  Smartcar::Vehicle.all_vehicle_ids(token: token)
- => ["35e8a7c4-9e5c-4eb6-b552-7509e371669a", "c3332c35-fdeb-4780-a84b-706b7364979a", "d10ad5cf-5469-467e-972e-90427981873f", "fab5a744-6488-40d8-a6dd-41f0a804d44f"]
-2.5.5 :010 > vehicle = Smartcar::Vehicle.new(token: token, id: ids.first)
- => #<Smartcar::Vehicle:0x00007fbad71aa2b8 @token="56801a5e-6a0b-4d05-a43e-52a4d5e6648f", @id="35e8a7c4-9e5c-4eb6-b552-7509e371669a", @unit_system="imperial">
-2.5.5 :011 > vehicle.permissions
- => #<Smartcar::Odometer:0x00007fbad63851f0 @permissions=["control_security", "read_battery", "read_charge", "read_location", "read_odometer", "read_vehicle_info", "read_vin"]>
-2.5.5 :012 > vehicle.odometer
- => #<Smartcar::Odometer:0x00007fbad718a3f0 @distance=74988.44443760936>
-2.5.5 :013 > vehicle.battery
- => #<Smartcar::Battery:0x00007fbad50f4c80 @range=134.35, @percentRemaining=0.02>
-2.5.5 :014 > vehicle.charge
- => #<Smartcar::Charge:0x00007fbad787e620 @state="FULLY_CHARGED", @isPluggedIn=true>
-2.5.5 :015 > vehicle.lock!
+2.5.7 :003 > ids =  Smartcar::Vehicle.all_vehicle_ids(token: token)
+ => ["4bb777b2-bde7-4305-8952-25956f8c0868"]
+2.5.7 :004 > vehicle = Smartcar::Vehicle.new(token: token, id: ids.first)
+ => #<Smartcar::Vehicle:0x00005564211a7c48 @token="5ae77cb0-7c1a-486a-ac20-00c76d2fd1aa", @id="4bb777b2-bde7-4305-8952-25956f8c0868", @unit_system="imperial">
+2.5.7 :006 > vehicle.odometer
+ => #<Smartcar::Odometer:0x00005564211330f0 @distance=17966.94802354251, @meta={"date"=>"Fri, 12 Jun 2020 06:04:32 GMT", "content-type"=>"application/json; charset=utf-8", "content-length"=>"30", "connection"=>"keep-alive", "access-control-allow-origin"=>"*", "sc-data-age"=>"2020-06-12T06:04:28.843Z", "sc-unit-system"=>"imperial", "sc-request-id"=>"3c447e9e-4cf7-43cb-b688-fba8db3d3582"}>
+2.5.7 :007 > vehicle.battery
+ => #<Smartcar::Battery:0x00005564210fcb18 @range=105.63, @percentRemaining=0.98, @meta={"date"=>"Fri, 12 Jun 2020 06:04:44 GMT", "content-type"=>"application/json; charset=utf-8", "content-length"=>"40", "connection"=>"keep-alive", "access-control-allow-origin"=>"*", "sc-data-age"=>"2020-06-12T06:04:28.843Z", "sc-unit-system"=>"imperial", "sc-request-id"=>"455ed4b0-b768-4961-86d7-436ad71cf0fa"}>
+2.5.7 :009 > vehicle.lock!
  => true
-2.5.5 :016 > vehicle.start_charge!
+2.5.7 :010 > vehicle.start_charge!
 Traceback (most recent call last):
-        8: from /usr/share/rvm/rubies/ruby-2.5.5/bin/irb:23:in `<main>'
-        7: from /usr/share/rvm/rubies/ruby-2.5.5/bin/irb:23:in `load'
-        6: from /usr/share/rvm/rubies/ruby-2.5.5/lib/ruby/gems/2.7.0/gems/irb-1.2.1/exe/irb:11:in `<top (required)>'
-        5: from (irb):7
-        4: from (irb):8:in `rescue in irb_binding'
-        3: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.5/gems/smartcar-0.1.2/lib/smartcar/vehicle.rb:102:in `block (2 levels) in <class:Vehicle>'
-        2: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.5/gems/smartcar-0.1.2/lib/smartcar/vehicle.rb:192:in `start_or_stop_charge!'
-        1: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.5/gems/smartcar-0.1.2/lib/smartcar/base.rb:39:in `block (2 levels) in <class:Base>'
+        5: from /usr/share/rvm/rubies/ruby-2.5.7/bin/irb:11:in `<main>'
+        4: from (irb):5
+        3: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.7/gems/smartcar-1.0.0/lib/smartcar/vehicle.rb:118:in `start_charge!'
+        2: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.7/gems/smartcar-1.0.0/lib/smartcar/vehicle.rb:290:in `start_or_stop_charge!'
+        1: from /home/st-2vgpnn2/.rvm/gems/ruby-2.5.7/gems/smartcar-1.0.0/lib/smartcar/base.rb:39:in `block (2 levels) in <class:Base>'
 Smartcar::ExternalServiceError (API error - {"error":"vehicle_state_error","message":"Charging plug is not connected to the vehicle.","code":"VS_004"})
 ```
 
