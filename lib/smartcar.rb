@@ -11,6 +11,7 @@ require "smartcar/location"
 require "smartcar/odometer"
 require "smartcar/tire_pressure"
 require "smartcar/vin"
+require "smartcar/vehicle_attributes"
 require "smartcar/vehicle"
 require "smartcar/user"
 
