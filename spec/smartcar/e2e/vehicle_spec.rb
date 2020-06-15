@@ -6,8 +6,9 @@ require_relative '../../spec_helper'
 RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
   let(:vehicle) do
-    url = Smartcar::Oauth.authorization_url(AuthHelper.auth_client_params)
-    token_hash = Smartcar::Oauth.get_token(AuthHelper.run_auth_flow(url))
+    client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
+    url = client.authorization_url
+    token_hash = client.get_token(AuthHelper.run_auth_flow(url))
     token = token_hash[:access_token]
     ids =  Smartcar::Vehicle.all_vehicle_ids(token: token)
     Smartcar::Vehicle.new(token: token, id: ids.first)

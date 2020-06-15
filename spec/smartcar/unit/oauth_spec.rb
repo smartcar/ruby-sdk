@@ -1,9 +1,14 @@
 RSpec.describe Smartcar::Oauth do
-  subject { Smartcar::Oauth }
+  subject { Smartcar::Oauth.new({
+    redirect_uri: "test_url",
+    client_id: "client_id",
+    client_secret: "client_secret",
+    test_mode: true,
+    scope: ["testing"],
+  }) }
   let(:obj) { double("dummy object for client") }
 
   before do
-    allow(subject).to receive(:get_config).with('REDIRECT_URI').and_return("test_url")
     allow(subject).to receive_message_chain(:client, :auth_code).and_return(obj)
   end
 
@@ -16,14 +21,9 @@ RSpec.describe Smartcar::Oauth do
         response_type: Smartcar::CODE,
         scope: "testing"
       }).and_return("result")
-      expect(subject.authorization_url(test_mode: true, scope: ["testing"])).to eq "result"
+      expect(subject.authorization_url).to eq "result"
     end
   end
-  # def refresh_token(token_hash)
-  #   token_object = OAuth2::AccessToken.from_hash(client, token_hash)
-  #   token_object.refresh!
-  #   token_object.to_hash
-  # end
 
   context 'get_token' do
     it 'should call get_token from client.authcode' do
@@ -49,7 +49,6 @@ RSpec.describe Smartcar::Oauth do
       allow(subject).to receive(:client).and_call_original
     end
     it 'should create OAuth2::Client object' do
-      expect(subject).to receive(:get_config).twice
       expect(OAuth2::Client).to receive(:new)
       subject.send(:client)
     end

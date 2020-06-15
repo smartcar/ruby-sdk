@@ -6,7 +6,8 @@ RSpec.configure do |config|
 
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
-  ENV["INTEGRATION_REDIRECT_URI"] = "https://example.com/auth" if ENV["MODE"] == "test"
+  ENV["MODE"] = "test"
+  ENV["INTEGRATION_REDIRECT_URI"] = "https://example.com/auth"
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end

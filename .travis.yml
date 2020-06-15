@@ -1,7 +1,28 @@
----
 sudo: false
 language: ruby
 cache: bundler
+services:
+- xvfb
+addons:
+  firefox: latest
 rvm:
-  - 2.5.5
-before_install: gem install bundler -v 2.0.2
+- 2.5
+- 2.6
+- 2.7
+before_install:
+  - gem install bundler -v 2.1.2
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
+  - mkdir geckodriver
+  - tar -xzf geckodriver-v0.26.0-linux64.tar.gz -C geckodriver
+  - export PATH=$PATH:$PWD/geckodriver
+# install:
+# - firefox -headless &
+deploy:
+  provider: rubygems
+  api_key: $RUBYGEMSAPI_KEY
+  gem: smartcar
+  on:
+    tags: true
+    branch: master
+    rvm: 2.5
+  skip_cleanup: 'true'
