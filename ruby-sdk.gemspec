@@ -12,7 +12,10 @@ Gem::Specification.new do |spec|
   spec.summary = %q{Ruby Gem to access smartcar APIs (https://smartcar.com/docs/)}
   spec.description = %q{This is a ruby gem to access the smartcar APIs. It includes the API classes and the OAuth system.}
   spec.license = "MIT"
-  spec.metadata    = { "source_code_uri" => "https://github.com/smartcar/ruby-sdk" }
+  spec.metadata    = {
+    "source_code_uri" => "https://github.com/smartcar/ruby-sdk",
+    "documentation_uri" => "https://www.rubydoc.info/gems/smartcar",
+  }
   spec.files = Dir.chdir(File.expand_path('..', __FILE__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   end
