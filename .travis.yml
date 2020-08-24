@@ -21,6 +21,7 @@ deploy:
   provider: rubygems
   api_key: $RUBYGEMSAPI_KEY
   gem: smartcar
+  gemspec: ruby-sdk.gemspec
   on:
     tags: true
     branch: master
