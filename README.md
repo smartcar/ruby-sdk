@@ -123,7 +123,7 @@ Example Usage for oAuth -
 
 ## Development
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and  create a git tag for the version, push git commits and tags. When merging to master if it finds the tag it will deploy to rubygems automatically
+To install this gem onto your local machine, run `bundle exec rake install`.
 
 To run tests, make sure you have the env variables setup for client id and secret.
 ```shell
@@ -135,6 +135,21 @@ Tests can be run using either default rake command OR specific rspec command.
 ```ruby
 bundle exec rake spec
 ```
+
+Releasing to rubygems right now cannot be automated because of MFA ([source](https://github.com/rubygems/rubygems/issues/3092)). For now the process is to run the gem build and push commands locally and manually enter in the Rubygems MFA code (available on 1password). Steps for that would be :
+
+```
+# After merging to master, checkout to master and pull code locally, then run the following
+gem build
+  Successfully built RubyGem
+  Name: smartcar
+  Version: <version>
+  File: smartcar-<version>.gem
+# now push the gem built by the build command. This would ask for the MFA code
+gem push smartcar-<version>.gem
+```
+In general it is a good advice to create a tag for every release. If not for the above mentioned MFA bug, creating a tag for a commit on master and pushing the tag would trigger travis to deploy to rubygems automatically.
+
 ## Contributing
 
 To contribute, please:
