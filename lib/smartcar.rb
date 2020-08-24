@@ -32,6 +32,8 @@ require "smartcar/user"
   API_VERSION = "v1.0".freeze
   # Host to connect to smartcar
   SITE = "https://api.smartcar.com/".freeze
+  # Seconds to wait for response
+  REQUEST_TIMEOUT = 300
 
   # Path for smartcar oauth
   OAUTH_PATH = "https://connect.smartcar.com/oauth/authorize".freeze

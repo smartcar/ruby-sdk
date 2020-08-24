@@ -66,7 +66,7 @@ module Smartcar
     #
     # @return [OAuth2::AccessToken] An initialized AccessToken instance that acts as service client
     def service
-      @service ||= Faraday.new(url: SITE)
+      @service ||= Faraday.new(url: SITE, request: {timeout: REQUEST_TIMEOUT})
     end
   end
 end
