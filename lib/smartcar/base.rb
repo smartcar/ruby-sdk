@@ -12,6 +12,8 @@ module Smartcar
     BEARER = 'BEARER'.freeze
     # Constant for Basic auth type
     BASIC = 'BASIC'.freeze
+    # Number of seconds to wait for response
+    REQUEST_TIMEOUT = 310
 
     attr_accessor :token, :error, :meta
 
@@ -66,7 +68,7 @@ module Smartcar
     #
     # @return [OAuth2::AccessToken] An initialized AccessToken instance that acts as service client
     def service
-      @service ||= Faraday.new(url: SITE)
+      @service ||= Faraday.new(url: SITE, request: { timeout: REQUEST_TIMEOUT })
     end
   end
 end

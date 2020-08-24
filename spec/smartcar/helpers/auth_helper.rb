@@ -24,7 +24,6 @@ class AuthHelper
           "required:read_charge",
           "required:read_engine_oil",
           "required:read_tires",
-          "required:control_charge",
         ],
         test_mode: true,
       }
