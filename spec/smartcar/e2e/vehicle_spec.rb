@@ -26,6 +26,19 @@ RSpec.describe Smartcar::Vehicle do
       result = subject.compatible?(vin: audi_vin, scope: scopes)
       expect(result).to be_falsey
     end
+
+    it 'should respond if country is specified and vehicle is compatible for given scopes' do
+      tesla_vin = '5YJXCDE22HF068739'
+      audi_vin = 'WAUAFAFL1GN014882'
+      scopes = %w[read_odometer read_location]
+      country = 'US'
+
+      result = subject.compatible?(vin: tesla_vin, scope: scopes, country: country)
+      expect(result).to be_truthy
+
+      result = subject.compatible?(vin: audi_vin, scope: scopes, country: country)
+      expect(result).to be_falsey
+    end
   end
 
   describe '#battery' do

@@ -27,6 +27,7 @@ module Smartcar
     # @option options[:scope] [Array of Strings] - array of scopes that specify what the user can access
     #   EXAMPLE : ['read_odometer', 'read_vehicle_info', 'required:read_location']
     # For further details refer to https://smartcar.com/docs/guides/scope/
+    # @option options[:flags] [Array of Strings] - an optional array of early access features to enable.
     #
     # @return [Smartcar::Oauth] Returns a Smartcar::Oauth Object that has other methods
     def initialize(options)
@@ -40,9 +41,12 @@ module Smartcar
         mode: options[:test_mode] ? TEST : LIVE,
         response_type: CODE
       }
-      @auth_parameters[:scope] = options[:scope].join(' ') if options[:scope]
+      
+      %I(scope flags).each do |parameter|
+        @auth_parameters[parameter] = options[parameter].join(' ') unless options[parameter].nil?
+      end
       %I(state make).each do |parameter|
-        parameters[:parameter] = options[:parameter] unless options[:parameter].nil?
+        @auth_parameters[parameter] = options[parameter] unless options[parameter].nil?
       end
     end
 
