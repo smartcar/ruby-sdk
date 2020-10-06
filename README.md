@@ -136,19 +136,22 @@ Tests can be run using either default rake command OR specific rspec command.
 bundle exec rake spec
 ```
 
-Releasing to rubygems right now cannot be automated because of MFA ([source](https://github.com/rubygems/rubygems/issues/3092)). For now the process is to run the gem build and push commands locally and manually enter in the Rubygems MFA code (available on 1password). Steps for that would be :
+**NOTE : Do not forget to update the version number in version.rb.**
+
+## Release
+
+Deployments to Rubgygems is automated through Travis. After merging to master, create a tag on the latest commit on master and push it. That would trigger a CI job which will build, test and deploy to Rubygems. As a convention we use the version number of the gem for the release tag.
 
 ```
 # After merging to master, checkout to master and pull code locally, then run the following
-gem build
-  Successfully built RubyGem
-  Name: smartcar
-  Version: <version>
-  File: smartcar-<version>.gem
-# now push the gem built by the build command. This would ask for the MFA code
-gem push smartcar-<version>.gem
+git tag v1.2.3
+# now push the tags
+git push origin --tags
+Total 0 (delta 0), reused 0 (delta 0)
+To github.com:smartcar/ruby-sdk.git
+ * [new tag]         v1.2.3 -> v1.2.3
 ```
-In general it is a good advice to create a tag for every release. If not for the above mentioned MFA bug, creating a tag for a commit on master and pushing the tag would trigger travis to deploy to rubygems automatically.
+
 
 ## Contributing
 
@@ -156,7 +159,7 @@ To contribute, please:
 
 1. Open an issue for the feature (or bug) you would like to resolve.
 2. Resolve the issue and add tests in your feature branch.
-3. Open a PR from your feature branch into `develop` that tags the issue.
+3. Open a PR from your feature branch into `master` that tags the issue.
 
 [gem-image]: https://badge.fury.io/rb/smartcar
 [gem-url]: https://badge.fury.io/rb/smartcar.svg
