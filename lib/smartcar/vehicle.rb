@@ -47,16 +47,20 @@ module Smartcar
     # API - https://smartcar.com/docs/api#connect-compatibility
     # @param vin [String] VIN of the vehicle to be checked
     # @param scope [Array of Strings] - array of scopes
+    # @param country [String] An optional country code according to
+    # [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+    # Defaults to US.
     #
     # @return [Boolean] true or false
-    def self.compatible?(vin:, scope:)
+    def self.compatible?(vin:, scope:, country: 'US')
       raise InvalidParameterValue.new, "vin is a required field" if vin.nil?
       raise InvalidParameterValue.new, "scope is a required field" if scope.nil?
 
       response, meta = new(token: 'none', id: 'none').fetch(path: COMPATIBLITY_PATH,
         options: {
           vin: vin,
-          scope: scope.join(' ')
+          scope: scope.join(' '),
+          country: country
         },
         auth: BASIC
       )

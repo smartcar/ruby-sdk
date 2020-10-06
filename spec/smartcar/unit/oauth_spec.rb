@@ -5,6 +5,8 @@ RSpec.describe Smartcar::Oauth do
     client_secret: "client_secret",
     test_mode: true,
     scope: ["testing"],
+    flags: ["country:DE"],
+    state: 'blah',
   }) }
   let(:obj) { double("dummy object for client") }
 
@@ -19,7 +21,9 @@ RSpec.describe Smartcar::Oauth do
         approval_prompt: Smartcar::AUTO,
         mode: Smartcar::TEST,
         response_type: Smartcar::CODE,
-        scope: "testing"
+        scope: "testing",
+        flags: "country:DE",
+        state: 'blah',
       }).and_return("result")
       expect(subject.authorization_url).to eq "result"
     end

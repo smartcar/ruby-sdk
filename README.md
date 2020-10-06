@@ -107,10 +107,10 @@ Smartcar::ExternalServiceError (API error - {"error":"vehicle_state_error","mess
 Example Usage for oAuth -
 ```ruby
 # To get the redirect URL :
-2.5.5 :002 > options = {test_mode: true,scope: ["read_battery","read_charge","read_fuel","read_location","control_security","read_odometer","read_tires","read_vin","read_vehicle_info"]}
+2.5.5 :002 > options = {test_mode: true,scope: ["read_battery","read_charge","read_fuel","read_location","control_security","read_odometer","read_tires","read_vin","read_vehicle_info"],flags: ["country:DE"]}
 2.5.5 :003 > require 'smartcar'
 2.5.5 :004 > url = Smartcar::Oauth.authorization_url(options)
- => "https://connect.smartcar.com/oauth/authorize?approval_prompt=auto&client_id=2715c6b2-eba8-4fda-85b1-8d849733a344&mode=test&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fcallback&response_type=code&scope=read_battery+read_charge+read_fuel+read_location+control_security+read_odometer+read_tires+read_vin+read_vehicle_info"
+ => "https://connect.smartcar.com/oauth/authorize?approval_prompt=auto&client_id=2715c6b2-eba8-4fda-85b1-8d849733a344&mode=test&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fcallback&response_type=code&scope=read_battery+read_charge+read_fuel+read_location+control_security+read_odometer+read_tires+read_vin+read_vehicle_info&flags=country%3ADE"
 # Redirect user to the above URL.
 # After authentication user control reaches the callback URL with code.
 # Use the code from the parameters and request a token
