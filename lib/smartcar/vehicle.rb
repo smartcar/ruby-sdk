@@ -84,7 +84,7 @@ module Smartcar
     # EX : Smartcar::Vehicle.new(token: token, id: id).permissions
     # @param options [Hash] - Optional filter parameters (check documentation)
     #
-    # @return [Array] of permissions (Strings)
+    # @return [Permissions] object
     def permissions(options: {})
       get_attribute(Permissions)
     end
