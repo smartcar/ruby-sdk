@@ -10,6 +10,15 @@
     end
   end
 
+  # Utility method to return a hash of the isntance variables
+  #
+  # @return [Hash] hash of all instance variables
+  def to_hash
+    instance_variables.each_with_object({}) do |attribute, hash|
+      hash[attribute.to_s.delete("@").to_sym] = instance_variable_get(attribute)
+    end
+  end
+
   # gets a given env variable, checks for existence and throws exception if not present
   # @param config_name [String] key of the env variable
   #
