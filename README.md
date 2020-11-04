@@ -109,12 +109,13 @@ Example Usage for oAuth -
 # To get the redirect URL :
 2.5.5 :002 > options = {test_mode: true,scope: ["read_battery","read_charge","read_fuel","read_location","control_security","read_odometer","read_tires","read_vin","read_vehicle_info"],flags: ["country:DE"]}
 2.5.5 :003 > require 'smartcar'
-2.5.5 :004 > url = Smartcar::Oauth.authorization_url(options)
- => "https://connect.smartcar.com/oauth/authorize?approval_prompt=auto&client_id=2715c6b2-eba8-4fda-85b1-8d849733a344&mode=test&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fcallback&response_type=code&scope=read_battery+read_charge+read_fuel+read_location+control_security+read_odometer+read_tires+read_vin+read_vehicle_info&flags=country%3ADE"
+2.5.5 :004 > client = Smartcar::Oauth.new(options)
+2.5.5 :005 > url = client.authorization_url
+ => "https://connect.smartcar.com/oauth/authorize?approval_prompt=auto&client_id=<client id>&mode=test&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fcallback&response_type=code&scope=read_battery+read_charge+read_fuel+read_location+control_security+read_odometer+read_tires+read_vin+read_vehicle_info&flags=country%3ADE"
 # Redirect user to the above URL.
 # After authentication user control reaches the callback URL with code.
 # Use the code from the parameters and request a token
-2.5.5 :006 > token_hash = Smartcar::Oauth.get_token(code)
+2.5.5 :006 > token_hash = client.get_token(code)
  => {"token_type"=>"Bearer", :access_token=>"56801a5e-6a0b-4d05-a43e-52a4d5e6648f", :refresh_token=>"4f46e7e4-28c5-47b3-ba8d-7dcef73d05dd", :expires_at=>1577875279}
 # This access_token can be used to call the Smartcar APIs as given above.
 # Store this hash and if it expired refresh the token OR use the code again to
