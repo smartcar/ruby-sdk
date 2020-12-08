@@ -147,6 +147,15 @@ module Smartcar
       get_attribute(Battery)
     end
 
+    # Returns the capacity of an electric or
+    # plug-in hybrid vehicle's battery.
+    # API - https://smartcar.com/docs/api#get-ev-battery-capacity
+    #
+    # @return [Battery] object
+    def battery_capacity
+      get_attribute(BatteryCapacity)
+    end
+
     # Returns the current charge status of the vehicle.
     # API - https://smartcar.com/docs/api#get-ev-battery
     #
