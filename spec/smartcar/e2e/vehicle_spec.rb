@@ -50,6 +50,15 @@ RSpec.describe Smartcar::Vehicle do
       expect(result.meta).not_to be_nil
     end
   end
+  
+  describe '#battery_capacity' do
+    it 'should return an battery_capacity object' do
+      result = vehicle.battery_capacity
+      expect(result.instance_of?(Smartcar::BatteryCapacity)).to eq(true)
+      expect(result.capacity).not_to be_nil
+      expect(result.meta).not_to be_nil
+    end
+  end
 
   describe '#charge' do
     it 'should return an charge object' do
