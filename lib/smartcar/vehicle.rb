@@ -152,7 +152,7 @@ module Smartcar
     # API - https://smartcar.com/docs/api#get-ev-battery-capacity
     #
     # @return [Battery] object
-    def battery
+    def battery_capacity
       get_attribute(BatteryCapacity)
     end
 
