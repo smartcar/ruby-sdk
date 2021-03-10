@@ -26,7 +26,7 @@ module Smartcar
       define_method verb do |path, data=nil|
         response = service.send(verb) do |request|
           request.headers['Authorization'] = "BEARER #{token}"
-          request.headers['Authorization'] = "BASIC #{get_basic_auth}" if data[:auth] == BASIC
+          request.headers['Authorization'] = "BASIC #{get_basic_auth}" if data && data[:auth] == BASIC
           request.headers['sc-unit-system'] = unit_system
           request.headers['Content-Type'] = "application/json"
           complete_path = "/#{API_VERSION}#{path}"

@@ -5,11 +5,12 @@ module Smartcar
   class User < Base
     # Path  for hitting user end point
     USER_PATH = '/user'.freeze
-    attr_reader :id, :token
+    attr_reader :id, :token, :unit_system
 
-    def initialize(token:)
+    def initialize(token:, unit_system: IMPERIAL)
       raise InvalidParameterValue.new, "Access Token(token) is a required field" if token.nil?
       @token = token
+      @unit_system = unit_system
     end
 
     # Class method Used to get user id
@@ -19,7 +20,7 @@ module Smartcar
     #
     # @return [User] object
     def self.user_id(token:)
-      new(token: token).get(USER_PATH)['id']
+      new(token: token).get(USER_PATH).first['id']
     end
 
   end
