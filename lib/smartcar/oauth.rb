@@ -2,7 +2,7 @@ module Smartcar
   # Oauth class to take care of the Oauth 2.0 with Smartcar APIs
   #
   class Oauth < Base
-    extend Utils
+    extend Smartcar::Utils
     # By default users are not shown the permission dialog if they have already
     # approved the set of scopes for this application. The application can elect
     # to always display the permissions dialog to the user by setting

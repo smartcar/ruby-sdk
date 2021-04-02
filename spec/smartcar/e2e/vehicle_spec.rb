@@ -5,17 +5,28 @@ require_relative '../../spec_helper'
 
 RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
-  let(:vehicle) do
+  let(:token) do
     client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
     url = client.authorization_url
     token_hash = client.get_token(AuthHelper.run_auth_flow(url))
-    token = token_hash[:access_token]
-    ids =  Smartcar::Vehicle.all_vehicle_ids(token: token)
-    Smartcar::Vehicle.new(token: token, id: ids.first)
+    token_hash[:access_token]
+  end
+
+  let(:vehicle) do
+    ids =  subject.all_vehicle_ids(token: token)
+    subject.new(token: token, id: ids.first)
+  end
+
+  describe '.all_vehicle_ids' do
+    it 'should return all vehicle ids associated with the account' do
+      vehicle_ids = subject.all_vehicle_ids(token: token)
+      expect(vehicle_ids).not_to be_nil
+      expect(vehicle_ids.kind_of?(Array)).to be_truthy
+    end
   end
 
   describe '.compatible?' do
-    it 'should response if vehicle is compatible for given scopes' do
+    it 'should respond if vehicle is compatible for given scopes' do
       tesla_vin = '5YJXCDE22HF068739'
       audi_vin = 'WAUAFAFL1GN014882'
       scopes = %w[read_odometer read_location]

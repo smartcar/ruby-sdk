@@ -8,9 +8,6 @@ module Smartcar
   #@attr [String] id Smartcar vehicle ID.
   #@attr [String] unit_system unit system to represent the data in.
   class Vehicle < Base
-    include Utils
-
-
     # Path for hitting compatibility end point
     COMPATIBLITY_PATH = '/compatibility'.freeze
 
@@ -18,7 +15,6 @@ module Smartcar
     PATH = Proc.new{|id| "/vehicles/#{id}"}
 
     attr_reader :id
-    attr_accessor :token, :unit_system
 
     def initialize(token:, id:, unit_system: IMPERIAL)
       raise InvalidParameterValue.new, "Invalid Units provided : #{unit_system}" unless UNITS.include?(unit_system)
@@ -36,7 +32,7 @@ module Smartcar
     #
     # @return [Array] of vehicle IDs(Strings)
     def self.all_vehicle_ids(token:, options: {})
-      response, meta = new(token: token, id: 'none').fetch(
+      response, _meta = new(token: token, id: 'none').fetch(
         path: PATH.call(''),
         options: options
       )
