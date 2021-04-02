@@ -4,7 +4,7 @@ module Smartcar
   # The Base class for all of the other class.
   # Let other classes inherit from here and put common methods here.
   class Base
-    include Utils
+    include Smartcar::Utils
 
     # Error raised when an invalid parameter is passed.
     class InvalidParameterValue < StandardError; end
@@ -15,7 +15,7 @@ module Smartcar
     # Number of seconds to wait for response
     REQUEST_TIMEOUT = 310
 
-    attr_accessor :token, :error, :meta
+    attr_accessor :token, :error, :meta, :unit_system
 
     %i{get post patch put delete}.each do |verb|
       # meta programming and define all Restful methods.
@@ -27,7 +27,7 @@ module Smartcar
         response = service.send(verb) do |request|
           request.headers['Authorization'] = "BEARER #{token}"
           request.headers['Authorization'] = "BASIC #{get_basic_auth}" if data[:auth] == BASIC
-          request.headers['sc-unit-system'] = unit_system
+          request.headers['sc-unit-system'] = unit_system if unit_system
           request.headers['Content-Type'] = "application/json"
           complete_path = "/#{API_VERSION}#{path}"
           if verb==:get
