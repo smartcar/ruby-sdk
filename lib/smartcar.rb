@@ -17,8 +17,8 @@ require "smartcar/vehicle"
 require "smartcar/user"
 
 
-  # Main Smartcar umbrella module
-  module Smartcar
+# Main Smartcar umbrella module
+module Smartcar
   # Error raised when a config is not found
   class ConfigNotFound < StandardError; end
   # Error raised when Smartcar returns non 400, 404, 401, 200 or 204 response
@@ -29,8 +29,8 @@ require "smartcar/user"
   class AuthenticationError < ExternalServiceError; end
   # Error raised when Smartcar returns 400 response
   class BadRequestError < ExternalServiceError; end
-  # Smartcar API version being used
-  API_VERSION = "v1.0".freeze
+  # Smartcar API version - default version.
+  DEFAULT_API_VERSION = "v1.0".freeze
   # Host to connect to smartcar
   SITE = "https://api.smartcar.com/".freeze
 

@@ -5,21 +5,19 @@ require_relative '../../spec_helper'
 
 RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
-  let(:token) do
+  before(:context) do
     client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
     url = client.authorization_url
     token_hash = client.get_token(AuthHelper.run_auth_flow(url))
-    token_hash[:access_token]
+    @token = token_hash[:access_token]
+    @vehicle_ids =  Smartcar::Vehicle.all_vehicle_ids(token: @token)
+    @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
   end
 
-  let(:vehicle) do
-    ids =  subject.all_vehicle_ids(token: token)
-    subject.new(token: token, id: ids.first)
-  end
 
   describe '.all_vehicle_ids' do
     it 'should return all vehicle ids associated with the account' do
-      vehicle_ids = subject.all_vehicle_ids(token: token)
+      vehicle_ids = subject.all_vehicle_ids(token: @token)
       expect(vehicle_ids).not_to be_nil
       expect(vehicle_ids.kind_of?(Array)).to be_truthy
     end
@@ -54,7 +52,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#battery' do
     it 'should return an battery object' do
-      result = vehicle.battery
+      result = @vehicle.battery
       expect(result.instance_of?(Smartcar::Battery)).to eq(true)
       expect(result.percentage_remaining).not_to be_nil
       expect(result.range).not_to be_nil
@@ -64,7 +62,7 @@ RSpec.describe Smartcar::Vehicle do
   
   describe '#battery_capacity' do
     it 'should return an battery_capacity object' do
-      result = vehicle.battery_capacity
+      result = @vehicle.battery_capacity
       expect(result.instance_of?(Smartcar::BatteryCapacity)).to eq(true)
       expect(result.capacity).not_to be_nil
       expect(result.meta).not_to be_nil
@@ -73,7 +71,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#charge' do
     it 'should return an charge object' do
-      result = vehicle.charge
+      result = @vehicle.charge
       expect(result.instance_of?(Smartcar::Charge)).to eq(true)
       expect(result.is_plugged_in?).not_to be_nil
       expect(result.state).not_to be_nil
@@ -83,7 +81,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#engine_oil' do
     it 'should return an engine_oil object' do
-      result = vehicle.engine_oil
+      result = @vehicle.engine_oil
       expect(result.instance_of?(Smartcar::EngineOil)).to eq(true)
       expect(result.meta).not_to be_nil
       expect(result.life_remaining).not_to be_nil
@@ -92,7 +90,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#fuel' do
     it 'should return an fuel object' do
-      result = vehicle.fuel
+      result = @vehicle.fuel
       expect(result.instance_of?(Smartcar::Fuel)).to eq(true)
       expect(result.percent_remaining).not_to be_nil
       expect(result.amount_remaining).not_to be_nil
@@ -103,7 +101,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#location' do
     it 'should return an location object' do
-      result = vehicle.location
+      result = @vehicle.location
       expect(result.instance_of?(Smartcar::Location)).to eq(true)
       expect(result.latitude).not_to be_nil
       expect(result.meta).not_to be_nil
@@ -113,7 +111,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#permissions' do
     it 'should return an permissions object' do
-      result = vehicle.permissions
+      result = @vehicle.permissions
       expect(result.instance_of?(Smartcar::Permissions)).to eq(true)
       expect(result.meta).not_to be_nil
       expect(result.permissions).not_to be_nil
@@ -122,7 +120,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#tire_pressure' do
     it 'should return an tire_pressure object' do
-      result = vehicle.tire_pressure
+      result = @vehicle.tire_pressure
       expect(result.instance_of?(Smartcar::TirePressure)).to eq(true)
       expect(result.meta).not_to be_nil
       expect(result.back_left).not_to be_nil
@@ -134,7 +132,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#vin' do
     it 'should return an vin string' do
-      result = vehicle.vin
+      result = @vehicle.vin
       expect(result.instance_of?(String)).to eq(true)
       expect(result).not_to be_nil
     end
@@ -142,7 +140,7 @@ RSpec.describe Smartcar::Vehicle do
 
   describe '#odometer' do
     it 'should return an odometer object' do
-      result = vehicle.odometer
+      result = @vehicle.odometer
       expect(result.instance_of?(Smartcar::Odometer)).to eq(true)
       expect(result.meta).not_to be_nil
       expect(result.distance).not_to be_nil
@@ -153,7 +151,7 @@ RSpec.describe Smartcar::Vehicle do
     context 'with valid attributes' do
       it 'should return hash of objects with attribute requested as keys' do
         attributes = %I[charge battery odometer]
-        result = vehicle.batch(attributes)
+        result = @vehicle.batch(attributes)
         expect(result.instance_of?(Hash)).to eq(true)
         expect(result.keys).to match_array(attributes)
         expect(result[:charge].instance_of?(Smartcar::Charge)).to eq(true)
@@ -173,7 +171,7 @@ RSpec.describe Smartcar::Vehicle do
     context 'with some invalid attributes' do
       it 'should raise InvalidParameterValue error' do
         attributes = %I[odometer what where]
-        expect { vehicle.batch(attributes) }.to raise_error(Smartcar::Base::InvalidParameterValue)
+        expect { @vehicle.batch(attributes) }.to raise_error(Smartcar::Base::InvalidParameterValue)
       end
     end
   end

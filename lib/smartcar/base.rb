@@ -15,7 +15,7 @@ module Smartcar
     # Number of seconds to wait for response
     REQUEST_TIMEOUT = 310
 
-    attr_accessor :token, :error, :meta, :unit_system
+    attr_accessor :token, :error, :meta, :unit_system, :version
 
     %i{get post patch put delete}.each do |verb|
       # meta programming and define all Restful methods.
@@ -29,7 +29,7 @@ module Smartcar
           request.headers['Authorization'] = "BASIC #{get_basic_auth}" if data[:auth] == BASIC
           request.headers['sc-unit-system'] = unit_system if unit_system
           request.headers['Content-Type'] = "application/json"
-          complete_path = "/#{API_VERSION}#{path}"
+          complete_path = "/#{version}#{path}"
           if verb==:get
             request.url complete_path, data
           else
