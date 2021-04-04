@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module Smartcar
   # Class to get to user API.
-  #@attr [String] id Smartcar user id.
-  #@attr [String] token Access token used to connect to Smartcar API.
+  # @attr [String] id Smartcar user id.
+  # @attr [String] token Access token used to connect to Smartcar API.
   class User < Base
     # Path  for hitting user end point
-    USER_PATH = '/user'.freeze
+    USER_PATH = '/user'
     attr_reader :id
 
     # Class method Used to get user id
@@ -15,7 +17,8 @@ module Smartcar
     # @return [String] User ID
     def self.user_id(token:, version: Smartcar.get_api_version)
       # @deprecated Please use {#get} instead
-      warn "[DEPRECATION] `Smartcar::User.user_id` is deprecated and will be removed in next major version update.  Please use `Smartcar::User.get` instead."
+      warn '[DEPRECATION] `Smartcar::User.user_id` is deprecated and will be removed in next major version update.
+        Please use `Smartcar::User.get` instead.'
       get(token: token, version: version).id
     end
 

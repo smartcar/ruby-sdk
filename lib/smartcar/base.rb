@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'oauth2'
 require 'base64'
 module Smartcar
@@ -9,28 +11,28 @@ module Smartcar
     # Error raised when an invalid parameter is passed.
     class InvalidParameterValue < StandardError; end
     # Constant for Bearer auth type
-    BEARER = 'BEARER'.freeze
+    BEARER = 'BEARER'
     # Constant for Basic auth type
-    BASIC = 'BASIC'.freeze
+    BASIC = 'BASIC'
     # Number of seconds to wait for response
     REQUEST_TIMEOUT = 310
 
     attr_accessor :token, :error, :meta, :unit_system, :version
 
-    %i{get post patch put delete}.each do |verb|
+    %i[get post patch put delete].each do |verb|
       # meta programming and define all Restful methods.
       # @param path [String] the path to hit for the request.
       # @param data [Hash] request body if needed.
       #
       # @return [Hash] The response Json parsed as a hash.
-      define_method verb do |path, data=nil|
+      define_method verb do |path, data = nil|
         response = service.send(verb) do |request|
           request.headers['Authorization'] = "BEARER #{token}"
-          request.headers['Authorization'] = "BASIC #{get_basic_auth}" if data[:auth] == BASIC
+          request.headers['Authorization'] = "BASIC #{generate_basic_auth}" if data && data[:auth] == BASIC
           request.headers['sc-unit-system'] = unit_system if unit_system
-          request.headers['Content-Type'] = "application/json"
+          request.headers['Content-Type'] = 'application/json'
           complete_path = "/v#{version}#{path}"
-          if verb==:get
+          if verb == :get
             request.url complete_path, data
           else
             request.url complete_path
@@ -39,6 +41,7 @@ module Smartcar
         end
         error = get_error(response)
         raise error if error
+
         [JSON.parse(response.body), response.headers]
       end
     end
@@ -49,10 +52,9 @@ module Smartcar
     # @param auth [String] type of auth
     #
     # @return [Object]
-    def fetch(path: , options: {}, auth: 'BEARER')
-      _path = path
-      _path += "?#{URI.encode_www_form(options)}" unless options.empty?
-      get(_path, {auth: auth})
+    def fetch(path:, options: {}, auth: 'BEARER')
+      path += "?#{URI.encode_www_form(options)}" unless options.empty?
+      get(path, { auth: auth })
     end
 
     private
@@ -60,7 +62,7 @@ module Smartcar
     # returns auth token for BASIC auth
     #
     # @return [String] Base64 encoding of CLIENT:SECRET
-    def get_basic_auth
+    def generate_basic_auth
       Base64.strict_encode64("#{get_config('CLIENT_ID')}:#{get_config('CLIENT_SECRET')}")
     end
 

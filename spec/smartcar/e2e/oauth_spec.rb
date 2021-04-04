@@ -27,10 +27,10 @@ RSpec.describe Smartcar::Oauth do
 
   context 'expired?' do
     it 'should return boolean indicating if token is expired using expires_at' do
-      expiredTime = (Time.now - (60*60*24)).to_i
-      validTime = (Time.now + (60*60*24)).to_i
-      expect(subject.expired?(expiredTime)).to be_truthy
-      expect(subject.expired?(validTime)).to be_falsey
+      expired_time = (Time.now - (60 * 60 * 24)).to_i
+      valid_time = (Time.now + (60 * 60 * 24)).to_i
+      expect(subject.expired?(expired_time)).to be_truthy
+      expect(subject.expired?(valid_time)).to be_falsey
     end
   end
 end

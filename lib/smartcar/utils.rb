@@ -1,5 +1,7 @@
-# Utils module , provides utility methods to underlying classes
+# frozen_string_literal: true
+
 module Smartcar
+  # Utils module , provides utility methods to underlying classes
   module Utils
     # A constructor to take a hash and assign it to the instance variables
     # @param options = {} [Hash] Could by any class's hash, but the first level keys should be defined in the class
@@ -16,7 +18,7 @@ module Smartcar
     # @return [Hash] hash of all instance variables
     def to_hash
       instance_variables.each_with_object({}) do |attribute, hash|
-        hash[attribute.to_s.delete("@").to_sym] = instance_variable_get(attribute)
+        hash[attribute.to_s.delete('@').to_sym] = instance_variable_get(attribute)
       end
     end
 
@@ -27,6 +29,7 @@ module Smartcar
     def get_config(config_name)
       config_name = "INTEGRATION_#{config_name}" if ENV['MODE'] == 'test'
       raise Smartcar::ConfigNotFound, "Environment variable #{config_name} not found !" unless ENV[config_name]
+
       ENV[config_name]
     end
 
@@ -36,11 +39,17 @@ module Smartcar
     # @return [Object] nil OR Error object
     def get_error(response)
       status = response.status
-      return nil if [200,204].include?(status)
+      return nil if [200, 204].include?(status)
       return Smartcar::ServiceUnavailableError.new("Service Unavailable - #{response.body}") if status == 404
       return Smartcar::BadRequestError.new("Bad Request - #{response.body}") if status == 400
-      return Smartcar::AuthenticationError.new("Authentication error") if status == 401
-      return Smartcar::ExternalServiceError.new("API error - #{response.body}")
+      return Smartcar::AuthenticationError.new('Authentication error') if status == 401
+
+      Smartcar::ExternalServiceError.new("API error - #{response.body}")
+    end
+
+    def handle_errors(response)
+      error = get_error(response)
+      raise error if error
     end
   end
 end

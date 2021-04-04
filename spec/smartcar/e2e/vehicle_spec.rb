@@ -10,16 +10,15 @@ RSpec.describe Smartcar::Vehicle do
     url = client.authorization_url({ force_prompt: true })
     token_hash = client.get_token(AuthHelper.run_auth_flow(url))
     @token = token_hash[:access_token]
-    @vehicle_ids =  Smartcar::Vehicle.all_vehicle_ids(token: @token)
+    @vehicle_ids = Smartcar::Vehicle.all_vehicle_ids(token: @token)
     @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
   end
-
 
   describe '.all_vehicle_ids' do
     it 'should return all vehicle ids associated with the account' do
       vehicle_ids = subject.all_vehicle_ids(token: @token)
       expect(vehicle_ids).not_to be_nil
-      expect(vehicle_ids.kind_of?(Array)).to be_truthy
+      expect(vehicle_ids.is_a?(Array)).to be_truthy
     end
   end
 
@@ -59,7 +58,7 @@ RSpec.describe Smartcar::Vehicle do
       expect(result.meta).not_to be_nil
     end
   end
-  
+
   describe '#battery_capacity' do
     it 'should return an battery_capacity object' do
       result = @vehicle.battery_capacity
@@ -173,6 +172,14 @@ RSpec.describe Smartcar::Vehicle do
         attributes = %I[odometer what where]
         expect { @vehicle.batch(attributes) }.to raise_error(Smartcar::Base::InvalidParameterValue)
       end
+    end
+  end
+
+  # Note - Conver to separate test to make this file order independent
+  describe '#disconnect' do
+    it 'should return an boolean' do
+      result = @vehicle.disconnect!
+      expect(result).to be_boolean
     end
   end
 end

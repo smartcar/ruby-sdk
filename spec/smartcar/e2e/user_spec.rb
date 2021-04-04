@@ -23,7 +23,7 @@ RSpec.describe Smartcar::User do
   describe '.get' do
     it 'should return the user object' do
       user = subject.get(token: @token)
-      expect(user.kind_of?(subject)).to be_truthy
+      expect(user.is_a?(subject)).to be_truthy
       expect(user.id).not_to be_nil
     end
   end
