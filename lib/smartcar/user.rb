@@ -13,10 +13,10 @@ module Smartcar
     # @param token [String] Access token
     #
     # @return [String] User ID
-    def self.user_id(token:)
+    def self.user_id(token:, version: DEFAULT_API_VERSION)
       # @deprecated Please use {#get} instead
       warn "[DEPRECATION] `Smartcar::User.user_id` is deprecated and will be removed in next major version update.  Please use `Smartcar::User.get` instead."
-      get(token: token).id
+      get(token: token, version: version).id
     end
 
     # Class method Used to get user id
@@ -25,8 +25,8 @@ module Smartcar
     # @param token [String] Access token
     #
     # @return [User] User object
-    def self.get(token:)
-      user = new(token: token)
+    def self.get(token:, version: DEFAULT_API_VERSION)
+      user = new(token: token, version: version)
       body, _meta = user.fetch(path: USER_PATH)
       user.instance_variable_set('@id', body['id'])
       user

@@ -29,9 +29,9 @@ class AuthHelper
       }
     end
 
-    def run_auth_flow(authorization_url)
+    def run_auth_flow(authorization_url, test_email = nil)
+      email = test_email || "#{SecureRandom.uuid}@email.com";
       options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
-      email = "#{SecureRandom.uuid}@email.com";
       driver = Selenium::WebDriver.for :firefox, options: options
       driver.navigate.to authorization_url
       driver.find_element(css: "button#continue-button").click
@@ -42,10 +42,13 @@ class AuthHelper
 
       wait = Selenium::WebDriver::Wait.new(:timeout => 10)
 
-      wait.until {
+      if(test_email.nil?)
+        wait.until {
           element = driver.find_element(:css, "button[id=approval-button]")
           element if element.displayed?
-      }.click
+        }.click
+      end
+
       uri = wait.until{
         driver.current_url if driver.current_url.match('example.com')
       }
