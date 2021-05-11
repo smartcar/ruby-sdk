@@ -30,7 +30,7 @@ module Smartcar
   # Error raised when Smartcar returns 400 response
   class BadRequestError < ExternalServiceError; end
   # Smartcar API version - default version.
-  DEFAULT_API_VERSION = "v1.0".freeze
+  DEFAULT_API_VERSION = "1.0".freeze
   # Host to connect to smartcar
   SITE = "https://api.smartcar.com/".freeze
 

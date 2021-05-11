@@ -28,17 +28,21 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
-    # TODO : update this test later when we can make v2 errors request
-    # context 'with V2 requests' do
-    #   it 'should raise InvalidParameterValue error' do
-    #     token = get_token('smartcar@VS-000.vehicle-state-error.com')
-    #     vehicle_ids =  Smartcar::Vehicle.all_vehicle_ids(token: token)
-    #     vehicle = subject.new(token: token, id: vehicle_ids.first, version: 'v2.0')
-    #     expect { vehicle.odometer }.to raise_error { |error|
-    #       error_body = JSON.parse(error.message.split("error - ")[1])
-    #       expect(error_body["error"]).to eq("permission_error")
-    #     }
-    #   end
-    # end
+    context 'with V2 requests' do
+      it 'should raise InvalidParameterValue error' do
+        token = get_token('VEHICLE_STATE.UNKNOWN@smartcar.com')
+        vehicle_ids =  Smartcar::Vehicle.all_vehicle_ids(token: token)
+        vehicle = subject.new(token: token, id: vehicle_ids.first, version: '2.0')
+        expect { vehicle.odometer }.to raise_error { |error|
+          error_body = JSON.parse(error.message.split("error - ")[1])
+          expect(error_body["statusCode"]).to eq(409)
+          expect(error_body["type"]).to eq("VEHICLE_STATE")
+          expect(error_body["code"]).to eq("UNKNOWN")
+          expect(error_body["description"]).to eq("The vehicle was unable to perform your request due to an unknown issue.")
+          expect(error_body["docURL"]).to eq("https://smartcar.com/docs/errors/v2.0/vehicle-state/#unknown")
+          expect(error_body["resolution"]).to eq("RETRY_LATER")
+        }
+      end
+    end
   end
 end

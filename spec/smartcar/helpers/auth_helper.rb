@@ -40,13 +40,15 @@ class AuthHelper
       driver.find_element(css: "input[id=password").send_keys('password')
       driver.find_element(css: "button[id=sign-in-button]").click
 
-      wait = Selenium::WebDriver::Wait.new(:timeout => 10)
+      wait = Selenium::WebDriver::Wait.new(:timeout => 3)
 
-      if(test_email.nil?)
+      begin 
         wait.until {
           element = driver.find_element(:css, "button[id=approval-button]")
           element if element.displayed?
         }.click
+      rescue Selenium::WebDriver::Error::TimeoutError
+        # do nothing....This is to handle if this page doesnt appear.
       end
 
       uri = wait.until{
