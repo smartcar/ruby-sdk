@@ -8,7 +8,7 @@ RSpec.describe Smartcar::Vehicle do
 
   def get_token(email)
     client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
-    url = client.authorization_url
+    url = client.authorization_url({ force_prompt: true })
     token_hash = client.get_token(AuthHelper.run_auth_flow(url, email))
     token_hash[:access_token]
   end
@@ -29,10 +29,18 @@ RSpec.describe Smartcar::Vehicle do
     end
 
     context 'with V2 requests' do
+      before(:context) do
+        Smartcar.set_api_version('2.0')
+      end
+
+      after(:context) do
+        Smartcar.set_api_version('1.0')
+      end
+
       it 'should raise InvalidParameterValue error' do
         token = get_token('VEHICLE_STATE.UNKNOWN@smartcar.com')
         vehicle_ids =  Smartcar::Vehicle.all_vehicle_ids(token: token)
-        vehicle = subject.new(token: token, id: vehicle_ids.first, version: '2.0')
+        vehicle = subject.new(token: token, id: vehicle_ids.first)
         expect { vehicle.odometer }.to raise_error { |error|
           error_body = JSON.parse(error.message.split("error - ")[1])
           expect(error_body["statusCode"]).to eq(409)

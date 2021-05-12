@@ -8,7 +8,7 @@ RSpec.describe Smartcar::Oauth do
 
   describe '.get_token' do
     it 'should fetch all the tokens' do
-      url = subject.authorization_url
+      url = subject.authorization_url({ force_prompt: true })
       code = AuthHelper.run_auth_flow(url)
       token_hash = subject.get_token(code)
       expect(token_hash.keys.map(&:to_s)).to match_array(%w[token_type access_token refresh_token expires_at])
@@ -17,7 +17,7 @@ RSpec.describe Smartcar::Oauth do
 
   describe '.exchange_refresh_token' do
     it 'should refresh and fetch all the tokens' do
-      url = subject.authorization_url
+      url = subject.authorization_url({ force_prompt: true })
       code = AuthHelper.run_auth_flow(url)
       old_token_hash = subject.get_token(code)
       new_token_hash = subject.exchange_refresh_token(old_token_hash[:refresh_token])

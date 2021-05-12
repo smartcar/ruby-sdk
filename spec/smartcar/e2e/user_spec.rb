@@ -8,7 +8,7 @@ RSpec.describe Smartcar::User do
 
   before(:context) do
     client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
-    url = client.authorization_url
+    url = client.authorization_url({ force_prompt: true })
     token_hash = client.get_token(AuthHelper.run_auth_flow(url))
     @token = token_hash[:access_token]
   end
