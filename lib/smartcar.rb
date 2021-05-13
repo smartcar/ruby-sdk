@@ -29,8 +29,7 @@ module Smartcar
   class AuthenticationError < ExternalServiceError; end
   # Error raised when Smartcar returns 400 response
   class BadRequestError < ExternalServiceError; end
-  # Smartcar API version - default version.
-  DEFAULT_API_VERSION = "v1.0".freeze
+
   # Host to connect to smartcar
   SITE = "https://api.smartcar.com/".freeze
 
@@ -51,4 +50,24 @@ module Smartcar
   STOP_CHARGE = "STOP".freeze
   # Constant for units
   UNITS = [IMPERIAL,METRIC]
+
+  # Smartcar API version variable - defaulted to 1.0
+  @api_version = "1.0"
+
+  # Module method Used to set api version to be used.
+  # This method can be used at the top to set the version and any
+  # following request will use the version set here unless overridden
+  # separately.
+  # @param version [String] version to be set without 'v' prefix.
+  def self.set_api_version(version)
+    instance_variable_set('@api_version', version)
+  end
+
+  # Module method Used to get api version to be used.
+  # This is the getter for the class instance variable @api_version
+  #
+  # @return [String] api version number without 'v' prefix
+  def self.get_api_version
+    instance_variable_get('@api_version')
+  end
 end

@@ -29,7 +29,7 @@ module Smartcar
           request.headers['Authorization'] = "BASIC #{get_basic_auth}" if data[:auth] == BASIC
           request.headers['sc-unit-system'] = unit_system if unit_system
           request.headers['Content-Type'] = "application/json"
-          complete_path = "/#{version}#{path}"
+          complete_path = "/v#{version}#{path}"
           if verb==:get
             request.url complete_path, data
           else

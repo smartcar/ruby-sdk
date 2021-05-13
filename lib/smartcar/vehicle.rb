@@ -16,7 +16,7 @@ module Smartcar
 
     attr_reader :id
 
-    def initialize(token:, id:, unit_system: IMPERIAL, version: DEFAULT_API_VERSION)
+    def initialize(token:, id:, unit_system: IMPERIAL, version: Smartcar.get_api_version)
       raise InvalidParameterValue.new, "Invalid Units provided : #{unit_system}" unless UNITS.include?(unit_system)
       raise InvalidParameterValue.new, "Vehicle ID (id) is a required field" if id.nil?
       raise InvalidParameterValue.new, "Access Token(token) is a required field" if token.nil?
@@ -32,7 +32,7 @@ module Smartcar
     # @param options [Hash] - Optional filter parameters (check documentation)
     #
     # @return [Array] of vehicle IDs(Strings)
-    def self.all_vehicle_ids(token:, options: {}, version: DEFAULT_API_VERSION)
+    def self.all_vehicle_ids(token:, options: {}, version: Smartcar.get_api_version)
       response, meta = new(token: token, id: 'none', version: version).fetch(
         path: PATH.call(''),
         options: options
@@ -49,7 +49,7 @@ module Smartcar
     # Defaults to US.
     #
     # @return [Boolean] true or false
-    def self.compatible?(vin:, scope:, country: 'US', version: DEFAULT_API_VERSION)
+    def self.compatible?(vin:, scope:, country: 'US', version: Smartcar.get_api_version)
       raise InvalidParameterValue.new, "vin is a required field" if vin.nil?
       raise InvalidParameterValue.new, "scope is a required field" if scope.nil?
 
