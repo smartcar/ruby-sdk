@@ -92,7 +92,7 @@ module Smartcar
     # @return [Boolean] true if success
     def disconnect!
       response = delete(PATH.call(id) + "/application")
-      response['status'] == SUCCESS
+      response[0]['status'] == SUCCESS
     end
 
     # Methods Used to lock car
