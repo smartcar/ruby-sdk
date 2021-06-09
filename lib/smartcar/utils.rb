@@ -27,7 +27,6 @@ module Smartcar
     #
     # @return [String] value of the env variable
     def get_config(config_name)
-      config_name = "INTEGRATION_#{config_name}" if ENV['MODE'] == 'test'
       raise Smartcar::ConfigNotFound, "Environment variable #{config_name} not found !" unless ENV[config_name]
 
       ENV[config_name]

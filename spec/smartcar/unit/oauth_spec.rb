@@ -4,8 +4,8 @@ RSpec.describe Smartcar::Oauth do
   subject do
     Smartcar::Oauth.new({
                           redirect_uri: 'test_url',
-                          client_id: 'client_id',
-                          client_secret: 'client_secret',
+                          client_id: 'SMARTCAR_CLIENT_ID',
+                          client_secret: 'SMARTCAR_CLIENT_SECRET',
                           test_mode: true,
                           scope: ['testing']
                         })

@@ -14,9 +14,9 @@ module Smartcar
     # approval_prompt to `force`.
     #
     # @param options [Hash]
-    # @option options[:client_id] [String] - Client ID, if not passed fallsback to ENV['CLIENT_ID']
-    # @option options[:client_secret] [String] - Client Secret, if not passed fallsback to ENV['CLIENT_SECRET']
-    # @option options[:redirect_uri] [String] - Redirect URI, if not passed fallsback to ENV['REDIRECT_URI']
+    # @option options[:client_id] [String] - Client ID, if not passed fallsback to ENV['SMARTCAR_CLIENT_ID']
+    # @option options[:client_secret] [String] - Client Secret, if not passed fallsback to ENV['SMARTCAR_CLIENT_SECRET']
+    # @option options[:redirect_uri] [String] - Redirect URI, if not passed fallsback to ENV['SMARTCAR_REDIRECT_URI']
     # @option options[:scope] [Array of Strings] - array of scopes that specify what the user can access
     #   EXAMPLE : ['read_odometer', 'read_vehicle_info', 'required:read_location']
     # For further details refer to https://smartcar.com/docs/guides/scope/
@@ -24,9 +24,9 @@ module Smartcar
     #
     # @return [Smartcar::Oauth] Returns a Smartcar::Oauth Object that has other methods
     def initialize(options)
-      options[:redirect_uri] ||= get_config('REDIRECT_URI')
-      options[:client_id] ||= get_config('CLIENT_ID')
-      options[:client_secret] ||= get_config('CLIENT_SECRET')
+      options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI')
+      options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
+      options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
       options[:mode] = options[:test_mode].nil? || !options[:test_mode] ? LIVE : TEST
       super
     end
