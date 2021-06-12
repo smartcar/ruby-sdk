@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
-RSpec.describe Smartcar::Oauth do
+RSpec.describe Smartcar::AuthClient do
   subject do
-    Smartcar::Oauth.new({
-                          redirect_uri: 'test_url',
-                          client_id: 'SMARTCAR_CLIENT_ID',
-                          client_secret: 'SMARTCAR_CLIENT_SECRET',
-                          test_mode: true,
-                          scope: ['testing']
-                        })
+    Smartcar::AuthClient.new({
+                               redirect_uri: 'test_url',
+                               client_id: 'SMARTCAR_CLIENT_ID',
+                               client_secret: 'SMARTCAR_CLIENT_SECRET',
+                               test_mode: true
+                             })
   end
   let(:obj) { double('dummy object for client') }
 
@@ -20,7 +19,7 @@ RSpec.describe Smartcar::Oauth do
     it 'should call authorize_url from client.authcode' do
       expect(obj).to receive(:authorize_url).with({
                                                     redirect_uri: 'test_url',
-                                                    scope: 'testing',
+                                                    scope: 'testing1 testing2',
                                                     approval_prompt: Smartcar::AUTO,
                                                     mode: Smartcar::TEST,
                                                     response_type: Smartcar::CODE,
@@ -30,35 +29,13 @@ RSpec.describe Smartcar::Oauth do
                                                     single_select: true,
                                                     single_select_vin: 'vin'
                                                   }).and_return('result')
-      expect(subject.authorization_url(
-               {
-                 flags: ['country:DE'],
-                 state: 'blah',
-                 make: 'blah',
-                 single_select: { vin: 'vin' }
-               }
-             )).to eq 'result'
-    end
-  end
-
-  context 'get_token' do
-    it 'should call get_token from client.authcode' do
-      expect(obj).to receive(:get_token)
-        .with('auth_code', { redirect_uri: 'test_url' })
-        .and_return(double('obj', to_hash: { result: 'result' }))
-      expect(subject.get_token('auth_code')).to eq({ result: 'result' })
-    end
-  end
-
-  context 'exchange_refresh_token' do
-    it 'should create new OAuth2::AccessToken object, refresh and return new hash' do
-      token_hash = { refresh_token: 'refresh_token' }
-      double_object = double('obj')
-      allow(subject).to receive_message_chain(:client).and_return(obj)
-      expect(OAuth2::AccessToken).to receive(:from_hash).with(obj, token_hash).and_return(double_object)
-      expect(double_object).to receive(:refresh!).and_return(double_object)
-      expect(double_object).to receive(:to_hash)
-      subject.exchange_refresh_token(token_hash[:refresh_token])
+      expect(subject.get_auth_url(%w[testing1 testing2],
+                                  {
+                                    flags: { country: 'DE' },
+                                    state: 'blah',
+                                    make: 'blah',
+                                    single_select: { vin: 'vin' }
+                                  })).to eq 'result'
     end
   end
 

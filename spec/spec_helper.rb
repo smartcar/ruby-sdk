@@ -2,6 +2,8 @@
 
 require 'bundler/setup'
 require 'smartcar'
+require 'webmock/rspec'
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = '.rspec_status'
@@ -20,3 +22,5 @@ RSpec::Matchers.define :be_boolean do
     [true, false].include? actual
   end
 end
+
+WebMock.allow_net_connect!
