@@ -7,9 +7,7 @@ RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
 
   def get_token(email)
-    client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
-    url = client.authorization_url({ force_prompt: true })
-    token_hash = client.get_token(AuthHelper.run_auth_flow(url, email))
+    token_hash = AuthHelper.run_auth_flow_and_get_tokens(email)
     token_hash[:access_token]
   end
 

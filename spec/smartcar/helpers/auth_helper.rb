@@ -6,6 +6,17 @@ require 'securerandom'
 require 'cgi'
 
 class AuthHelper
+  SCOPE = ['required:read_vehicle_info',
+           'required:read_location',
+           'required:read_odometer',
+           'required:control_security',
+           'required:read_vin',
+           'required:read_fuel',
+           'required:read_battery',
+           'required:read_charge',
+           'required:read_engine_oil',
+           'required:read_tires'].freeze
+
   class << self
     def get_code(uri)
       code_hash = CGI.parse(URI.parse(uri).query)
@@ -15,18 +26,6 @@ class AuthHelper
     def auth_client_params
       {
         redirect_uri: 'https://example.com/auth',
-        scope: [
-          'required:read_vehicle_info',
-          'required:read_location',
-          'required:read_odometer',
-          'required:control_security',
-          'required:read_vin',
-          'required:read_fuel',
-          'required:read_battery',
-          'required:read_charge',
-          'required:read_engine_oil',
-          'required:read_tires'
-        ],
         test_mode: true
       }
     end
@@ -54,6 +53,13 @@ class AuthHelper
       end
       driver.quit
       get_code(uri)
+    end
+
+    def run_auth_flow_and_get_tokens(test_email = nil)
+      client = Smartcar::AuthClient.new(auth_client_params)
+      authorization_url = client.get_auth_url(SCOPE, { force_prompt: true })
+      code = run_auth_flow(authorization_url, test_email)
+      client.exchange_code(code)
     end
   end
 end
