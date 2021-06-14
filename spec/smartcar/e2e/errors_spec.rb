@@ -16,8 +16,8 @@ RSpec.describe Smartcar::Vehicle do
       it 'should raise InvalidParameterValue error' do
         expected_keys = %w[error message code statusCode requestId]
         token = get_token('smartcar@vs-000.vehicle-state-error.com')
-        vehicle_ids = Smartcar::Vehicle.all_vehicle_ids(token: token)
-        vehicle = subject.new(token: token, id: vehicle_ids.first)
+        vehicle_ids = Smartcar.get_vehicles(token: token)
+        vehicle = subject.new(token: token, id: vehicle_ids.vehicles.first)
         expect { vehicle.odometer }.to(raise_error do |error|
           error_body = JSON.parse(error.message.split('error - ')[1])
           expect(error_body.keys).to match_array expected_keys
@@ -37,8 +37,8 @@ RSpec.describe Smartcar::Vehicle do
 
       it 'should raise InvalidParameterValue error' do
         token = get_token('VEHICLE_STATE.UNKNOWN@smartcar.com')
-        vehicle_ids = Smartcar::Vehicle.all_vehicle_ids(token: token)
-        vehicle = subject.new(token: token, id: vehicle_ids.first)
+        vehicle_ids = Smartcar.get_vehicles(token: token)
+        vehicle = subject.new(token: token, id: vehicle_ids.vehicles.first)
         expected_description = 'The vehicle was unable to perform your request due to an unknown issue.'
         expect { vehicle.odometer }.to(raise_error do |error|
           error_body = JSON.parse(error.message.split('error - ')[1])

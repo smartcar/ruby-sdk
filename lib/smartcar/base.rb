@@ -10,14 +10,12 @@ module Smartcar
 
     # Error raised when an invalid parameter is passed.
     class InvalidParameterValue < StandardError; end
-    # Constant for Bearer auth type
-    BEARER = 'BEARER'
     # Constant for Basic auth type
     BASIC = 'BASIC'
     # Number of seconds to wait for response
     REQUEST_TIMEOUT = 310
 
-    attr_accessor :token, :error, :meta, :unit_system, :version
+    attr_accessor :token, :error, :meta, :unit_system, :version, :auth_type
 
     %i[get post patch put delete].each do |verb|
       # meta programming and define all Restful methods.
@@ -27,8 +25,7 @@ module Smartcar
       # @return [Hash] The response Json parsed as a hash.
       define_method verb do |path, data = nil|
         response = service.send(verb) do |request|
-          request.headers['Authorization'] = "BEARER #{token}"
-          request.headers['Authorization'] = "BASIC #{generate_basic_auth}" if data && data[:auth] == BASIC
+          request.headers['Authorization'] = auth_type == BASIC ? "BASIC #{token}" : "BEARER #{token}"
           request.headers['sc-unit-system'] = unit_system if unit_system
           request.headers['Content-Type'] = 'application/json'
           complete_path = "/v#{version}#{path}"
@@ -52,19 +49,12 @@ module Smartcar
     # @param auth [String] type of auth
     #
     # @return [Object]
-    def fetch(path:, options: {}, auth: 'BEARER')
+    def fetch(path:, options: {})
       path += "?#{URI.encode_www_form(options)}" unless options.empty?
-      get(path, { auth: auth })
+      get(path)
     end
 
     private
-
-    # returns auth token for BASIC auth
-    #
-    # @return [String] Base64 encoding of CLIENT:SECRET
-    def generate_basic_auth
-      Base64.strict_encode64("#{get_config('SMARTCAR_CLIENT_ID')}:#{get_config('SMARTCAR_CLIENT_SECRET')}")
-    end
 
     # gets a smartcar API service/client
     #
