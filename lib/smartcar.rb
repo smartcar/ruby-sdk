@@ -151,6 +151,27 @@ module Smartcar
       ))
     end
 
+    # Module method to generate hash challenege for webhooks. It does HMAC_SHA256(amt, challenge)
+    #
+    # @param amt [String] - Application Management Token
+    # @param challenge [String] - Challenge string
+    #
+    # @return [String] String representing the hex digest
+    def hash_challenge(amt, challenge)
+      OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), amt, challenge)
+    end
+
+    # Module method used to verify webhook payload with AMT and signature.
+    #
+    # @param amt [String] - Application Management Token
+    # @param signature [String] - sc-signature header value
+    # @param body [String] - Stringified JSON of the webhook response body
+    #
+    # @return [true, false] - true if signature matches the hex digest of amt and body
+    def verify_payload(amt, signature, body)
+      hash_challenge(amt, body) == signature
+    end
+
     private
 
     def build_response(response, meta)
