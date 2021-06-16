@@ -1,5 +1,14 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+require 'codecov'
+SimpleCov.start do
+  add_filter '/spec/'
+end
+
+SimpleCov.minimum_coverage 95
+SimpleCov.formatter = SimpleCov::Formatter::Codecov if ENV['TRAVIS']
+
 require 'bundler/setup'
 require 'smartcar'
 require 'webmock/rspec'

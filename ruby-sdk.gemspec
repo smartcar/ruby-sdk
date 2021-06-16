@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'byebug', '~> 11.0'
+  spec.add_development_dependency 'codecov', '~> 0.5.2'
   spec.add_development_dependency 'rake', '~> 12.3', '>= 12.3.3'
   spec.add_development_dependency 'readapt', '~> 1.3'
   spec.add_development_dependency 'redcarpet', '~> 3.5.0'

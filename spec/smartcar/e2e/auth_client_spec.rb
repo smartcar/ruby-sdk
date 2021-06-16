@@ -10,8 +10,10 @@ RSpec.describe Smartcar::AuthClient do
     it 'should fetch all the tokens' do
       url = subject.get_auth_url(AuthHelper::SCOPE, { force_prompt: true })
       code = AuthHelper.run_auth_flow(url)
-      token_hash = subject.exchange_code(code)
-      expect(token_hash.keys.map(&:to_s)).to match_array(%w[token_type access_token refresh_token expires_at])
+      tokens = subject.exchange_code(code)
+      expect(tokens.access_token.length).to eq(36)
+      expect(tokens.refresh_token.length).to eq(36)
+      expect(tokens.token_type).to eq('Bearer')
     end
   end
 
@@ -19,9 +21,12 @@ RSpec.describe Smartcar::AuthClient do
     it 'should refresh and fetch all the tokens' do
       url = subject.get_auth_url(AuthHelper::SCOPE, { force_prompt: true })
       code = AuthHelper.run_auth_flow(url)
-      old_token_hash = subject.exchange_code(code)
-      new_token_hash = subject.exchange_refresh_token(old_token_hash[:refresh_token])
-      expect(new_token_hash.keys.map(&:to_s)).to match_array(%w[token_type access_token refresh_token expires_at])
+      old_tokens = subject.exchange_code(code)
+      new_tokens = subject.exchange_refresh_token(old_tokens.refresh_token)
+      expect(new_tokens.access_token.length).to eq(36)
+      expect(new_tokens.access_token).not_to eq(old_tokens.access_token)
+      expect(new_tokens.refresh_token.length).to eq(36)
+      expect(new_tokens.token_type).to eq('Bearer')
     end
   end
 

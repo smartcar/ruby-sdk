@@ -5,18 +5,24 @@ require_relative '../../spec_helper'
 
 RSpec.describe Smartcar::AuthClient do
   subject do
-    Smartcar::AuthClient.new(AuthHelper.auth_client_params.merge({
-                                                                   origin: 'http://pizza.pasta.pi',
-                                                                   client_id: 'client_id',
-                                                                   client_secret: 'client_secret'
-                                                                 }))
+    Smartcar::AuthClient.new(
+      AuthHelper.auth_client_params.merge(
+        {
+          client_id: 'client_id',
+          client_secret: 'client_secret'
+        }
+      )
+    )
   end
   before do
+    @auth_origin = ENV['SMARTCAR_AUTH_ORIGIN']
+    ENV['SMARTCAR_AUTH_ORIGIN'] = 'https://pizza.pasta.pi'
     WebMock.disable_net_connect!
   end
 
   after do
     WebMock.allow_net_connect!
+    ENV['SMARTCAR_AUTH_ORIGIN'] = @auth_origin
   end
 
   def token_request_body(grant_type = 'authorization_code')
@@ -43,9 +49,41 @@ RSpec.describe Smartcar::AuthClient do
     }
   end
 
+  context 'constructor' do
+    it 'raises error if redirect URL is not present' do
+      redirect_url = ENV['E2E_SMARTCAR_REDIRECT_URI']
+      ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
+
+      expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_REDIRECT_URI not found !')
+      end)
+      ENV['E2E_SMARTCAR_REDIRECT_URI'] = redirect_url
+    end
+
+    it 'raises error if client ID is not present' do
+      client_id = ENV['E2E_SMARTCAR_CLIENT_ID']
+      ENV.delete('E2E_SMARTCAR_CLIENT_ID')
+
+      expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_ID not found !')
+      end)
+      ENV['E2E_SMARTCAR_CLIENT_ID'] = client_id
+    end
+
+    it 'raises error if client secret is not present' do
+      client_secret = ENV['E2E_SMARTCAR_CLIENT_SECRET']
+      ENV.delete('E2E_SMARTCAR_CLIENT_SECRET')
+
+      expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_SECRET not found !')
+      end)
+      ENV['E2E_SMARTCAR_CLIENT_SECRET'] = client_secret
+    end
+  end
+
   context 'get_token' do
     it 'should call get_token from client.authcode using given host with flags' do
-      stub_request(:post, 'http://pizza.pasta.pi/oauth/token?flags=pizza:pasta')
+      stub_request(:post, 'https://pizza.pasta.pi/oauth/token?flags=pizza:pasta')
         .with(body: token_request_body)
         .to_return(token_response)
       response = subject.exchange_code('auth_code', { flags: { pizza: 'pasta' } })
@@ -54,7 +92,7 @@ RSpec.describe Smartcar::AuthClient do
     end
 
     it 'should call get_token from client.authcode using given host' do
-      stub_request(:post, 'http://pizza.pasta.pi/oauth/token')
+      stub_request(:post, 'https://pizza.pasta.pi/oauth/token')
         .with(body: token_request_body)
         .to_return(token_response)
       response = subject.exchange_code('auth_code')
@@ -65,7 +103,7 @@ RSpec.describe Smartcar::AuthClient do
 
   context 'exchange_refresh_token' do
     it 'should call refresh token endpoint using given host with flags' do
-      stub_request(:post, 'http://pizza.pasta.pi/oauth/token')
+      stub_request(:post, 'https://pizza.pasta.pi/oauth/token')
         .with(body: token_request_body('refresh_token'))
         .to_return(token_response)
       response = subject.exchange_refresh_token('refresh_token')

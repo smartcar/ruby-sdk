@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'smartcar_error'
 require 'smartcar/utils'
 require 'smartcar/version'
 require 'smartcar/base'
@@ -24,7 +25,7 @@ module Smartcar
   class BadRequestError < ExternalServiceError; end
 
   # Host to connect to smartcar
-  SITE = 'https://api.smartcar.com/'
+  API_ORIGIN = 'https://api.smartcar.com/'
   PATHS = {
     compatibility: '/compatibility',
     user: '/user',
@@ -32,7 +33,7 @@ module Smartcar
   }.freeze
 
   # Path for smartcar oauth
-  OAUTH_HOST = 'https://connect.smartcar.com'
+  AUTH_ORIGIN = 'https://connect.smartcar.com'
   %w[success code test live force auto metric imperial].each do |constant|
     # Constant to represent the value
     const_set(constant.upcase, constant.freeze)
@@ -41,8 +42,8 @@ module Smartcar
   # Constant for units
   UNITS = [IMPERIAL, METRIC].freeze
 
-  # Smartcar API version variable - defaulted to 1.0
-  @api_version = '1.0'
+  # Smartcar API version variable - defaulted to 2.0
+  @api_version = '2.0'
 
   class << self
     # Module method Used to set api version to be used.
@@ -72,7 +73,7 @@ module Smartcar
     # Defaults to US.
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#connect-compatibility
-    #  and a meta attribute with the response headers
+    #  and a meta attribute with the relevant items from response headers.
     def get_compatibility(vin:, scope:, country: 'US', options: {})
       raise InvalidParameterValue.new, 'vin is a required field' if vin.nil?
       raise InvalidParameterValue.new, 'scope is a required field' if scope.nil?
@@ -103,7 +104,7 @@ module Smartcar
     # @param token [String] Access token
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-user
-    #  and a meta attribute with the response headers
+    #  and a meta attribute with the relevant items from response headers.
     def get_user(token:, version: Smartcar.get_api_version)
       base_object = Base.new(
         {
@@ -118,11 +119,11 @@ module Smartcar
     #
     # API Documentation - https://smartcar.com/docs/api#get-all-vehicles
     # @param token [String] - Access token
-    # @param options [Hash] - Optional filter parameters (check documentation)
+    # @param paging [Hash] - Optional filter parameters (check documentation)
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-all-vehicles
-    #  and a meta attribute with the response headers
-    def get_vehicles(token:, options: {}, version: Smartcar.get_api_version)
+    #  and a meta attribute with the relevant items from response headers.
+    def get_vehicles(token:, paging: {}, version: Smartcar.get_api_version)
       base_object = Base.new(
         {
           token: token,
@@ -132,7 +133,7 @@ module Smartcar
       base_object.build_response(*base_object.fetch(
         {
           path: PATHS[:vehicles],
-          options: options
+          options: paging
         }
       ))
     end
@@ -151,11 +152,11 @@ module Smartcar
     #
     # @param amt [String] - Application Management Token
     # @param signature [String] - sc-signature header value
-    # @param body [String] - Stringified JSON of the webhook response body
+    # @param body [Object] - webhook response body
     #
     # @return [true, false] - true if signature matches the hex digest of amt and body
     def verify_payload(amt, signature, body)
-      hash_challenge(amt, body) == signature
+      hash_challenge(amt, body.to_json) == signature
     end
 
     private
