@@ -15,7 +15,7 @@ module Smartcar
     # Number of seconds to wait for response
     REQUEST_TIMEOUT = 310
 
-    attr_accessor :token, :error, :meta, :unit_system, :version, :auth_type
+    attr_accessor :token, :error, :unit_system, :version, :auth_type
 
     %i[get post patch put delete].each do |verb|
       # meta programming and define all Restful methods.

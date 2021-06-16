@@ -4,20 +4,6 @@ require 'smartcar/utils'
 require 'smartcar/version'
 require 'smartcar/base'
 require 'smartcar/auth_client'
-require 'smartcar/permissions'
-require 'smartcar/battery'
-require 'smartcar/battery_capacity'
-require 'smartcar/charge'
-require 'smartcar/engine_oil'
-require 'smartcar/fuel'
-require 'smartcar/location'
-require 'smartcar/odometer'
-require 'smartcar/tire_pressure'
-require 'smartcar/vin'
-require 'smartcar/vehicle_attributes'
-require 'smartcar/vehicle_utils/batch'
-require 'smartcar/vehicle_utils/data'
-require 'smartcar/vehicle_utils/actions'
 require 'smartcar/vehicle'
 
 # Main Smartcar umbrella module
@@ -52,14 +38,6 @@ module Smartcar
     const_set(constant.upcase, constant.freeze)
   end
 
-  # Lock value sent in request body
-  LOCK = 'LOCK'
-  # Unlock value sent in request body
-  UNLOCK = 'UNLOCK'
-  # Start charge value sent in request body
-  START_CHARGE = 'START'
-  # Stop charge value sent in request body
-  STOP_CHARGE = 'STOP'
   # Constant for units
   UNITS = [IMPERIAL, METRIC].freeze
 
@@ -99,18 +77,22 @@ module Smartcar
       raise InvalidParameterValue.new, 'vin is a required field' if vin.nil?
       raise InvalidParameterValue.new, 'scope is a required field' if scope.nil?
 
-      base_params = {
-        token: generate_basic_auth(options),
-        version: options[:version] || Smartcar.get_api_version,
-        auth_type: Base::BASIC
-      }
+      base_object = Base.new(
+        {
+          version: options[:version] || Smartcar.get_api_version,
+          auth_type: Base::BASIC
+        }
+      )
+      base_object.token = generate_basic_auth(options, base_object)
 
-      build_response(*base_object(base_params).fetch(
-        path: PATHS[:compatibility],
-        options: {
-          vin: vin,
-          scope: scope.join(' '),
-          country: country
+      base_object.build_response(*base_object.fetch(
+        {
+          path: PATHS[:compatibility],
+          options: {
+            vin: vin,
+            scope: scope.join(' '),
+            country: country
+          }
         }
       ))
     end
@@ -123,13 +105,13 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-user
     #  and a meta attribute with the response headers
     def get_user(token:, version: Smartcar.get_api_version)
-      base_params = {
-        token: token,
-        version: version
-      }
-      build_response(*base_object(base_params).fetch(
-        path: PATHS[:user]
-      ))
+      base_object = Base.new(
+        {
+          token: token,
+          version: version
+        }
+      )
+      base_object.build_response(*base_object.fetch({ path: PATHS[:user] }))
     end
 
     # Module method Used to get all the vehicles in the app. This only returns ids of the vehicles.
@@ -141,13 +123,17 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-all-vehicles
     #  and a meta attribute with the response headers
     def get_vehicles(token:, options: {}, version: Smartcar.get_api_version)
-      base_params = {
-        token: token,
-        version: version
-      }
-      build_response(*base_object(base_params).fetch(
-        path: PATHS[:vehicles],
-        options: options
+      base_object = Base.new(
+        {
+          token: token,
+          version: version
+        }
+      )
+      base_object.build_response(*base_object.fetch(
+        {
+          path: PATHS[:vehicles],
+          options: options
+        }
       ))
     end
 
@@ -174,19 +160,10 @@ module Smartcar
 
     private
 
-    def build_response(response, meta)
-      # TODO: (2021-06-18) Use this as default for parsing data in base class
-      JSON.parse(response.merge(meta: meta).to_json, object_class: OpenStruct)
-    end
-
-    def base_object(*args)
-      Base.new(*args)
-    end
-
     # returns auth token for BASIC auth
     #
     # @return [String] Base64 encoding of CLIENT:SECRET
-    def generate_basic_auth(options)
+    def generate_basic_auth(options, base_object)
       client_id = options[:client_id] || base_object.get_config('SMARTCAR_CLIENT_ID')
       client_secret = options[:client_secret] || base_object.get_config('SMARTCAR_CLIENT_SECRET')
       Base64.strict_encode64("#{client_id}:#{client_secret}")
