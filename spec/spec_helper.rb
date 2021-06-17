@@ -6,7 +6,7 @@ SimpleCov.start do
   add_filter '/spec/'
 end
 
-SimpleCov.minimum_coverage 90
+SimpleCov.minimum_coverage 95
 SimpleCov.formatter = SimpleCov::Formatter::Codecov if ENV['TRAVIS']
 
 require 'bundler/setup'
