@@ -2,7 +2,7 @@
 
 require_relative '../helpers/auth_helper'
 require_relative '../../spec_helper'
-require 'byebug'
+
 RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
   before(:context) do
@@ -131,8 +131,11 @@ RSpec.describe Smartcar::Vehicle do
 
     context 'with some invalid attributes' do
       it 'should raise InvalidParameterValue error' do
-        attributes = %I[odometer what where]
-        expect { @vehicle.batch(attributes) }.to raise_error(Smartcar::Base::InvalidParameterValue)
+        attributes = %w[/odometer /what /where]
+        expect { @vehicle.batch(attributes) }.to(raise_error do |error|
+          expect(error.is_a?(ArgumentError)).to be true
+          expect(error.message).to eq('Unsupported attribute(s) requested in batch  - what,where')
+        end)
       end
     end
   end

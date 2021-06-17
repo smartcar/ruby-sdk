@@ -37,6 +37,26 @@ module Smartcar
       response
     end
 
+    def build_error(status, body_string, headers)
+      content_type = headers['content-type'] || ''
+      SmartcarError.new(status, body_string, {}) unless content_type.include?('application/json')
+
+      begin
+        parsed_body = JSON.parse(body_string)
+      rescue StandardError => e
+        return SmartcarError.new(
+          status,
+          {
+            description: e.message,
+            type: 'SDK_ERROR'
+          },
+          headers
+        )
+      end
+
+      SmartcarError.new(status, parsed_body, headers)
+    end
+
     # Given the response from smartcar API, returns an error object if needed
     # @param response [Object] response Object with status and body
     #
@@ -44,31 +64,26 @@ module Smartcar
     def get_error(response)
       status = response.status
       return nil if [200, 204].include?(status)
-      return Smartcar::ServiceUnavailableError.new("Service Unavailable - #{response.body}") if status == 404
-      return Smartcar::BadRequestError.new("Bad Request - #{response.body}") if status == 400
-      return Smartcar::AuthenticationError.new('Authentication error') if status == 401
 
-      Smartcar::ExternalServiceError.new("API error - #{response.body}")
+      build_error(response.status, response.body, response.headers)
     end
 
-    def handle_errors(response)
-      error = get_error(response)
-      raise error if error
-    end
-
-    def process_batch_response(response)
+    def process_batch_response(response_body, response_headers)
       response_object = OpenStruct.new
-      response['responses'].each do |item|
+      response_body['responses'].each do |item|
         attribute_name = item['path'][1..-1]
         aliases = Vehicle::METHODS[attribute_name.to_sym][:aliases]
-        response_body = build_aliases(build_response(item['body'], item['headers']), aliases)
+        # merging the top level request headers and separate headers for each item of batch
+        headers = response_headers.merge(item['headers'])
+        response = if [200, 204].include?(item['code'])
+                     build_aliases(build_response(item['body'], headers), aliases)
+                   else
+                     build_error(item['code'], item['body'].to_json, headers)
+                   end
         response_object.define_singleton_method attribute_name do
-          if response_body.error || response_body.statusCode
-            raise Smartcar::ExternalServiceError,
-                  "API error - #{response_body}"
-          end
+          raise response if response.is_a?(SmartcarError)
 
-          response_body
+          response
         end
       end
       response_object
@@ -88,13 +103,19 @@ module Smartcar
     end
 
     def validated_attributes(paths)
-      attributes = paths.map { |path| path[1..-1].to_sym }
+      attributes = paths.map { |path| convert_path_to_attribute(path) }
       unsupported_attributes = (attributes - Vehicle::BATCH_SUPPORTED_METHODS) || []
       unless unsupported_attributes.empty?
         message = "Unsupported attribute(s) requested in batch  - #{unsupported_attributes.join(',')}"
-        raise Smartcar::Base::InvalidParameterValue.new, message
+        raise ArgumentError.new, message
       end
       attributes
+    end
+
+    # takes a path and converts it to the keys we use.
+    # EX - '/charge' -> :charge, '/battery/capacity' -> :battery_capacity
+    def convert_path_to_attribute(path)
+      path.split('/').reject(&:empty?).join('_').to_sym
     end
   end
 end

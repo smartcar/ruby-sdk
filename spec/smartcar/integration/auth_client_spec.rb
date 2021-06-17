@@ -5,11 +5,15 @@ require_relative '../../spec_helper'
 
 RSpec.describe Smartcar::AuthClient do
   subject do
-    Smartcar::AuthClient.new(AuthHelper.auth_client_params.merge({
-                                                                   origin: 'http://pizza.pasta.pi',
-                                                                   client_id: 'client_id',
-                                                                   client_secret: 'client_secret'
-                                                                 }))
+    Smartcar::AuthClient.new(
+      AuthHelper.auth_client_params.merge(
+        {
+          origin: 'https://pizza.pasta.pi',
+          client_id: 'client_id',
+          client_secret: 'client_secret'
+        }
+      )
+    )
   end
   before do
     WebMock.disable_net_connect!
@@ -45,7 +49,7 @@ RSpec.describe Smartcar::AuthClient do
 
   context 'get_token' do
     it 'should call get_token from client.authcode using given host with flags' do
-      stub_request(:post, 'http://pizza.pasta.pi/oauth/token?flags=pizza:pasta')
+      stub_request(:post, 'https://pizza.pasta.pi/oauth/token?flags=pizza:pasta')
         .with(body: token_request_body)
         .to_return(token_response)
       response = subject.exchange_code('auth_code', { flags: { pizza: 'pasta' } })
@@ -54,7 +58,7 @@ RSpec.describe Smartcar::AuthClient do
     end
 
     it 'should call get_token from client.authcode using given host' do
-      stub_request(:post, 'http://pizza.pasta.pi/oauth/token')
+      stub_request(:post, 'https://pizza.pasta.pi/oauth/token')
         .with(body: token_request_body)
         .to_return(token_response)
       response = subject.exchange_code('auth_code')
@@ -65,7 +69,7 @@ RSpec.describe Smartcar::AuthClient do
 
   context 'exchange_refresh_token' do
     it 'should call refresh token endpoint using given host with flags' do
-      stub_request(:post, 'http://pizza.pasta.pi/oauth/token')
+      stub_request(:post, 'https://pizza.pasta.pi/oauth/token')
         .with(body: token_request_body('refresh_token'))
         .to_return(token_response)
       response = subject.exchange_refresh_token('refresh_token')

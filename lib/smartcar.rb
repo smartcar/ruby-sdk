@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'smartcar_error'
 require 'smartcar/utils'
 require 'smartcar/version'
 require 'smartcar/base'
@@ -41,8 +42,8 @@ module Smartcar
   # Constant for units
   UNITS = [IMPERIAL, METRIC].freeze
 
-  # Smartcar API version variable - defaulted to 1.0
-  @api_version = '1.0'
+  # Smartcar API version variable - defaulted to 2.0
+  @api_version = '2.0'
 
   class << self
     # Module method Used to set api version to be used.

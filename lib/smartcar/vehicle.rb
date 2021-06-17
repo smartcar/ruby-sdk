@@ -221,8 +221,8 @@ module Smartcar
     #  an OpenStruct object of the requested attribute or taises if it is an error.
     def batch(paths)
       request_body = get_batch_request_body(paths)
-      response, = post("/vehicles/#{id}/batch", request_body)
-      process_batch_response(response)
+      response, headers = post("/vehicles/#{id}/batch", request_body)
+      process_batch_response(response, headers)
     end
   end
 end
