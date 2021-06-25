@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    smartcar (2.5.0)
+    smartcar (3.0.0)
       oauth2 (~> 1.4)
 
 GEM
