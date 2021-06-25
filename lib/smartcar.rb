@@ -25,7 +25,7 @@ module Smartcar
   class BadRequestError < ExternalServiceError; end
 
   # Host to connect to smartcar
-  SITE = 'https://api.smartcar.com/'
+  API_ORIGIN = 'https://api.smartcar.com/'
   PATHS = {
     compatibility: '/compatibility',
     user: '/user',
@@ -33,7 +33,7 @@ module Smartcar
   }.freeze
 
   # Path for smartcar oauth
-  OAUTH_HOST = 'https://connect.smartcar.com'
+  AUTH_ORIGIN = 'https://connect.smartcar.com'
   %w[success code test live force auto metric imperial].each do |constant|
     # Constant to represent the value
     const_set(constant.upcase, constant.freeze)
@@ -73,7 +73,7 @@ module Smartcar
     # Defaults to US.
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#connect-compatibility
-    #  and a meta attribute with the response headers
+    #  and a meta attribute with the relevant items from response headers.
     def get_compatibility(vin:, scope:, country: 'US', options: {})
       raise InvalidParameterValue.new, 'vin is a required field' if vin.nil?
       raise InvalidParameterValue.new, 'scope is a required field' if scope.nil?
@@ -104,7 +104,7 @@ module Smartcar
     # @param token [String] Access token
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-user
-    #  and a meta attribute with the response headers
+    #  and a meta attribute with the relevant items from response headers.
     def get_user(token:, version: Smartcar.get_api_version)
       base_object = Base.new(
         {
@@ -122,7 +122,7 @@ module Smartcar
     # @param options [Hash] - Optional filter parameters (check documentation)
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-all-vehicles
-    #  and a meta attribute with the response headers
+    #  and a meta attribute with the relevant items from response headers.
     def get_vehicles(token:, options: {}, version: Smartcar.get_api_version)
       base_object = Base.new(
         {

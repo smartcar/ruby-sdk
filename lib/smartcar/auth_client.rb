@@ -15,7 +15,6 @@ module Smartcar
     # @option options[:client_secret] [String] - Client Secret, if not passed fallsback to ENV['SMARTCAR_CLIENT_SECRET']
     # @option options[:redirect_uri] [String] - Redirect URI, if not passed fallsback to ENV['SMARTCAR_REDIRECT_URI']
     # @option options[:test_mode] [Boolean] - Setting this to 'true' runs it in test mode.
-    # @option options[:origin] [String] - Origin host for debugging
     #
     # @return [Smartcar::AuthClient] Returns a Smartcar::AuthClient Object that has other methods
     def initialize(options)
@@ -23,7 +22,7 @@ module Smartcar
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
       options[:mode] = options[:test_mode].is_a?(TrueClass) ? TEST : LIVE
-      options[:origin] = options[:origin] || OAUTH_HOST
+      options[:origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
       super
     end
 
@@ -69,9 +68,11 @@ module Smartcar
     def exchange_code(code, options = {})
       set_token_url(options[:flags])
 
-      client.auth_code
-            .get_token(code, redirect_uri: redirect_uri)
-            .to_hash
+      token_hash = client.auth_code
+                         .get_token(code, redirect_uri: redirect_uri)
+                         .to_hash
+
+      JSON.parse(token_hash.to_json, object_class: OpenStruct)
     end
 
     # Refreshing the access token
@@ -85,7 +86,8 @@ module Smartcar
 
       token_object = OAuth2::AccessToken.from_hash(client, { refresh_token: token })
       token_object = token_object.refresh!
-      token_object.to_hash
+
+      JSON.parse(token_object.to_hash.to_json, object_class: OpenStruct)
     end
 
     # Checks if token is expired using Oauth2 classes
@@ -110,13 +112,13 @@ module Smartcar
       @auth_parameters = {
         response_type: CODE,
         redirect_uri: redirect_uri,
-        mode: mode,
-        state: options[:state],
-        make: options[:make],
         approval_prompt: options[:force_prompt] ? FORCE : AUTO,
-        flags: build_flags(options[:flags]),
+        mode: mode,
         scope: scope.join(' ')
       }
+      @auth_parameters[:state] = options[:state] if options[:state]
+      @auth_parameters[:make] = options[:make_bypass] if options[:make_bypass]
+      @auth_parameters[:flags] = build_flags(options[:flags]) if options[:flags]
     end
 
     def build_flags(flags)

@@ -46,6 +46,7 @@ RSpec.describe Smartcar do
       expect(response.paging.is_a?(OpenStruct)).to be_truthy
       expect(response.paging.offset).to be(0)
       expect(response.paging.count).to be(response.vehicles.length)
+      expect(response.meta.request_id.length).to be(36)
     end
   end
 
@@ -54,7 +55,7 @@ RSpec.describe Smartcar do
       user = subject.get_user(token: @token)
       expect(user.is_a?(OpenStruct)).to be_truthy
       expect(user.id.length).to be(36)
-      expect(user.meta).not_to be_nil
+      expect(user.meta.request_id.length).to be(36)
     end
   end
 end

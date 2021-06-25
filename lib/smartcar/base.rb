@@ -36,10 +36,10 @@ module Smartcar
             request.body = data.to_json if data
           end
         end
-        error = get_error(response)
-        raise error if error
-
-        [JSON.parse(response.body), response.headers]
+        handle_error(response)
+        # required to handle unsubscribe response
+        body = response.body.empty? ? '{}' : response.body
+        [JSON.parse(body), response.headers]
       end
     end
 
@@ -60,7 +60,7 @@ module Smartcar
     #
     # @return [OAuth2::AccessToken] An initialized AccessToken instance that acts as service client
     def service
-      @service ||= Faraday.new(url: SITE, request: { timeout: REQUEST_TIMEOUT })
+      @service ||= Faraday.new(url: ENV['SMARTCAR_API_ORIGIN'] || API_ORIGIN, request: { timeout: REQUEST_TIMEOUT })
     end
   end
 end

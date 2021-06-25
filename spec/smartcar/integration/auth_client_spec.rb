@@ -8,7 +8,6 @@ RSpec.describe Smartcar::AuthClient do
     Smartcar::AuthClient.new(
       AuthHelper.auth_client_params.merge(
         {
-          origin: 'https://pizza.pasta.pi',
           client_id: 'client_id',
           client_secret: 'client_secret'
         }
@@ -16,11 +15,14 @@ RSpec.describe Smartcar::AuthClient do
     )
   end
   before do
+    @auth_origin = ENV['SMARTCAR_AUTH_ORIGIN']
+    ENV['SMARTCAR_AUTH_ORIGIN'] = 'https://pizza.pasta.pi'
     WebMock.disable_net_connect!
   end
 
   after do
     WebMock.allow_net_connect!
+    ENV['SMARTCAR_AUTH_ORIGIN'] = @auth_origin
   end
 
   def token_request_body(grant_type = 'authorization_code')

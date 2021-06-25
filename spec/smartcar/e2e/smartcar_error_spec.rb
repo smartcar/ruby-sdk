@@ -3,7 +3,7 @@
 require_relative '../helpers/auth_helper'
 require_relative '../../spec_helper'
 
-RSpec.describe Smartcar::Vehicle do
+RSpec.describe SmartcarError do
   subject { Smartcar::Vehicle }
 
   def get_token(email)

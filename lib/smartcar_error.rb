@@ -5,25 +5,27 @@ class SmartcarError < StandardError
   attr_reader :error, :code, :status_code, :request_id, :type, :description, :doc_url, :resolution, :detail
 
   def initialize(status, body, headers)
-    body.each do |attribute, value|
-      instance_variable_set("@#{attribute}", value)
+    if body.is_a?(String)
+      super(body)
+      return
+    elsif body[:type] && body[:code] && body[:description]
+      super("#{body[:type]}:#{body[:code]} - #{body[:description]}")
+    else
+      super(body[:message] || 'Unknown error')
     end
-    @request_id = body['requestId'] || headers['sc-request-id']
-    @status_code = status || body['statusCode']
-    @doc_url = body['docURL']
-    @description = @message if @error.is_a?(String)
-    super(get_message)
+
+    set_attributes(status, body, headers)
   end
 
   private
 
-  def get_message
-    if @type && @code
-      "#{@type}:#{@code} - #{@description}"
-    elsif @description
-      @description
-    else
-      body
+  def set_attributes(status, body, headers)
+    body.each do |attribute, value|
+      instance_variable_set("@#{attribute}", value)
     end
+    @request_id = body[:requestId] || headers['sc-request-id']
+    @status_code = status
+    @doc_url = body[:docURL]
+    @resolution = @resolution.is_a?(String) ? OpenStruct.new({ type: @resolution }) : OpenStruct.new(@resolution)
   end
 end

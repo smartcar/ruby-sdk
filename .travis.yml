@@ -6,9 +6,9 @@ services:
 addons:
   firefox: latest
 rvm:
-- 2.5
 - 2.6
 - 2.7
+- 3.0
 before_install:
   - gem install bundler -v 2.1.2
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
@@ -25,5 +25,5 @@ deploy:
   on:
     tags: true
     branch: master
-    rvm: 2.5
+    rvm: 2.6
   skip_cleanup: 'true'

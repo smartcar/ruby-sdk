@@ -25,8 +25,24 @@ module Smartcar
       ENV[config_name]
     end
 
-    def build_response(body, meta)
-      JSON.parse(body.merge(meta: meta).to_json, object_class: OpenStruct)
+    def build_meta(headers)
+      meta_hash = {
+        'SC-Data-Age' => :data_age,
+        'SC-Unit-System' => :unit_system,
+        'SC-Request-Id' => :request_id
+      }.each_with_object({}) do |(header_name, key), meta|
+        meta[key] = headers[header_name] if headers[header_name]
+      end
+      meta = JSON.parse(meta_hash.to_json, object_class: OpenStruct)
+      meta.data_age &&= DateTime.parse(meta.data_age)
+
+      meta
+    end
+
+    def build_response(body, headers)
+      response = JSON.parse(body.to_json, object_class: OpenStruct)
+      response.meta = build_meta(headers)
+      response
     end
 
     def build_aliases(response, aliases)
@@ -39,39 +55,39 @@ module Smartcar
 
     def build_error(status, body_string, headers)
       content_type = headers['content-type'] || ''
-      SmartcarError.new(status, body_string, {}) unless content_type.include?('application/json')
+      SmartcarError.new(status, body_string, headers) unless content_type.include?('application/json')
 
       begin
-        parsed_body = JSON.parse(body_string)
+        parsed_body = JSON.parse(body_string, { symbolize_names: true })
       rescue StandardError => e
         return SmartcarError.new(
           status,
           {
-            description: e.message,
+            message: e.message,
             type: 'SDK_ERROR'
           },
           headers
         )
       end
 
-      SmartcarError.new(status, parsed_body, headers)
+      return SmartcarError.new(status, parsed_body, headers) if parsed_body[:error] || parsed_body[:type]
+
+      SmartcarError.new(status, parsed_body.merge({ type: 'SDK_ERROR' }), headers)
     end
 
-    # Given the response from smartcar API, returns an error object if needed
+    # Given the response from smartcar API, throws an error if needed
     # @param response [Object] response Object with status and body
-    #
-    # @return [Object] nil OR Error object
-    def get_error(response)
+    def handle_error(response)
       status = response.status
       return nil if [200, 204].include?(status)
 
-      build_error(response.status, response.body, response.headers)
+      raise build_error(response.status, response.body, response.headers)
     end
 
     def process_batch_response(response_body, response_headers)
       response_object = OpenStruct.new
       response_body['responses'].each do |item|
-        attribute_name = item['path'][1..-1]
+        attribute_name = convert_path_to_attribute(item['path'])
         aliases = Vehicle::METHODS[attribute_name.to_sym][:aliases]
         # merging the top level request headers and separate headers for each item of batch
         headers = response_headers.merge(item['headers'])
@@ -87,29 +103,6 @@ module Smartcar
         end
       end
       response_object
-    end
-
-    def get_batch_request_body(paths)
-      attributes = validated_attributes(paths)
-      requests = attributes.each_with_object([]) do |item, all_requests|
-        all_requests << { path: get_path(item) }
-      end
-      { requests: requests }
-    end
-
-    def get_path(attribute)
-      path = Vehicle::METHODS[attribute][:path].call(id)
-      path.split("/vehicles/#{id}").last
-    end
-
-    def validated_attributes(paths)
-      attributes = paths.map { |path| convert_path_to_attribute(path) }
-      unsupported_attributes = (attributes - Vehicle::BATCH_SUPPORTED_METHODS) || []
-      unless unsupported_attributes.empty?
-        message = "Unsupported attribute(s) requested in batch  - #{unsupported_attributes.join(',')}"
-        raise ArgumentError.new, message
-      end
-      attributes
     end
 
     # takes a path and converts it to the keys we use.

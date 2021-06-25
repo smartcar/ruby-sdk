@@ -33,7 +33,7 @@ RSpec.describe Smartcar::AuthClient do
                                   {
                                     flags: { country: 'DE' },
                                     state: 'blah',
-                                    make: 'blah',
+                                    make_bypass: 'blah',
                                     single_select: { vin: 'vin' }
                                   })).to eq 'result'
     end
