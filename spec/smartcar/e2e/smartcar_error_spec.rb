@@ -45,7 +45,7 @@ RSpec.describe SmartcarError do
           expect(error.code).to eq('UNKNOWN')
           expect(error.description).to eq(expected_description)
           expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/vehicle-state/#unknown')
-          expect(error.resolution).to eq('RETRY_LATER')
+          expect(error.resolution.type).to eq('RETRY_LATER')
           expect(error.message).to eq("VEHICLE_STATE:UNKNOWN - #{expected_description}")
         end)
       end

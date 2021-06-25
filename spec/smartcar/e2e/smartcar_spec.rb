@@ -58,4 +58,18 @@ RSpec.describe Smartcar do
       expect(user.meta.request_id.length).to be(36)
     end
   end
+
+  describe '.hash_challenge' do
+    it 'should return the encrypted hex' do
+      expected = '9baf5a7464bd86740ad5a06e439dcf535a075022ed2c92d74efacf646d79328e'
+      expect(subject.hash_challenge('amt', 'challenge')).to eq(expected)
+    end
+  end
+
+  describe '.verfify_payload' do
+    it 'should return the encrypted hex' do
+      signature = '4c05a8da471f05156ad717baa4017acd13a3a809850b9ca7d3301dcaaa854f70'
+      expect(subject.verify_payload('amt', signature, { pizza: 'pasta' })).to eq(true)
+    end
+  end
 end

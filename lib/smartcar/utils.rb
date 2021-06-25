@@ -55,7 +55,7 @@ module Smartcar
 
     def build_error(status, body_string, headers)
       content_type = headers['content-type'] || ''
-      SmartcarError.new(status, body_string, headers) unless content_type.include?('application/json')
+      return SmartcarError.new(status, body_string, headers) unless content_type.include?('application/json')
 
       begin
         parsed_body = JSON.parse(body_string, { symbolize_names: true })

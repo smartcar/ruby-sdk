@@ -152,11 +152,11 @@ module Smartcar
     #
     # @param amt [String] - Application Management Token
     # @param signature [String] - sc-signature header value
-    # @param body [String] - Stringified JSON of the webhook response body
+    # @param body [Object] - webhook response body
     #
     # @return [true, false] - true if signature matches the hex digest of amt and body
     def verify_payload(amt, signature, body)
-      hash_challenge(amt, body) == signature
+      hash_challenge(amt, body.to_json) == signature
     end
 
     private
