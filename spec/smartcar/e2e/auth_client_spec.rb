@@ -3,23 +3,23 @@
 require_relative '../helpers/auth_helper'
 require_relative '../../spec_helper'
 
-RSpec.describe Smartcar::Oauth do
-  subject { Smartcar::Oauth.new(AuthHelper.auth_client_params) }
+RSpec.describe Smartcar::AuthClient do
+  subject { Smartcar::AuthClient.new(AuthHelper.auth_client_params) }
 
-  describe '.get_token' do
+  describe '.exchange_code' do
     it 'should fetch all the tokens' do
-      url = subject.authorization_url({ force_prompt: true })
+      url = subject.get_auth_url(AuthHelper::SCOPE, { force_prompt: true })
       code = AuthHelper.run_auth_flow(url)
-      token_hash = subject.get_token(code)
+      token_hash = subject.exchange_code(code)
       expect(token_hash.keys.map(&:to_s)).to match_array(%w[token_type access_token refresh_token expires_at])
     end
   end
 
   describe '.exchange_refresh_token' do
     it 'should refresh and fetch all the tokens' do
-      url = subject.authorization_url({ force_prompt: true })
+      url = subject.get_auth_url(AuthHelper::SCOPE, { force_prompt: true })
       code = AuthHelper.run_auth_flow(url)
-      old_token_hash = subject.get_token(code)
+      old_token_hash = subject.exchange_code(code)
       new_token_hash = subject.exchange_refresh_token(old_token_hash[:refresh_token])
       expect(new_token_hash.keys.map(&:to_s)).to match_array(%w[token_type access_token refresh_token expires_at])
     end

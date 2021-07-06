@@ -3,7 +3,7 @@
 require 'smartcar/utils'
 require 'smartcar/version'
 require 'smartcar/base'
-require 'smartcar/oauth'
+require 'smartcar/auth_client'
 require 'smartcar/permissions'
 require 'smartcar/battery'
 require 'smartcar/battery_capacity'
@@ -42,7 +42,7 @@ module Smartcar
   SITE = 'https://api.smartcar.com/'
 
   # Path for smartcar oauth
-  OAUTH_PATH = 'https://connect.smartcar.com/oauth/authorize'
+  OAUTH_HOST = 'https://connect.smartcar.com'
   %w[success code test live force auto metric imperial].each do |constant|
     # Constant to represent the value
     const_set(constant.upcase, constant.freeze)
@@ -62,7 +62,6 @@ module Smartcar
   # Smartcar API version variable - defaulted to 1.0
   @api_version = '1.0'
 
-  # rubocop:disable Naming/AccessorMethodName
   # Module method Used to set api version to be used.
   # This method can be used at the top to set the version and any
   # following request will use the version set here unless overridden
@@ -79,5 +78,4 @@ module Smartcar
   def self.get_api_version
     instance_variable_get('@api_version')
   end
-  # rubocop:enable Naming/AccessorMethodName
 end

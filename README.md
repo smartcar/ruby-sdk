@@ -109,8 +109,8 @@ Example Usage for oAuth -
 # To get the redirect URL :
 2.5.5 :002 > options = {test_mode: true,scope: ["read_battery","read_charge","read_fuel","read_location","control_security","read_odometer","read_tires","read_vin","read_vehicle_info"],flags: ["country:DE"]}
 2.5.5 :003 > require 'smartcar'
-2.5.5 :004 > client = Smartcar::Oauth.new(options)
-2.5.5 :005 > url = client.authorization_url
+2.5.5 :004 > client = Smartcar::AuthClient.new(options)
+2.5.5 :005 > url = client.get_auth_url
  => "https://connect.smartcar.com/oauth/authorize?approval_prompt=auto&client_id=<client id>&mode=test&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fcallback&response_type=code&scope=read_battery+read_charge+read_fuel+read_location+control_security+read_odometer+read_tires+read_vin+read_vehicle_info&flags=country%3ADE"
 # Redirect user to the above URL.
 # After authentication user control reaches the callback URL with code.
