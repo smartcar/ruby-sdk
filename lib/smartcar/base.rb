@@ -63,7 +63,7 @@ module Smartcar
     #
     # @return [String] Base64 encoding of CLIENT:SECRET
     def generate_basic_auth
-      Base64.strict_encode64("#{get_config('CLIENT_ID')}:#{get_config('CLIENT_SECRET')}")
+      Base64.strict_encode64("#{get_config('SMARTCAR_CLIENT_ID')}:#{get_config('SMARTCAR_CLIENT_SECRET')}")
     end
 
     # gets a smartcar API service/client

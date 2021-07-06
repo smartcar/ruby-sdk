@@ -70,11 +70,11 @@ Or install it yourself as:
 
 ## Usage
 
-Setup the environment variables for CLIENT_ID and CLIENT_SECRET.
+Setup the environment variables for SMARTCAR_CLIENT_ID and SMARTCAR_CLIENT_SECRET.
 ```bash
 # Get your API keys from https://dashboard.smartcar.com/signup
-export CLIENT_ID=<client id>
-export CLIENT_SECRET=<client secret>
+export SMARTCAR_CLIENT_ID=<client id>
+export SMARTCAR_CLIENT_SECRET=<client secret>
 ```
 
 Example Usage for calling the reports API with oAuth token
@@ -128,8 +128,8 @@ To install this gem onto your local machine, run `bundle exec rake install`.
 
 To run tests, make sure you have the env variables setup for client id and secret.
 ```shell
-export INTEGRATION_CLIENT_ID=<client id>
-export INTEGRATION_CLIENT_SECRET=<client secret>
+export E2E_SMARTCAR_CLIENT_ID=<client id>
+export E2E_SMARTCAR_CLIENT_SECRET=<client secret>
 ```
 
 Tests can be run using either default rake command OR specific rspec command.
