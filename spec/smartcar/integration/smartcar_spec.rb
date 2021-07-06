@@ -1,0 +1,70 @@
+# frozen_string_literal: true
+
+require_relative '../helpers/auth_helper'
+require_relative '../../spec_helper'
+
+RSpec.describe Smartcar do
+  subject { Smartcar }
+
+  before do
+    @api_origin = ENV['SMARTCAR_API_ORIGIN']
+    ENV['SMARTCAR_API_ORIGIN'] = 'https://pizza.pasta.pi'
+    WebMock.disable_net_connect!
+  end
+
+  after do
+    WebMock.allow_net_connect!
+    ENV['SMARTCAR_API_ORIGIN'] = @api_origin
+  end
+
+  describe '.get_compatibility' do
+    it 'should raise error if client id is not set' do
+      tesla_vin = '5YJXCDE22HF068739'
+      scopes = %w[read_odometer read_location]
+      client_id = ENV['E2E_SMARTCAR_CLIENT_ID']
+      ENV.delete('E2E_SMARTCAR_CLIENT_ID')
+
+      expect { subject.get_compatibility(vin: tesla_vin, scope: scopes) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_ID not found !')
+      end)
+      ENV['E2E_SMARTCAR_CLIENT_ID'] = client_id
+    end
+
+    it 'should raise error if client secret is not set' do
+      tesla_vin = '5YJXCDE22HF068739'
+      scopes = %w[read_odometer read_location]
+      client_secret = ENV['E2E_SMARTCAR_CLIENT_SECRET']
+      ENV.delete('E2E_SMARTCAR_CLIENT_SECRET')
+
+      expect { subject.get_compatibility(vin: tesla_vin, scope: scopes) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_SECRET not found !')
+      end)
+      ENV['E2E_SMARTCAR_CLIENT_SECRET'] = client_secret
+    end
+  end
+
+  describe '.get_vehicles' do
+    it 'should return all vehicle ids associated with the account' do
+      stub_request(:get, 'https://pizza.pasta.pi/v2.0/vehicles?limit=1')
+        .with(headers: { 'Authorization' => 'BEARER token' })
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              vehicles: ['vehicle1'],
+              paging: { count: 1, offset: 0 }
+            }.to_json
+          }
+        )
+      response = subject.get_vehicles(token: 'token', paging: { limit: 1 })
+
+      expect(response.vehicles.is_a?(Array)).to be_truthy
+      expect(response.vehicles[0] == 'vehicle1').to be_truthy
+      expect(response.paging.is_a?(OpenStruct)).to be_truthy
+      expect(response.paging.offset).to be(0)
+      expect(response.paging.count).to be(1)
+    end
+  end
+end

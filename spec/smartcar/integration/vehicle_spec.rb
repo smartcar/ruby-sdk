@@ -17,8 +17,46 @@ RSpec.describe Smartcar::Vehicle do
   after do
     WebMock.allow_net_connect!
   end
-  describe '#batch - success' do
-    context 'with some being errors' do
+
+  describe 'constructor' do
+    context 'with default parameters' do
+      it 'uses metric unit system' do
+        stub_request(:get, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/odometer')
+          .with(headers: { 'Authorization' => 'BEARER token', 'sc-unit-system' => 'metric' })
+          .to_return(
+            {
+              status: 200,
+              body: { pizza: 'pasta' }.to_json
+            }
+          )
+        result = subject.odometer
+        expect(result.pizza).to eq('pasta')
+      end
+    end
+
+    context 'with non default unit and version' do
+      it 'uses whatever is passed' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: { unit_system: 'imperial', version: 6.6 }
+        )
+        stub_request(:get, 'https://api.smartcar.com/v6.6/vehicles/vehicle_id/odometer')
+          .with(headers: { 'Authorization' => 'BEARER token', 'sc-unit-system' => 'imperial' })
+          .to_return(
+            {
+              status: 200,
+              body: { pizza: 'pasta' }.to_json
+            }
+          )
+        result = subject.odometer
+        expect(result.pizza).to eq('pasta')
+      end
+    end
+  end
+
+  describe '#batch' do
+    context 'success with some items being errors' do
       it 'should raise for errors and return object for successfull ones' do
         attributes = ['/odometer', '/location']
         stub_request(:post, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/batch')
@@ -72,6 +110,32 @@ RSpec.describe Smartcar::Vehicle do
           expect(error.description).to eq(expected_description)
           expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/vehicle-state/#unreachable')
           expect(error.resolution).to be_nil
+        end)
+      end
+    end
+
+    context 'error with the batch request' do
+      it 'should throw the error wihle calling batch' do
+        attributes = ['/odometer', '/location']
+        stub_request(:post, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/batch')
+          .with(body: { requests: [{ path: '/odometer' }, { path: '/location' }] })
+          .to_return(
+            {
+              status: 500,
+              body: {
+                error: 'monkeys_on_mars',
+                message: 'yes, really'
+              }.to_json,
+              headers: {
+                'sc-request-id' => 'request_id',
+                'content-type' => 'application/json'
+              }
+            }
+          )
+        expect { subject.batch(attributes) }.to(raise_error do |error|
+          expect(error.message).to eq('yes, really')
+          expect(error.error).to eq('monkeys_on_mars')
+          expect(error.request_id).to eq('request_id')
         end)
       end
     end

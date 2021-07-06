@@ -10,7 +10,7 @@ class SmartcarError < StandardError
       super(body)
       @request_id = headers['sc-request-id']
       return
-    elsif body[:type] && body[:code] && body[:description]
+    elsif body[:type] && body[:description]
       super("#{body[:type]}:#{body[:code]} - #{body[:description]}")
     else
       super(body[:message] || 'Unknown error')

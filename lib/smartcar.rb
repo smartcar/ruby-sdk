@@ -119,11 +119,11 @@ module Smartcar
     #
     # API Documentation - https://smartcar.com/docs/api#get-all-vehicles
     # @param token [String] - Access token
-    # @param options [Hash] - Optional filter parameters (check documentation)
+    # @param paging [Hash] - Optional filter parameters (check documentation)
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-all-vehicles
     #  and a meta attribute with the relevant items from response headers.
-    def get_vehicles(token:, options: {}, version: Smartcar.get_api_version)
+    def get_vehicles(token:, paging: {}, version: Smartcar.get_api_version)
       base_object = Base.new(
         {
           token: token,
@@ -133,7 +133,7 @@ module Smartcar
       base_object.build_response(*base_object.fetch(
         {
           path: PATHS[:vehicles],
-          options: options
+          options: paging
         }
       ))
     end

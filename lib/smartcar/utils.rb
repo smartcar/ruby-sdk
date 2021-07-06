@@ -108,6 +108,8 @@ module Smartcar
     # takes a path and converts it to the keys we use.
     # EX - '/charge' -> :charge, '/battery/capacity' -> :battery_capacity
     def convert_path_to_attribute(path)
+      return :attributes if path == '/'
+
       path.split('/').reject(&:empty?).join('_').to_sym
     end
   end

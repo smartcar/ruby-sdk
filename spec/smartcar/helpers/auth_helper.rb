@@ -44,10 +44,17 @@ class AuthHelper
 
       wait = Selenium::WebDriver::Wait.new(timeout: 3)
 
-      wait.until do
-        element = driver.find_element(:css, 'button[id=approval-button]')
-        element if element.displayed?
-      end.click
+      %w[approval-button continue-button].each do |button|
+        wait.until do
+          element = driver.find_element(:css, "button[id=#{button}]")
+          element if element.displayed?
+        end.click
+      end
+
+      # wait.until do
+      #   element = driver.find_element(:css, 'button[id=continue-button]')
+      #   element if element.displayed?
+      # end.click
 
       uri = wait.until do
         driver.current_url if driver.current_url.match('example.com')

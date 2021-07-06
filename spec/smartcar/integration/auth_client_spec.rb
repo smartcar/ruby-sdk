@@ -49,6 +49,38 @@ RSpec.describe Smartcar::AuthClient do
     }
   end
 
+  context 'constructor' do
+    it 'raises error if redirect URL is not present' do
+      redirect_url = ENV['E2E_SMARTCAR_REDIRECT_URI']
+      ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
+
+      expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_REDIRECT_URI not found !')
+      end)
+      ENV['E2E_SMARTCAR_REDIRECT_URI'] = redirect_url
+    end
+
+    it 'raises error if client ID is not present' do
+      client_id = ENV['E2E_SMARTCAR_CLIENT_ID']
+      ENV.delete('E2E_SMARTCAR_CLIENT_ID')
+
+      expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_ID not found !')
+      end)
+      ENV['E2E_SMARTCAR_CLIENT_ID'] = client_id
+    end
+
+    it 'raises error if client secret is not present' do
+      client_secret = ENV['E2E_SMARTCAR_CLIENT_SECRET']
+      ENV.delete('E2E_SMARTCAR_CLIENT_SECRET')
+
+      expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
+        expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_SECRET not found !')
+      end)
+      ENV['E2E_SMARTCAR_CLIENT_SECRET'] = client_secret
+    end
+  end
+
   context 'get_token' do
     it 'should call get_token from client.authcode using given host with flags' do
       stub_request(:post, 'https://pizza.pasta.pi/oauth/token?flags=pizza:pasta')
