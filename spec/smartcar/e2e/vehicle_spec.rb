@@ -6,47 +6,10 @@ require_relative '../../spec_helper'
 RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
   before(:context) do
-    client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
-    url = client.authorization_url({ force_prompt: true })
-    token_hash = client.get_token(AuthHelper.run_auth_flow(url))
+    token_hash = AuthHelper.run_auth_flow_and_get_tokens
     @token = token_hash[:access_token]
-    @vehicle_ids = Smartcar::Vehicle.all_vehicle_ids(token: @token)
+    @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
     @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
-  end
-
-  describe '.all_vehicle_ids' do
-    it 'should return all vehicle ids associated with the account' do
-      vehicle_ids = subject.all_vehicle_ids(token: @token)
-      expect(vehicle_ids).not_to be_nil
-      expect(vehicle_ids.is_a?(Array)).to be_truthy
-    end
-  end
-
-  describe '.compatible?' do
-    it 'should respond if vehicle is compatible for given scopes' do
-      tesla_vin = '5YJXCDE22HF068739'
-      audi_vin = 'WAUAFAFL1GN014882'
-      scopes = %w[read_odometer read_location]
-
-      result = subject.compatible?(vin: tesla_vin, scope: scopes)
-      expect(result).to be_truthy
-
-      result = subject.compatible?(vin: audi_vin, scope: scopes)
-      expect(result).to be_falsey
-    end
-
-    it 'should respond if country is specified and vehicle is compatible for given scopes' do
-      tesla_vin = '5YJXCDE22HF068739'
-      audi_vin = 'WAUAFAFL1GN014882'
-      scopes = %w[read_odometer read_location]
-      country = 'US'
-
-      result = subject.compatible?(vin: tesla_vin, scope: scopes, country: country)
-      expect(result).to be_truthy
-
-      result = subject.compatible?(vin: audi_vin, scope: scopes, country: country)
-      expect(result).to be_falsey
-    end
   end
 
   describe '#battery' do

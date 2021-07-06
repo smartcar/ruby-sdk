@@ -13,9 +13,6 @@ module Smartcar
     include VehicleUtils::Data
     include VehicleUtils::Actions
     include VehicleUtils::Batch
-    # Path for hitting compatibility end point
-    COMPATIBLITY_PATH = '/compatibility'
-
     # Path for hitting vehicle ids end point
     PATH = proc { |id| "/vehicles/#{id}" }
 
@@ -31,45 +28,6 @@ module Smartcar
       @id = id
       @unit_system = unit_system
       @version = version
-    end
-
-    # Class method Used to get all the vehicles in the app. This only returns
-    # API - https://smartcar.com/docs/api#get-all-vehicles
-    # @param token [String] - Access token
-    # @param options [Hash] - Optional filter parameters (check documentation)
-    #
-    # @return [Array] of vehicle IDs(Strings)
-    def self.all_vehicle_ids(token:, options: {}, version: Smartcar.get_api_version)
-      response, = new(token: token, id: 'none', version: version).fetch(
-        path: PATH.call(''),
-        options: options
-      )
-      response['vehicles']
-    end
-
-    # Class method Used to check compatiblity for VIN and scope
-    # API - https://smartcar.com/docs/api#connect-compatibility
-    # @param vin [String] VIN of the vehicle to be checked
-    # @param scope [Array of Strings] - array of scopes
-    # @param country [String] An optional country code according to
-    # [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
-    # Defaults to US.
-    #
-    # @return [Boolean] true or false
-    def self.compatible?(vin:, scope:, country: 'US', version: Smartcar.get_api_version)
-      raise InvalidParameterValue.new, 'vin is a required field' if vin.nil?
-      raise InvalidParameterValue.new, 'scope is a required field' if scope.nil?
-
-      response, = new(token: 'none', id: 'none', version: version).fetch(
-        path: COMPATIBLITY_PATH,
-        options: {
-          vin: vin,
-          scope: scope.join(' '),
-          country: country
-        },
-        auth: BASIC
-      )
-      response['compatible']
     end
 
     private
