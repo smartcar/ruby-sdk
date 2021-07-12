@@ -5,181 +5,189 @@ require_relative '../../spec_helper'
 
 RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
-  before(:context) do
-    client = Smartcar::Oauth.new(AuthHelper.auth_client_params)
-    url = client.authorization_url({ force_prompt: true })
-    token_hash = client.get_token(AuthHelper.run_auth_flow(url))
-    @token = token_hash[:access_token]
-    @vehicle_ids = Smartcar::Vehicle.all_vehicle_ids(token: @token)
-    @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
-  end
 
-  describe '.all_vehicle_ids' do
-    it 'should return all vehicle ids associated with the account' do
-      vehicle_ids = subject.all_vehicle_ids(token: @token)
-      expect(vehicle_ids).not_to be_nil
-      expect(vehicle_ids.is_a?(Array)).to be_truthy
-    end
-  end
-
-  describe '.compatible?' do
-    it 'should respond if vehicle is compatible for given scopes' do
-      tesla_vin = '5YJXCDE22HF068739'
-      audi_vin = 'WAUAFAFL1GN014882'
-      scopes = %w[read_odometer read_location]
-
-      result = subject.compatible?(vin: tesla_vin, scope: scopes)
-      expect(result).to be_truthy
-
-      result = subject.compatible?(vin: audi_vin, scope: scopes)
-      expect(result).to be_falsey
+  describe 'Data methods' do
+    before(:context) do
+      @token = AuthHelper.run_auth_flow_and_get_tokens[:access_token]
+      @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
+      @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
     end
 
-    it 'should respond if country is specified and vehicle is compatible for given scopes' do
-      tesla_vin = '5YJXCDE22HF068739'
-      audi_vin = 'WAUAFAFL1GN014882'
-      scopes = %w[read_odometer read_location]
-      country = 'US'
-
-      result = subject.compatible?(vin: tesla_vin, scope: scopes, country: country)
-      expect(result).to be_truthy
-
-      result = subject.compatible?(vin: audi_vin, scope: scopes, country: country)
-      expect(result).to be_falsey
-    end
-  end
-
-  describe '#battery' do
-    it 'should return an battery object' do
-      result = @vehicle.battery
-      expect(result.instance_of?(Smartcar::Battery)).to eq(true)
-      expect(result.percentage_remaining).not_to be_nil
-      expect(result.range).not_to be_nil
-      expect(result.meta).not_to be_nil
-    end
-  end
-
-  describe '#battery_capacity' do
-    it 'should return an battery_capacity object' do
-      result = @vehicle.battery_capacity
-      expect(result.instance_of?(Smartcar::BatteryCapacity)).to eq(true)
-      expect(result.capacity).not_to be_nil
-      expect(result.meta).not_to be_nil
-    end
-  end
-
-  describe '#charge' do
-    it 'should return an charge object' do
-      result = @vehicle.charge
-      expect(result.instance_of?(Smartcar::Charge)).to eq(true)
-      expect(result.is_plugged_in?).not_to be_nil
-      expect(result.state).not_to be_nil
-      expect(result.meta).not_to be_nil
-    end
-  end
-
-  describe '#engine_oil' do
-    it 'should return an engine_oil object' do
-      result = @vehicle.engine_oil
-      expect(result.instance_of?(Smartcar::EngineOil)).to eq(true)
-      expect(result.meta).not_to be_nil
-      expect(result.life_remaining).not_to be_nil
-    end
-  end
-
-  describe '#fuel' do
-    it 'should return an fuel object' do
-      result = @vehicle.fuel
-      expect(result.instance_of?(Smartcar::Fuel)).to eq(true)
-      expect(result.percent_remaining).not_to be_nil
-      expect(result.amount_remaining).not_to be_nil
-      expect(result.meta).not_to be_nil
-      expect(result.range).not_to be_nil
-    end
-  end
-
-  describe '#location' do
-    it 'should return an location object' do
-      result = @vehicle.location
-      expect(result.instance_of?(Smartcar::Location)).to eq(true)
-      expect(result.latitude).not_to be_nil
-      expect(result.meta).not_to be_nil
-      expect(result.longitude).not_to be_nil
-    end
-  end
-
-  describe '#permissions' do
-    it 'should return an permissions object' do
-      result = @vehicle.permissions
-      expect(result.instance_of?(Smartcar::Permissions)).to eq(true)
-      expect(result.meta).not_to be_nil
-      expect(result.permissions).not_to be_nil
-    end
-  end
-
-  describe '#tire_pressure' do
-    it 'should return an tire_pressure object' do
-      result = @vehicle.tire_pressure
-      expect(result.instance_of?(Smartcar::TirePressure)).to eq(true)
-      expect(result.meta).not_to be_nil
-      expect(result.back_left).not_to be_nil
-      expect(result.front_left).not_to be_nil
-      expect(result.back_right).not_to be_nil
-      expect(result.front_right).not_to be_nil
-    end
-  end
-
-  describe '#vin' do
-    it 'should return an vin string' do
-      result = @vehicle.vin
-      expect(result.instance_of?(String)).to eq(true)
-      expect(result).not_to be_nil
-    end
-  end
-
-  describe '#odometer' do
-    it 'should return an odometer object' do
-      result = @vehicle.odometer
-      expect(result.instance_of?(Smartcar::Odometer)).to eq(true)
-      expect(result.meta).not_to be_nil
-      expect(result.distance).not_to be_nil
-    end
-  end
-
-  describe '#batch - success' do
-    context 'with valid attributes' do
-      it 'should return hash of objects with attribute requested as keys' do
-        attributes = %I[charge battery odometer]
-        result = @vehicle.batch(attributes)
-        expect(result.instance_of?(Hash)).to eq(true)
-        expect(result.keys).to match_array(attributes)
-        expect(result[:charge].instance_of?(Smartcar::Charge)).to eq(true)
-        expect(result[:charge].is_plugged_in?).not_to be_nil
-        expect(result[:charge].state).not_to be_nil
-        expect(result[:charge].meta).not_to be_nil
-        expect(result[:battery].instance_of?(Smartcar::Battery)).to eq(true)
-        expect(result[:battery].percentage_remaining).not_to be_nil
-        expect(result[:battery].range).not_to be_nil
-        expect(result[:battery].meta).not_to be_nil
-        expect(result[:odometer].instance_of?(Smartcar::Odometer)).to eq(true)
-        expect(result[:odometer].meta).not_to be_nil
-        expect(result[:odometer].distance).not_to be_nil
+    describe '#attributes' do
+      it 'should return an VehicleAttributes object' do
+        result = @vehicle.attributes
+        expect(result.make).to eq('CHEVROLET')
+        expect(result.model).to eq('Volt')
+        expect(result.year.is_a?(Integer)).to eq(true)
+        expect(result.id.length).to eq(36)
+        expect(result.meta.request_id.length).to eq(36)
       end
     end
 
-    context 'with some invalid attributes' do
-      it 'should raise InvalidParameterValue error' do
-        attributes = %I[odometer what where]
-        expect { @vehicle.batch(attributes) }.to raise_error(Smartcar::Base::InvalidParameterValue)
+    describe '#battery' do
+      it 'should return an battery object' do
+        result = @vehicle.battery
+        expect(result.percentage_remaining >= 0 && result.percentage_remaining <= 1).to eq(true)
+        expect(result.range.instance_of?(Float)).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
+    describe '#battery_capacity' do
+      it 'should return an battery_capacity object' do
+        result = @vehicle.battery_capacity
+        expect(result.capacity.instance_of?(Float)).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+      end
+    end
+
+    describe '#charge' do
+      it 'should return an charge object' do
+        result = @vehicle.charge
+        expect([true, false].include?(result.is_plugged_in?)).to eq(true)
+        expect(%w[CHARGING FULLY_CHARGED NOT_CHARGING].include?(result.state)).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
+    describe '#engine_oil' do
+      it 'should return an engine_oil object' do
+        result = @vehicle.engine_oil
+        expect(result.life_remaining >= 0 && result.life_remaining <= 1).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
+    describe '#fuel' do
+      it 'should return an fuel object' do
+        result = @vehicle.fuel
+        expect(result.percent_remaining >= 0 && result.percent_remaining <= 1).to eq(true)
+        expect(result.amount_remaining.instance_of?(Float)).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.unit_system).to eq('metric')
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
+    describe '#location' do
+      it 'should return an location object' do
+        result = @vehicle.location
+        expect(result.longitude.instance_of?(Float)).to eq(true)
+        expect(result.latitude.instance_of?(Float)).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
+    describe '#permissions' do
+      it 'should return an permissions object' do
+        result = @vehicle.permissions
+        expect(result.permissions.map { |item| item.prepend('required:') }.sort).to eq(AuthHelper::SCOPE.sort)
+        expect(result.meta.request_id.length).to eq(36)
+      end
+    end
+
+    describe '#tire_pressure' do
+      it 'should return an tire_pressure object' do
+        result = @vehicle.tire_pressure
+        %I[back_left front_left back_right front_right].each do |attribute|
+          expect(result[attribute].instance_of?(Float)).to eq(true)
+        end
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.unit_system).to eq('metric')
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
+    describe '#vin' do
+      it 'should return an vin string' do
+        result = @vehicle.vin
+        expect(result.vin.length).to eq(17)
+        expect(result.meta.request_id.length).to eq(36)
+      end
+    end
+
+    describe '#odometer' do
+      it 'should return an odometer object' do
+        result = @vehicle.odometer
+        expect(result.distance.instance_of?(Float)).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.unit_system).to eq('metric')
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
+    describe '#batch - success' do
+      context 'with valid attributes' do
+        it 'should return hash of objects with attribute requested as keys' do
+          attributes = ['/charge', '/battery', '/odometer']
+          result = @vehicle.batch(attributes)
+          expect(result.instance_of?(OpenStruct)).to eq(true)
+          expect(result.charge.instance_of?(OpenStruct)).to eq(true)
+          expect(result.charge.is_plugged_in?).not_to be_nil
+          expect(result.charge.state).not_to be_nil
+          expect(result.charge.meta).not_to be_nil
+          expect(result.charge.meta.request_id.length).to eq(36)
+          expect(result.battery.instance_of?(OpenStruct)).to eq(true)
+          expect(result.battery.percentage_remaining).not_to be_nil
+          expect(result.battery.range).not_to be_nil
+          expect(result.battery.meta).not_to be_nil
+          expect(result.odometer.instance_of?(OpenStruct)).to eq(true)
+          expect(result.odometer.meta).not_to be_nil
+          expect(result.odometer.distance).not_to be_nil
+        end
+      end
+    end
+
+    # Note - Convert to separate test to make this file order independent
+    describe '#disconnect' do
+      it 'should return success' do
+        result = @vehicle.disconnect!
+        expect(result.status).to eq('success')
+        expect(result.meta.request_id.length).to eq(36)
       end
     end
   end
 
-  # Note - Conver to separate test to make this file order independent
-  describe '#disconnect' do
-    it 'should return an boolean' do
-      result = @vehicle.disconnect!
-      expect(result).to be_boolean
+  describe 'Action methods' do
+    before(:context) do
+      @token = AuthHelper.run_auth_flow_and_get_tokens(
+        nil,
+        'VOLKSWAGEN',
+        ['required:control_charge', 'required:control_security']
+      )[:access_token]
+      @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
+      @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
+    end
+
+    %i[lock! unlock! start_charge! stop_charge!].each do |action|
+      describe "##{action}" do
+        it 'should return a confirmation' do
+          result = @vehicle.send(action)
+          expect(result.status).to eq('success')
+          expect(result.message).to eq('Successfully sent request to vehicle')
+          expect(result.meta.request_id.length).to eq(36)
+        end
+      end
+    end
+
+    describe '#subscribe!' do
+      it 'should return webhook and vehicleId with meta' do
+        result = @vehicle.subscribe!(ENV['E2E_SMARTCAR_WEBHOOK_ID'])
+        expect(result.vehicle_id).to eq(@vehicle.id)
+        expect(result.webhook_id).to eq(ENV['E2E_SMARTCAR_WEBHOOK_ID'])
+        expect(result.meta.request_id.length).to eq(36)
+      end
+    end
+
+    describe '#unsubscribe!' do
+      it 'should return webhook and vehicleId with meta' do
+        result = @vehicle.unsubscribe!(ENV['E2E_SMARTCAR_AMT'], ENV['E2E_SMARTCAR_WEBHOOK_ID'])
+        expect(result.meta.request_id.length).to eq(36)
+      end
     end
   end
 end

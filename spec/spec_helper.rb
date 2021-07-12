@@ -1,7 +1,18 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+require 'codecov'
+SimpleCov.start do
+  add_filter '/spec/'
+end
+
+SimpleCov.minimum_coverage 95
+SimpleCov.formatter = SimpleCov::Formatter::Codecov if ENV['CI']
+
 require 'bundler/setup'
 require 'smartcar'
+require 'webmock/rspec'
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = '.rspec_status'
@@ -9,7 +20,7 @@ RSpec.configure do |config|
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
   ENV['MODE'] = 'test'
-  ENV['INTEGRATION_REDIRECT_URI'] = 'https://example.com/auth'
+  ENV['E2E_SMARTCAR_REDIRECT_URI'] = 'https://example.com/auth'
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
@@ -20,3 +31,5 @@ RSpec::Matchers.define :be_boolean do
     [true, false].include? actual
   end
 end
+
+WebMock.allow_net_connect!

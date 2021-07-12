@@ -10,14 +10,12 @@ module Smartcar
 
     # Error raised when an invalid parameter is passed.
     class InvalidParameterValue < StandardError; end
-    # Constant for Bearer auth type
-    BEARER = 'BEARER'
     # Constant for Basic auth type
-    BASIC = 'BASIC'
+    BASIC = 'Basic'
     # Number of seconds to wait for response
     REQUEST_TIMEOUT = 310
 
-    attr_accessor :token, :error, :meta, :unit_system, :version
+    attr_accessor :token, :error, :unit_system, :version, :auth_type
 
     %i[get post patch put delete].each do |verb|
       # meta programming and define all Restful methods.
@@ -27,8 +25,7 @@ module Smartcar
       # @return [Hash] The response Json parsed as a hash.
       define_method verb do |path, data = nil|
         response = service.send(verb) do |request|
-          request.headers['Authorization'] = "BEARER #{token}"
-          request.headers['Authorization'] = "BASIC #{generate_basic_auth}" if data && data[:auth] == BASIC
+          request.headers['Authorization'] = auth_type == BASIC ? "Basic #{token}" : "Bearer #{token}"
           request.headers['sc-unit-system'] = unit_system if unit_system
           request.headers['Content-Type'] = 'application/json'
           complete_path = "/v#{version}#{path}"
@@ -39,38 +36,31 @@ module Smartcar
             request.body = data.to_json if data
           end
         end
-        error = get_error(response)
-        raise error if error
-
-        [JSON.parse(response.body), response.headers]
+        handle_error(response)
+        # required to handle unsubscribe response
+        body = response.body.empty? ? '{}' : response.body
+        [JSON.parse(body), response.headers]
       end
     end
 
     # This requires a proc 'PATH' to be defined in the class
     # @param path [String] resource path
-    # @param options [Hash] query params
+    # @param query_params [Hash] query params
     # @param auth [String] type of auth
     #
     # @return [Object]
-    def fetch(path:, options: {}, auth: 'BEARER')
-      path += "?#{URI.encode_www_form(options)}" unless options.empty?
-      get(path, { auth: auth })
+    def fetch(path:, query_params: {})
+      path += "?#{URI.encode_www_form(query_params)}" unless query_params.empty?
+      get(path)
     end
 
     private
-
-    # returns auth token for BASIC auth
-    #
-    # @return [String] Base64 encoding of CLIENT:SECRET
-    def generate_basic_auth
-      Base64.strict_encode64("#{get_config('CLIENT_ID')}:#{get_config('CLIENT_SECRET')}")
-    end
 
     # gets a smartcar API service/client
     #
     # @return [OAuth2::AccessToken] An initialized AccessToken instance that acts as service client
     def service
-      @service ||= Faraday.new(url: SITE, request: { timeout: REQUEST_TIMEOUT })
+      @service ||= Faraday.new(url: ENV['SMARTCAR_API_ORIGIN'] || API_ORIGIN, request: { timeout: REQUEST_TIMEOUT })
     end
   end
 end
