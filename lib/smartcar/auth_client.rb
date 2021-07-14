@@ -72,7 +72,7 @@ module Smartcar
                          .get_token(code, redirect_uri: redirect_uri)
                          .to_hash
 
-      JSON.parse(token_hash.to_json, object_class: OpenStruct)
+      json_to_ostruct(token_hash)
     rescue OAuth2::Error => e
       raise build_error(e.response.status, e.response.body, e.response.headers)
     end
@@ -89,7 +89,7 @@ module Smartcar
       token_object = OAuth2::AccessToken.from_hash(client, { refresh_token: token })
       token_object = token_object.refresh!
 
-      JSON.parse(token_object.to_hash.to_json, object_class: OpenStruct)
+      json_to_ostruct(token_object.to_hash)
     rescue OAuth2::Error => e
       raise build_error(e.response.status, e.response.body, e.response.headers)
     end

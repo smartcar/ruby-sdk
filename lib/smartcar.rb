@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'recursive_open_struct'
 require 'smartcar_error'
 require 'smartcar/utils'
 require 'smartcar/version'

@@ -101,8 +101,8 @@ RSpec.describe Smartcar::Vehicle do
           )
         expected_description = 'The vehicle was unable to perform your request because it is currently unreachable.'
         result = subject.batch(attributes)
-        expect(result.instance_of?(OpenStruct)).to eq(true)
-        expect(result.odometer.instance_of?(OpenStruct)).to eq(true)
+        expect(result.is_a?(OpenStruct)).to eq(true)
+        expect(result.odometer.is_a?(OpenStruct)).to eq(true)
         expect { result.location }.to(raise_error do |error|
           expect(error.status_code).to eq(409)
           expect(error.type).to eq('VEHICLE_STATE')

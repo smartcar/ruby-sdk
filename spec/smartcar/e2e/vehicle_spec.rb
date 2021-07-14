@@ -125,17 +125,17 @@ RSpec.describe Smartcar::Vehicle do
         it 'should return hash of objects with attribute requested as keys' do
           attributes = ['/charge', '/battery', '/odometer']
           result = @vehicle.batch(attributes)
-          expect(result.instance_of?(OpenStruct)).to eq(true)
-          expect(result.charge.instance_of?(OpenStruct)).to eq(true)
+          expect(result.is_a?(OpenStruct)).to eq(true)
+          expect(result.charge.is_a?(OpenStruct)).to eq(true)
           expect(result.charge.is_plugged_in?).not_to be_nil
           expect(result.charge.state).not_to be_nil
           expect(result.charge.meta).not_to be_nil
           expect(result.charge.meta.request_id.length).to eq(36)
-          expect(result.battery.instance_of?(OpenStruct)).to eq(true)
+          expect(result.battery.is_a?(OpenStruct)).to eq(true)
           expect(result.battery.percentage_remaining).not_to be_nil
           expect(result.battery.range).not_to be_nil
           expect(result.battery.meta).not_to be_nil
-          expect(result.odometer.instance_of?(OpenStruct)).to eq(true)
+          expect(result.odometer.is_a?(OpenStruct)).to eq(true)
           expect(result.odometer.meta).not_to be_nil
           expect(result.odometer.distance).not_to be_nil
         end
