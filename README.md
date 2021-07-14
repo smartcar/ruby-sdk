@@ -82,7 +82,7 @@ Example Usage for calling the reports API with oAuth token
 ```ruby
 2.5.7 :001 > require 'smartcar'
  => true
-2.5.7 :003 > ids =  Smartcar::Vehicle.get_vehicles(token: token).vehicles
+2.5.7 :003 > ids =  Smartcar.get_vehicles(token: token).vehicles
  => ["4bb777b2-bde7-4305-8952-25956f8c0868"]
 2.5.7 :004 > vehicle = Smartcar::Vehicle.new(token: token, id: ids.first)
  => #<Smartcar::Vehicle:0x0000558dcd7ee608 @token="c900e00e-ee8e-403d-a7bf-f992bc0ad302", @id="e31c9de6-1332-472b-b648-5d74b05b7fda", @options={:unit_system=>"metric", :version=>"2.0"}, @unit_system="metric", @version="2.0", @service=#<Faraday::Connection:0x0000558dcd7d63f0 @parallel_manager=nil, @headers={"User-Agent"=>"Faraday v1.4.2"}, @params={}, @options=#<Faraday::RequestOptions timeout=310>, @ssl=#<Faraday::SSLOptions verify=true>, @default_parallel_manager=nil, @builder=#<Faraday::RackBuilder:0x0000558dcd7c1bf8 @adapter=Faraday::Adapter::NetHttp, @handlers=[Faraday::Request::UrlEncoded], @app=#<Faraday::Request::UrlEncoded:0x0000558dcd7af048 @app=#<Faraday::Adapter::NetHttp:0x0000558dcd7af390 @ssl_cert_store=#<OpenSSL::X509::Store:0x0000558dcd7a36a8 @verify_callback=nil, @error=nil, @error_string=nil, @chain=nil, @time=nil>, @app=#<Proc:0x0000558dcd7af278 /home/ashwinsubramanian/.rvm/gems/ruby-2.7.2/gems/faraday-1.4.2/lib/faraday/adapter.rb:37 (lambda)>, @connection_options={}, @config_block=nil>, @options={}>>, @url_prefix=#<URI::HTTPS https://api.smartcar.com/>, @proxy=nil, @manual_proxy=false>>
