@@ -25,6 +25,18 @@ module Smartcar
       ENV[config_name]
     end
 
+    # Converts a hash to RecursiveOpenStruct (a powered up OpenStruct object).
+    # NOTE - Do not replace with the more elegant looking
+    # JSON.parse(meta_hash.to_json, object_class: OpenStruct)
+    # this is because we had an app using OJ as their json parser which led to an issue using the
+    # above mentioned method. Source : https://github.com/ohler55/oj/issues/239
+    # @param hash [Hash] json object as hash
+    #
+    # @return [RecursiveOpenStruct]
+    def json_to_ostruct(hash)
+      RecursiveOpenStruct.new(hash)
+    end
+
     def build_meta(headers)
       meta_hash = {
         'sc-data-age' => :data_age,
@@ -33,14 +45,14 @@ module Smartcar
       }.each_with_object({}) do |(header_name, key), meta|
         meta[key] = headers[header_name] if headers[header_name]
       end
-      meta = JSON.parse(meta_hash.to_json, object_class: OpenStruct)
+      meta = json_to_ostruct(meta_hash)
       meta.data_age &&= DateTime.parse(meta.data_age)
 
       meta
     end
 
     def build_response(body, headers)
-      response = JSON.parse(body.to_json, object_class: OpenStruct)
+      response = json_to_ostruct(body)
       response.meta = build_meta(headers)
       response
     end
