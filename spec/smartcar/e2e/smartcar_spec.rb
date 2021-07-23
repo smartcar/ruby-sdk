@@ -18,11 +18,16 @@ RSpec.describe Smartcar do
         scopes = %w[read_odometer read_location]
 
         result = subject.get_compatibility(vin: tesla_vin, scope: scopes)
-
         expect(result.compatible).to be_truthy
+        expect(result.reason).to be_nil
+        expect(result.capabilities.length).to eq(2)
+        expect(result.capabilities.map(&:capable).inject(&:&)).to be_truthy
 
         result = subject.get_compatibility(vin: audi_vin, scope: scopes)
-        expect(result.compatible).to be_falsey
+        expect(result.compatible).to be_truthy
+        expect(result.reason).to be_nil
+        expect(result.capabilities.length).to eq(2)
+        expect(result.capabilities.map(&:capable).inject(&:&)).to be_falsey
       end
     end
 
@@ -35,9 +40,15 @@ RSpec.describe Smartcar do
 
         result = subject.get_compatibility(vin: tesla_vin, scope: scopes, country: country)
         expect(result.compatible).to be_truthy
+        expect(result.reason).to be_nil
+        expect(result.capabilities.length).to eq(2)
+        expect(result.capabilities.map(&:capable).inject(&:&)).to be_truthy
 
         result = subject.get_compatibility(vin: audi_vin, scope: scopes, country: country)
-        expect(result.compatible).to be_falsey
+        expect(result.compatible).to be_truthy
+        expect(result.reason).to be_nil
+        expect(result.capabilities.length).to eq(2)
+        expect(result.capabilities.map(&:capable).inject(&:&)).to be_falsey
       end
     end
   end
