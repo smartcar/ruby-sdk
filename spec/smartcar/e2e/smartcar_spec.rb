@@ -15,6 +15,7 @@ RSpec.describe Smartcar do
       it 'should default country and get response' do
         tesla_vin = '5YJXCDE22HF068739'
         audi_vin = 'WAUAFAFL1GN014882'
+        incompatible_vin = 'WBAKE5C58DJ107700'
         scopes = %w[read_odometer read_location]
 
         result = subject.get_compatibility(vin: tesla_vin, scope: scopes)
@@ -28,6 +29,11 @@ RSpec.describe Smartcar do
         expect(result.reason).to be_nil
         expect(result.capabilities.length).to eq(2)
         expect(result.capabilities.map(&:capable).inject(&:&)).to be_falsey
+
+        result = subject.get_compatibility(vin: incompatible_vin, scope: scopes)
+        expect(result.compatible).to be_falsey
+        expect(result.reason).to eq('VEHICLE_NOT_COMPATIBLE')
+        expect(result.capabilities.length).to eq(0)
       end
     end
 
