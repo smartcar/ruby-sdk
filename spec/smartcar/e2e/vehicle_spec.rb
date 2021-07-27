@@ -156,8 +156,8 @@ RSpec.describe Smartcar::Vehicle do
     before(:context) do
       @token = AuthHelper.run_auth_flow_and_get_tokens(
         nil,
-        'VOLKSWAGEN',
-        ['required:control_charge', 'required:control_security']
+        'TESLA',
+        ['required:control_charge', 'required:control_security', 'read_charge']
       )[:access_token]
       @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
@@ -170,6 +170,32 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.status).to eq('success')
           expect(result.message).to eq('Successfully sent request to vehicle')
           expect(result.meta.request_id.length).to eq(36)
+        end
+      end
+    end
+
+    describe '#batch - success' do
+      context 'with valid and invalid attributes' do
+        it 'should return hash of objects with attribute requested as keys' do
+          expected_description = 'Your application has insufficient permissions to access the requested resource.'\
+          ' Please prompt the user to re-authenticate using Smartcar Connect.'
+          attributes = ['/charge', '/fuel']
+          result = @vehicle.batch(attributes)
+
+          expect(result.is_a?(OpenStruct)).to eq(true)
+          expect(result.charge.is_a?(OpenStruct)).to eq(true)
+          expect(result.charge.is_plugged_in?).not_to be_nil
+          expect(result.charge.state).not_to be_nil
+          expect(result.charge.meta).not_to be_nil
+          expect(result.charge.meta.request_id.length).to eq(36)
+
+          expect { result.fuel }.to(raise_error do |error|
+            expect(error.status_code).to eq(403)
+            expect(error.type).to eq('PERMISSION')
+            expect(error.description).to eq(expected_description)
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#permission')
+            expect(error.resolution.type).to eq('REAUTHENTICATE')
+          end)
         end
       end
     end

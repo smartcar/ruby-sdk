@@ -34,7 +34,7 @@ module Smartcar
     #
     # @return [RecursiveOpenStruct]
     def json_to_ostruct(hash)
-      RecursiveOpenStruct.new(hash)
+      RecursiveOpenStruct.new(hash, recurse_over_arrays: true)
     end
 
     def build_meta(headers)
@@ -102,7 +102,7 @@ module Smartcar
         attribute_name = convert_path_to_attribute(item['path'])
         aliases = Vehicle::METHODS[attribute_name.to_sym][:aliases]
         # merging the top level request headers and separate headers for each item of batch
-        headers = response_headers.merge(item['headers'])
+        headers = response_headers.merge(item['headers'] || {})
         response = if [200, 204].include?(item['code'])
                      build_aliases(build_response(item['body'], headers), aliases)
                    else
