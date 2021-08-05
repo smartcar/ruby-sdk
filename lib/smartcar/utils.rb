@@ -122,6 +122,9 @@ module Smartcar
     def convert_path_to_attribute(path)
       return :attributes if path == '/'
 
+      # Adding this because else it would become tires_pressure
+      return :tire_pressure if path == '/tires/pressure'
+
       path.split('/').reject(&:empty?).join('_').to_sym
     end
   end

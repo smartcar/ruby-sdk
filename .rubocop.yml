@@ -21,12 +21,3 @@ Metrics/MethodLength:
   Max: 20
   Exclude:
     - 'spec/smartcar/helpers/auth_helper.rb'
-
-# Parameters in data from json API comes in as camelCase, ignoring those files to avoid snake_case enforcement
-Naming/MethodName:
-  Exclude:
-    - 'lib/smartcar/battery.rb'
-    - 'lib/smartcar/charge.rb'
-    - 'lib/smartcar/engine_oil.rb'
-    - 'lib/smartcar/fuel.rb'
-    - 'lib/smartcar/tire_pressure.rb'

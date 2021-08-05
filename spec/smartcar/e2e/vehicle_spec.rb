@@ -123,7 +123,7 @@ RSpec.describe Smartcar::Vehicle do
     describe '#batch - success' do
       context 'with valid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
-          attributes = ['/charge', '/battery', '/odometer']
+          attributes = ['/charge', '/battery', '/odometer', '/tires/pressure']
           result = @vehicle.batch(attributes)
           expect(result.is_a?(OpenStruct)).to eq(true)
           expect(result.charge.is_a?(OpenStruct)).to eq(true)
@@ -138,6 +138,12 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.odometer.is_a?(OpenStruct)).to eq(true)
           expect(result.odometer.meta).not_to be_nil
           expect(result.odometer.distance).not_to be_nil
+          expect(result.tire_pressure.is_a?(OpenStruct)).to eq(true)
+          expect(result.tire_pressure.meta).not_to be_nil
+          expect(result.tire_pressure.front_left).not_to be_nil
+          expect(result.tire_pressure.front_right).not_to be_nil
+          expect(result.tire_pressure.back_left).not_to be_nil
+          expect(result.tire_pressure.back_right).not_to be_nil
         end
       end
     end
