@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'redcarpet', '~> 3.5.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop', '~> 1.12'
-  spec.add_development_dependency 'selenium-webdriver', '~> 3.142'
+  spec.add_development_dependency 'selenium-webdriver', '~> 4.1.0'
   spec.add_development_dependency 'webmock', '~> 3.13'
   spec.add_dependency 'oauth2', '~> 1.4'
   spec.add_dependency 'recursive-open-struct', '~> 1.1.3'
