@@ -34,7 +34,7 @@ class AuthHelper
       email = test_email || "#{SecureRandom.uuid}@email.com"
       make ||= 'CHEVROLET'
       options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
-      driver = Selenium::WebDriver.for :firefox, options: options
+      driver = Selenium::WebDriver.for(:firefox, capabilities: [options])
       driver.navigate.to authorization_url
       driver.find_element(css: 'button#continue-button').click
       driver.find_element(css: "button.brand-selector-button[data-make=\"#{make}\"]").click
