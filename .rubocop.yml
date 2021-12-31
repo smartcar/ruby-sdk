@@ -11,6 +11,12 @@ Metrics/AbcSize:
 Naming/AccessorMethodName:
   Enabled: false
 
+# Disabling this until we figure out a better way than using openstruct
+# Currently we use open struct because this gives us an object representing the JSON 
+# with accessor style methods.
+Style/OpenStructUse:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - '**/*.gemspec'

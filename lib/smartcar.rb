@@ -85,10 +85,8 @@ module Smartcar
       base_object.token = generate_basic_auth(options, base_object)
 
       base_object.build_response(*base_object.fetch(
-        {
-          path: PATHS[:compatibility],
-          query_params: build_compatibility_params(vin, scope, country, options)
-        }
+        path: PATHS[:compatibility],
+        query_params: build_compatibility_params(vin, scope, country, options)
       ))
     end
 
@@ -106,7 +104,7 @@ module Smartcar
           version: version
         }
       )
-      base_object.build_response(*base_object.fetch({ path: PATHS[:user] }))
+      base_object.build_response(*base_object.fetch(path: PATHS[:user]))
     end
 
     # Module method Returns a paged list of all vehicles connected to the application for the current authorized user.
@@ -125,10 +123,8 @@ module Smartcar
         }
       )
       base_object.build_response(*base_object.fetch(
-        {
-          path: PATHS[:vehicles],
-          query_params: paging
-        }
+        path: PATHS[:vehicles],
+        query_params: paging
       ))
     end
 

@@ -184,7 +184,7 @@ RSpec.describe Smartcar::Vehicle do
       context 'with valid and invalid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
           expected_description = 'Your application has insufficient permissions to access the requested resource.'\
-          ' Please prompt the user to re-authenticate using Smartcar Connect.'
+                                 ' Please prompt the user to re-authenticate using Smartcar Connect.'
           attributes = ['/charge', '/fuel']
           result = @vehicle.batch(attributes)
 
