@@ -201,7 +201,7 @@ module Smartcar
     #
     # @param webhook_id [String] Webhook id to subscribe to
     #
-    # @return [OpenStruct] And object representing the JSON response and a meta attribute
+    # @return [OpenStruct] An object representing the JSON response and a meta attribute
     #   with the relevant items from response headers.
     def subscribe!(webhook_id)
       response, headers = post(METHODS.dig(:subscribe!, :path).call(id, webhook_id), {})
@@ -233,6 +233,22 @@ module Smartcar
       request_body = { requests: paths.map { |path| { path: path } } }
       response, headers = post("/vehicles/#{id}/batch", request_body)
       process_batch_response(response, headers)
+    end
+
+    # General purpose method to make requests to the Smartcar API.
+    # API - https://smartcar.com/docs/api#request
+    # @param method [String] The HTTP request method to use.
+    # @param path [String] The path to make the request to.
+    # @param body [Hash] The request body.
+    # @param headers [Hash] The headers to inlcude in the request.
+    #
+    # @return [OpenStruct] An object representing the JSON response and a meta attribute
+    #   with the relevant items from response headers.
+    
+    def request(method, path, body = {}, headers = {})
+      path = "/vehicles/#{id}/#{path}"
+      response, headers = send(method, path, body, headers)
+      build_response(response, headers)
     end
   end
 end

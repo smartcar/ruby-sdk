@@ -23,11 +23,13 @@ module Smartcar
       # @param data [Hash] request body if needed.
       #
       # @return [Hash] The response Json parsed as a hash.
-      define_method verb do |path, data = nil|
+      define_method verb do |path, data = nil, headers = {}|
         response = service.send(verb) do |request|
-          request.headers['Authorization'] = auth_type == BASIC ? "Basic #{token}" : "Bearer #{token}"
-          request.headers['sc-unit-system'] = unit_system if unit_system
-          request.headers['Content-Type'] = 'application/json'
+          request_headers = {}
+          request_headers['Authorization'] = auth_type == BASIC ? "Basic #{token}" : "Bearer #{token}"
+          request_headers['sc-unit-system'] = unit_system if unit_system
+          request_headers['Content-Type'] = 'application/json'
+          request.headers = request_headers.merge(headers)
           complete_path = "/v#{version}#{path}"
           if verb == :get
             request.url complete_path, data
