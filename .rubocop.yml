@@ -27,3 +27,6 @@ Metrics/MethodLength:
   Max: 20
   Exclude:
     - 'spec/smartcar/helpers/auth_helper.rb'
+
+Metrics/ClassLength:
+  Max: 200
