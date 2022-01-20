@@ -236,22 +236,19 @@ module Smartcar
     end
 
     # General purpose method to make requests to the Smartcar API.
-    # API - https://smartcar.com/docs/api#request
+    #
     # @param method [String] The HTTP request method to use.
     # @param path [String] The path to make the request to.
     # @param body [Hash] The request body.
     # @param headers [Hash] The headers to inlcude in the request.
     #
-    # @return [OpenStruct] An object representing the JSON response and a meta attribute
-    #   with the relevant items from response headers.
-    
+    # @return [OpenStruct] An object with a "body" attribute that contains the
+    #   response body and a "meta" attribute with the relevant items from response headers.
     def request(method, path, body = {}, headers = {})
       path = "/vehicles/#{id}/#{path}"
       raw_response, headers = send(method, path, body, headers)
       meta = build_meta(headers)
-      response = {}
-      response = json_to_ostruct({body: raw_response, meta: meta})
-      response
+      json_to_ostruct({ body: raw_response, meta: meta })
     end
   end
 end

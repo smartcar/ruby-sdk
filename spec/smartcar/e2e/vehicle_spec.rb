@@ -150,7 +150,7 @@ RSpec.describe Smartcar::Vehicle do
 
     describe '#request - odometer' do
       it 'should use request method to return an odometer object' do
-        result = @vehicle.request("get","odometer")
+        result = @vehicle.request('get', 'odometer')
         expect(result.body.distance.instance_of?(Float)).to eq(true)
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
@@ -161,22 +161,21 @@ RSpec.describe Smartcar::Vehicle do
     describe '#request - override auth header' do
       it 'should throw error in making request' do
         expected_description = 'The authorization header is missing or malformed, '\
-        'or it contains invalid or expired authentication credentials. Please ' \
-        'check for missing parameters, spelling and casing mistakes, and ' \
-        'other syntax issues.'
+                               'or it contains invalid or expired authentication credentials. Please ' \
+                               'check for missing parameters, spelling and casing mistakes, and ' \
+                               'other syntax issues.'
 
-        expect { 
-          @vehicle.request("get","odometer", {}, {
-              'sc-unit-system': 'imperial',
-              Authorization: 'Bearer abc',
-            }
-          )
-         }.to(raise_error do |error|
-          expect(error.status_code).to eq(401)
-          expect(error.type).to eq('AUTHENTICATION')
-          expect(error.description).to eq(expected_description)
-          expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#authentication')
-        end)
+        expect do
+          @vehicle.request('get', 'odometer', {}, {
+                             'sc-unit-system': 'imperial',
+                             Authorization: 'Bearer abc'
+                           })
+        end.to(raise_error do |error|
+                 expect(error.status_code).to eq(401)
+                 expect(error.type).to eq('AUTHENTICATION')
+                 expect(error.description).to eq(expected_description)
+                 expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#authentication')
+               end)
       end
     end
 
@@ -194,7 +193,7 @@ RSpec.describe Smartcar::Vehicle do
     before(:context) do
       @token = AuthHelper.run_auth_flow_and_get_tokens(
         nil,
-        'CHEVROLET',
+        'CHEVROLET'
       )[:access_token]
       @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
@@ -213,12 +212,12 @@ RSpec.describe Smartcar::Vehicle do
 
     describe '#request - batch' do
       it 'should return hash of objects with attribute requested as keys' do
-        result = @vehicle.request("post", "batch", { requests: [{ path: "/odometer" }, { path: "/tires/pressure" }] })
-        expect(result.body.responses[0].path).to eq("/odometer")
+        result = @vehicle.request('post', 'batch', { requests: [{ path: '/odometer' }, { path: '/tires/pressure' }] })
+        expect(result.body.responses[0].path).to eq('/odometer')
         expect(result.body.responses[0].body.is_a?(OpenStruct)).to eq(true)
         expect(result.body.responses[0].headers).not_to be_nil
         expect(result.body.responses[0].body.distance).not_to be_nil
-        expect(result.body.responses[1].path).to eq("/tires/pressure")
+        expect(result.body.responses[1].path).to eq('/tires/pressure')
         expect(result.body.responses[1].body.is_a?(OpenStruct)).to eq(true)
         expect(result.body.responses[1].headers).not_to be_nil
         expect(result.body.responses[1].body.frontLeft).not_to be_nil
