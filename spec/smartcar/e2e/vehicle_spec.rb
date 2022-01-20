@@ -151,7 +151,7 @@ RSpec.describe Smartcar::Vehicle do
     describe '#request - odometer' do
       it 'should use request method to return an odometer object' do
         result = @vehicle.request("get","odometer")
-        expect(result.distance.instance_of?(Float)).to eq(true)
+        expect(result.body.distance.instance_of?(Float)).to eq(true)
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
@@ -214,17 +214,17 @@ RSpec.describe Smartcar::Vehicle do
     describe '#request - batch' do
       it 'should return hash of objects with attribute requested as keys' do
         result = @vehicle.request("post", "batch", { requests: [{ path: "/odometer" }, { path: "/tires/pressure" }] })
-        expect(result.responses[0].path).to eq("/odometer")
-        expect(result.responses[0].body.is_a?(OpenStruct)).to eq(true)
-        expect(result.responses[0].headers).not_to be_nil
-        expect(result.responses[0].body.distance).not_to be_nil
-        expect(result.responses[1].path).to eq("/tires/pressure")
-        expect(result.responses[1].body.is_a?(OpenStruct)).to eq(true)
-        expect(result.responses[1].headers).not_to be_nil
-        expect(result.responses[1].body.frontLeft).not_to be_nil
-        expect(result.responses[1].body.frontRight).not_to be_nil
-        expect(result.responses[1].body.backLeft).not_to be_nil
-        expect(result.responses[1].body.backRight).not_to be_nil
+        expect(result.body.responses[0].path).to eq("/odometer")
+        expect(result.body.responses[0].body.is_a?(OpenStruct)).to eq(true)
+        expect(result.body.responses[0].headers).not_to be_nil
+        expect(result.body.responses[0].body.distance).not_to be_nil
+        expect(result.body.responses[1].path).to eq("/tires/pressure")
+        expect(result.body.responses[1].body.is_a?(OpenStruct)).to eq(true)
+        expect(result.body.responses[1].headers).not_to be_nil
+        expect(result.body.responses[1].body.frontLeft).not_to be_nil
+        expect(result.body.responses[1].body.frontRight).not_to be_nil
+        expect(result.body.responses[1].body.backLeft).not_to be_nil
+        expect(result.body.responses[1].body.backRight).not_to be_nil
       end
     end
 

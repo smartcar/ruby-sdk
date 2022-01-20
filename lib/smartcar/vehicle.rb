@@ -247,8 +247,11 @@ module Smartcar
     
     def request(method, path, body = {}, headers = {})
       path = "/vehicles/#{id}/#{path}"
-      response, headers = send(method, path, body, headers)
-      build_response(response, headers)
+      raw_response, headers = send(method, path, body, headers)
+      meta = build_meta(headers)
+      response = {}
+      response = json_to_ostruct({body: raw_response, meta: meta})
+      response
     end
   end
 end
