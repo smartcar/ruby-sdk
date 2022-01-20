@@ -193,7 +193,8 @@ RSpec.describe Smartcar::Vehicle do
     before(:context) do
       @token = AuthHelper.run_auth_flow_and_get_tokens(
         nil,
-        'CHEVROLET'
+        'FORD',
+        ['required:control_charge', 'required:control_security', 'read_charge']
       )[:access_token]
       @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
