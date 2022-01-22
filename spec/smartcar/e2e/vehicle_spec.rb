@@ -113,7 +113,7 @@ RSpec.describe Smartcar::Vehicle do
     describe '#odometer' do
       it 'should return an odometer object' do
         result = @vehicle.odometer
-        expect(result.distance.instance_of?(Float)).to eq(true)
+        expect(result.distance).to be_a Float
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
@@ -151,7 +151,7 @@ RSpec.describe Smartcar::Vehicle do
     describe '#request - odometer' do
       it 'should use request method to return an odometer object' do
         result = @vehicle.request('get', 'odometer')
-        expect(result.body.distance.instance_of?(Float)).to eq(true)
+        expect(result.body.distance).to be_a Float
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
