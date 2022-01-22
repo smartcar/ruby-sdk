@@ -158,6 +158,23 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    describe '#request - batch' do
+      it 'should return hash of objects with attribute requested as keys' do
+        result = @vehicle.request('post', 'batch', { requests: [{ path: '/odometer' }, { path: '/tires/pressure' }] })
+        expect(result.body.responses[0].path).to eq('/odometer')
+        expect(result.body.responses[0].body.is_a?(OpenStruct)).to eq(true)
+        expect(result.body.responses[0].headers).not_to be_nil
+        expect(result.body.responses[0].body.distance).not_to be_nil
+        expect(result.body.responses[1].path).to eq('/tires/pressure')
+        expect(result.body.responses[1].body.is_a?(OpenStruct)).to eq(true)
+        expect(result.body.responses[1].headers).not_to be_nil
+        expect(result.body.responses[1].body.frontLeft).not_to be_nil
+        expect(result.body.responses[1].body.frontRight).not_to be_nil
+        expect(result.body.responses[1].body.backLeft).not_to be_nil
+        expect(result.body.responses[1].body.backRight).not_to be_nil
+      end
+    end
+
     describe '#request - override auth header' do
       it 'should throw error in making request' do
         expected_description = 'The authorization header is missing or malformed, '\
@@ -208,23 +225,6 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.message).to eq('Successfully sent request to vehicle')
           expect(result.meta.request_id.length).to eq(36)
         end
-      end
-    end
-
-    describe '#request - batch' do
-      it 'should return hash of objects with attribute requested as keys' do
-        result = @vehicle.request('post', 'batch', { requests: [{ path: '/odometer' }, { path: '/tires/pressure' }] })
-        expect(result.body.responses[0].path).to eq('/odometer')
-        expect(result.body.responses[0].body.is_a?(OpenStruct)).to eq(true)
-        expect(result.body.responses[0].headers).not_to be_nil
-        expect(result.body.responses[0].body.distance).not_to be_nil
-        expect(result.body.responses[1].path).to eq('/tires/pressure')
-        expect(result.body.responses[1].body.is_a?(OpenStruct)).to eq(true)
-        expect(result.body.responses[1].headers).not_to be_nil
-        expect(result.body.responses[1].body.frontLeft).not_to be_nil
-        expect(result.body.responses[1].body.frontRight).not_to be_nil
-        expect(result.body.responses[1].body.backLeft).not_to be_nil
-        expect(result.body.responses[1].body.backRight).not_to be_nil
       end
     end
 
