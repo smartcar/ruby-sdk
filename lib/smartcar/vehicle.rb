@@ -235,7 +235,8 @@ module Smartcar
       process_batch_response(response, headers)
     end
 
-    # General purpose method to make requests to the Smartcar API.
+    # General purpose method to make requests to the Smartcar API - can be
+    # used to make requests to brand specific endpoints.
     #
     # @param method [String] The HTTP request method to use.
     # @param path [String] The path to make the request to.
