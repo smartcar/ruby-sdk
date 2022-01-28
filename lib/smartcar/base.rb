@@ -31,7 +31,7 @@ module Smartcar
           request_headers['sc-unit-system'] = unit_system if unit_system
           request_headers['Content-Type'] = 'application/json'
           request_headers['User-Agent'] =
-            "Smartcar/#{version} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
+            "Smartcar/#{VERSION} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
           request.headers = request_headers.merge(headers)
           complete_path = "/v#{version}#{path}"
           if verb == :get
