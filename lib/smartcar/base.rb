@@ -2,6 +2,7 @@
 
 require 'oauth2'
 require 'base64'
+require 'rbconfig'
 module Smartcar
   # The Base class for all of the other class.
   # Let other classes inherit from here and put common methods here.
@@ -29,6 +30,8 @@ module Smartcar
           request_headers['Authorization'] = auth_type == BASIC ? "Basic #{token}" : "Bearer #{token}"
           request_headers['sc-unit-system'] = unit_system if unit_system
           request_headers['Content-Type'] = 'application/json'
+          request_headers['User-Agent'] =
+            "Smartcar/#{version} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
           request.headers = request_headers.merge(headers)
           complete_path = "/v#{version}#{path}"
           if verb == :get
