@@ -2,6 +2,7 @@
 
 require 'oauth2'
 require 'base64'
+require 'rbconfig'
 module Smartcar
   # The Base class for all of the other class.
   # Let other classes inherit from here and put common methods here.
@@ -23,11 +24,15 @@ module Smartcar
       # @param data [Hash] request body if needed.
       #
       # @return [Hash] The response Json parsed as a hash.
-      define_method verb do |path, data = nil|
+      define_method verb do |path, data = nil, headers = {}|
         response = service.send(verb) do |request|
-          request.headers['Authorization'] = auth_type == BASIC ? "Basic #{token}" : "Bearer #{token}"
-          request.headers['sc-unit-system'] = unit_system if unit_system
-          request.headers['Content-Type'] = 'application/json'
+          request_headers = {}
+          request_headers['Authorization'] = auth_type == BASIC ? "Basic #{token}" : "Bearer #{token}"
+          request_headers['sc-unit-system'] = unit_system if unit_system
+          request_headers['Content-Type'] = 'application/json'
+          request_headers['User-Agent'] =
+            "Smartcar/#{VERSION} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
+          request.headers = request_headers.merge(headers)
           complete_path = "/v#{version}#{path}"
           if verb == :get
             request.url complete_path, data

@@ -2,5 +2,5 @@
 
 module Smartcar
   # Gem current version number
-  VERSION = '3.0.5'
+  VERSION = '3.1.0'
 end
