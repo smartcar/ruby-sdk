@@ -188,11 +188,11 @@ RSpec.describe Smartcar::Vehicle do
                              Authorization: 'Bearer abc'
                            })
         end.to(raise_error do |error|
-                 expect(error.status_code).to eq(401)
-                 expect(error.type).to eq('AUTHENTICATION')
-                 expect(error.description).to eq(expected_description)
-                 expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#authentication')
-               end)
+          expect(error.status_code).to eq(401)
+          expect(error.type).to eq('AUTHENTICATION')
+          expect(error.description).to eq(expected_description)
+          expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#authentication')
+        end)
       end
     end
 
