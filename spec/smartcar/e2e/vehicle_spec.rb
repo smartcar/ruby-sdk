@@ -113,7 +113,7 @@ RSpec.describe Smartcar::Vehicle do
     describe '#odometer' do
       it 'should return an odometer object' do
         result = @vehicle.odometer
-        expect(result.distance.is_a?(Numeric)).to eq(true)
+        expect(result.distance.instance_of?(Float)).to eq(true)
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
@@ -145,54 +145,6 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.tire_pressure.back_left).not_to be_nil
           expect(result.tire_pressure.back_right).not_to be_nil
         end
-      end
-    end
-
-    describe '#request - odometer' do
-      it 'should use request method to return an odometer object' do
-        result = @vehicle.request('get', 'odometer')
-        expect(result.body.distance.is_a?(Numeric)).to eq(true)
-        expect(result.meta.request_id.length).to eq(36)
-        expect(result.meta.unit_system).to eq('metric')
-        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
-      end
-    end
-
-    describe '#request - batch' do
-      it 'should return hash of objects with attribute requested as keys' do
-        result = @vehicle.request('post', 'batch', { requests: [{ path: '/odometer' }, { path: '/tires/pressure' }] })
-        expect(result.body.responses[0].path).to eq('/odometer')
-        expect(result.body.responses[0].body.is_a?(OpenStruct)).to eq(true)
-        expect(result.body.responses[0].headers).not_to be_nil
-        expect(result.body.responses[0].body.distance).not_to be_nil
-        expect(result.body.responses[1].path).to eq('/tires/pressure')
-        expect(result.body.responses[1].body.is_a?(OpenStruct)).to eq(true)
-        expect(result.body.responses[1].headers).not_to be_nil
-        expect(result.body.responses[1].body.frontLeft).not_to be_nil
-        expect(result.body.responses[1].body.frontRight).not_to be_nil
-        expect(result.body.responses[1].body.backLeft).not_to be_nil
-        expect(result.body.responses[1].body.backRight).not_to be_nil
-      end
-    end
-
-    describe '#request - override auth header' do
-      it 'should throw error in making request' do
-        expected_description = 'The authorization header is missing or malformed, '\
-                               'or it contains invalid or expired authentication credentials. Please ' \
-                               'check for missing parameters, spelling and casing mistakes, and ' \
-                               'other syntax issues.'
-
-        expect do
-          @vehicle.request('get', 'odometer', {}, {
-                             'sc-unit-system': 'imperial',
-                             Authorization: 'Bearer abc'
-                           })
-        end.to(raise_error do |error|
-          expect(error.status_code).to eq(401)
-          expect(error.type).to eq('AUTHENTICATION')
-          expect(error.description).to eq(expected_description)
-          expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#authentication')
-        end)
       end
     end
 
