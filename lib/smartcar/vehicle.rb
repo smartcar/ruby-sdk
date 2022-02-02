@@ -246,8 +246,8 @@ module Smartcar
     # @return [OpenStruct] An object with a "body" attribute that contains the
     #   response body and a "meta" attribute with the relevant items from response headers.
     def request(method, path, body = {}, headers = {})
-      path = "/vehicles/#{id}/#{path}"
-      raw_response, headers = send(method, path, body, headers)
+      path = "/vehicles/#{id}/#{path.downcase}"
+      raw_response, headers = send(method, path.downcase, body, headers)
       meta = build_meta(headers)
       json_to_ostruct({ body: raw_response, meta: meta })
     end
