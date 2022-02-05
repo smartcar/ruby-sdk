@@ -31,6 +31,9 @@ module Smartcar
   # Constant for units
   UNITS = [IMPERIAL, METRIC].freeze
 
+  # Number of seconds to wait for responses
+  DEFAULT_REQUEST_TIMEOUT = 310
+
   # Smartcar API version variable - defaulted to 2.0
   @api_version = '2.0'
 
@@ -65,9 +68,10 @@ module Smartcar
     # @option options [String] :client_secret Client Secret that overrides ENV
     # @option options [String] :version API version to use, defaults to what is globally set
     # @option options [Hash] :flags A hash of flag name string as key and a string or boolean value.
-    # @option options [Boolean] :test_mode Wether to use test mode or not.
+    # @option options [Boolean] :test_mode Whether to use test mode or not.
     # @option options [String] :test_mode_compatibility_level this is required argument while using
     # test mode with a real vin. For more information refer to docs.
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#connect-compatibility
     #  and a meta attribute with the relevant items from response headers.
@@ -78,7 +82,8 @@ module Smartcar
       base_object = Base.new(
         {
           version: options[:version] || Smartcar.get_api_version,
-          auth_type: Base::BASIC
+          auth_type: Base::BASIC,
+          service: options[:service]
         }
       )
 
@@ -94,14 +99,18 @@ module Smartcar
     #
     # API Documentation - https://smartcar.com/docs/api#get-user
     # @param token [String] Access token
+    # @param version [String] Optional API version to use, defaults to what is globally set
+    # @param options [Hash] Other optional parameters including overrides
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-user
     #  and a meta attribute with the relevant items from response headers.
-    def get_user(token:, version: Smartcar.get_api_version)
+    def get_user(token:, version: Smartcar.get_api_version, options: {})
       base_object = Base.new(
         {
           token: token,
-          version: version
+          version: version,
+          service: options[:service]
         }
       )
       base_object.build_response(*base_object.fetch(path: PATHS[:user]))
@@ -112,14 +121,18 @@ module Smartcar
     # API Documentation - https://smartcar.com/docs/api#get-all-vehicles
     # @param token [String] - Access token
     # @param paging [Hash] - Optional filter parameters (check documentation)
+    # @param version [String] Optional API version to use, defaults to what is globally set
+    # @param options [Hash] Other optional parameters including overrides
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-all-vehicles
     #  and a meta attribute with the relevant items from response headers.
-    def get_vehicles(token:, paging: {}, version: Smartcar.get_api_version)
+    def get_vehicles(token:, paging: {}, version: Smartcar.get_api_version, options: {})
       base_object = Base.new(
         {
           token: token,
-          version: version
+          version: version,
+          service: options[:service]
         }
       )
       base_object.build_response(*base_object.fetch(
