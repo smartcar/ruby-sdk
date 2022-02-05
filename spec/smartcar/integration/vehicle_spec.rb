@@ -53,6 +53,32 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.pizza).to eq('pasta')
       end
     end
+
+    context 'with a custom service' do
+      let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
+
+      it 'uses the provided service object' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: {
+            service: mock_service
+          }
+        )
+
+        stub_request(:get, 'https://custom-api.smartcar.com/v2.0/vehicles/vehicle_id/odometer')
+          .with(headers: { 'Authorization' => 'Bearer token', 'sc-unit-system' => 'metric' })
+          .to_return(
+            {
+              status: 200,
+              body: { pizza: 'pasta' }.to_json
+            }
+          )
+
+        result = subject.odometer
+        expect(result.pizza).to eq('pasta')
+      end
+    end
   end
 
   describe '#batch' do

@@ -116,6 +116,32 @@ Example Usage for oAuth -
 # get a new token or use .
 ```
 
+## Advanced configuration
+
+This SDK uses the [Faraday HTTP client library](https://lostisland.github.io/faraday/) which supports extensive customization through the use of middleware. If you need to customize the behavior of HTTP request/response processing, you can provide your own instance of Faraday::Connection to most methods in this library.
+
+**Important:** If you provide your own Faraday connection, you are responsible for configuring all HTTP connection behavior, including timeouts! This SDK uses some custom timeouts internally to ensure best behavior by default, so unless you want to customize them you may want to replicate those timeouts.
+
+Example of providing a custom Faraday connection to various methods:
+```ruby
+  # Example Faraday connection that uses the Instrumentation middleware
+  service = Faraday::Connection.new(url: Smartcar::API_ORIGIN, request: { timeout: Smartcar::DEFAULT_REQUEST_TIMEOUT }) do |c|
+    c.request :instrumentation
+  end
+
+  # Passing the custom service to #get_vehicles
+  Smartcar.get_vehicles(token: token, options: { service: service })
+
+  # Passing the custom service to #get_user
+  Smartcar.get_user(token: token, options: { service: service })
+
+  # Passing the custom service to #get_compatibility
+  Smartcar.get_compatibility(vin: vin, scope: scope, options: { service: service })
+
+  # Passing the custom service into a Smartcar::Vehicle object
+  vehicle = Smartcar::Vehicle.new(token: token, id: id, options: { service: service })
+```
+
 ## Development
 
 To install this gem onto your local machine, run `bundle exec rake install`.
