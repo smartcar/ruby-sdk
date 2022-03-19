@@ -54,7 +54,7 @@ module Smartcar
 
     # Module method Used to check compatiblity for VIN and scope
     #
-    # API Documentation - https://smartcar.com/docs/api#connect-compatibility
+    # API Documentation - https://smartcar.com/docs/api#compatibility-api
     # @param vin [String] VIN of the vehicle to be checked
     # @param scope [Array of Strings] - array of scopes
     # @param country [String] An optional country code according to
