@@ -69,7 +69,7 @@ module Smartcar
     # @option options [String] :test_mode_compatibility_level this is required argument while using
     # test mode with a real vin. For more information refer to docs.
     #
-    # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#connect-compatibility
+    # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#compatibility-api
     #  and a meta attribute with the relevant items from response headers.
     def get_compatibility(vin:, scope:, country: 'US', options: {})
       raise InvalidParameterValue.new, 'vin is a required field' if vin.nil?
