@@ -54,20 +54,19 @@ module Smartcar
 
     # Module method Used to check compatiblity for VIN and scope
     #
-    # API Documentation - https://smartcar.com/docs/api#compatibility-api
+    # API Documentation - https://smartcar.com/docs/api#compatibility-api. Options Hash
     # @param vin [String] VIN of the vehicle to be checked
     # @param scope [Array of Strings] - array of scopes
     # @param country [String] An optional country code according to
-    # [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
-    # Defaults to US.
-    # @param options [Hash] Other optional parameters including overrides
+    # [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Defaults to US.
+    # @param options [Hash] Other optional parameters including overrides (only valid for Smartcar API v1.0)
     # @option options [String] :client_id Client ID that overrides ENV
     # @option options [String] :client_secret Client Secret that overrides ENV
     # @option options [String] :version API version to use, defaults to what is globally set
     # @option options [Hash] :flags A hash of flag name string as key and a string or boolean value.
     # @option options [Boolean] :test_mode Wether to use test mode or not.
-    # @option options [String] :test_mode_compatibility_level this is required argument while using
-    # test mode with a real vin. For more information refer to docs.
+    # @option options [String] :test_mode_compatibility_level this is required argument while
+    #    using test mode with a real vin. For more information refer to docs.
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#compatibility-api
     #  and a meta attribute with the relevant items from response headers.
