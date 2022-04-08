@@ -61,7 +61,7 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_compatibility(
+        response = subject.get_compatibility(
           vin: 'vin',
           scope: scopes,
           country: 'US',
@@ -69,6 +69,7 @@ RSpec.describe Smartcar do
             test_mode: true
           }
         )
+        expect(response.compatible).to be true
       end
     end
 
@@ -92,7 +93,7 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_compatibility(
+        response = subject.get_compatibility(
           vin: 'vin',
           scope: scopes,
           country: 'US',
@@ -100,6 +101,7 @@ RSpec.describe Smartcar do
             test_mode_compatibility_level: 'pizza'
           }
         )
+        expect(response.compatible).to be true
       end
     end
 
@@ -121,7 +123,7 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_compatibility(
+        response = subject.get_compatibility(
           vin: 'vin',
           scope: scopes,
           country: 'US',
@@ -129,6 +131,7 @@ RSpec.describe Smartcar do
             flags: { flagA: 'a', flagB: 'b' }
           }
         )
+        expect(response.compatible).to be true
       end
     end
 
@@ -152,7 +155,7 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_compatibility(
+        response = subject.get_compatibility(
           vin: 'vin',
           scope: scopes,
           country: 'US',
@@ -160,6 +163,7 @@ RSpec.describe Smartcar do
             service: mock_service
           }
         )
+        expect(response.compatible).to be true
       end
     end
   end
@@ -182,12 +186,13 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_user(
+        response = subject.get_user(
           token: 'token',
           options: {
             service: mock_service
           }
         )
+        expect(response.user.id).to eq('abc12345-6789-1234-abcd-123abc123abc')
       end
     end
   end
@@ -234,13 +239,18 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_vehicles(
+        response = subject.get_vehicles(
           token: 'token',
           paging: { limit: 1 },
           options: {
             service: mock_service
           }
         )
+        expect(response.vehicles.is_a?(Array)).to be_truthy
+        expect(response.vehicles[0] == 'vehicle1').to be_truthy
+        expect(response.paging.is_a?(OpenStruct)).to be_truthy
+        expect(response.paging.offset).to be(0)
+        expect(response.paging.count).to be(1)
       end
     end
   end
