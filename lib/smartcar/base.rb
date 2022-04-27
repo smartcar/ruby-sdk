@@ -13,8 +13,6 @@ module Smartcar
     class InvalidParameterValue < StandardError; end
     # Constant for Basic auth type
     BASIC = 'Basic'
-    # Number of seconds to wait for response
-    REQUEST_TIMEOUT = 310
 
     attr_accessor :token, :error, :unit_system, :version, :auth_type
 
@@ -65,7 +63,10 @@ module Smartcar
     #
     # @return [OAuth2::AccessToken] An initialized AccessToken instance that acts as service client
     def service
-      @service ||= Faraday.new(url: ENV['SMARTCAR_API_ORIGIN'] || API_ORIGIN, request: { timeout: REQUEST_TIMEOUT })
+      @service ||= Faraday.new(
+        url: ENV['SMARTCAR_API_ORIGIN'] || API_ORIGIN,
+        request: { timeout: DEFAULT_REQUEST_TIMEOUT }
+      )
     end
   end
 end

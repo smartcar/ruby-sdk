@@ -11,6 +11,7 @@ module Smartcar
   # @attr [Hash] options
   # @attr unit_system [String] Unit system to represent the data in, defaults to Imperial
   # @attr version [String] API version to be used.
+  # @attr service [Faraday::Connection] An optional connection object to be used for requests.
   class Vehicle < Base
     attr_reader :id
 
@@ -69,12 +70,13 @@ module Smartcar
                                          }, skip: true }
     }.freeze
 
-    def initialize(token:, id:, options: { unit_system: METRIC, version: Smartcar.get_api_version })
+    def initialize(token:, id:, options: {})
       super
       @token = token
       @id = id
-      @unit_system = options[:unit_system]
-      @version = options[:version]
+      @unit_system = options[:unit_system] || METRIC
+      @version = options[:version] || Smartcar.get_api_version
+      @service = options[:service]
 
       raise InvalidParameterValue.new, "Invalid Units provided : #{@unit_system}" unless UNITS.include?(@unit_system)
       raise InvalidParameterValue.new, 'Vehicle ID (id) is a required field' if id.nil?

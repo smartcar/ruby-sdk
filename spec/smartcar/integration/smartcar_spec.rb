@@ -61,7 +61,7 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_compatibility(
+        response = subject.get_compatibility(
           vin: 'vin',
           scope: scopes,
           country: 'US',
@@ -69,6 +69,7 @@ RSpec.describe Smartcar do
             test_mode: true
           }
         )
+        expect(response.compatible).to be true
       end
     end
 
@@ -92,7 +93,7 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_compatibility(
+        response = subject.get_compatibility(
           vin: 'vin',
           scope: scopes,
           country: 'US',
@@ -100,6 +101,7 @@ RSpec.describe Smartcar do
             test_mode_compatibility_level: 'pizza'
           }
         )
+        expect(response.compatible).to be true
       end
     end
 
@@ -121,7 +123,7 @@ RSpec.describe Smartcar do
             }
           )
 
-        subject.get_compatibility(
+        response = subject.get_compatibility(
           vin: 'vin',
           scope: scopes,
           country: 'US',
@@ -129,6 +131,68 @@ RSpec.describe Smartcar do
             flags: { flagA: 'a', flagB: 'b' }
           }
         )
+        expect(response.compatible).to be true
+      end
+    end
+
+    context 'when a service object is provided' do
+      let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
+
+      it 'should use the provided service object' do
+        scopes = %w[read_odometer read_location]
+        stub_request(:get, 'https://custom-api.smartcar.com/v2.0/compatibility?country=US&scope=read_odometer%20read_location&vin=vin')
+          .with(
+            basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']]
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body:
+              {
+                compatible: true
+              }.to_json
+            }
+          )
+
+        response = subject.get_compatibility(
+          vin: 'vin',
+          scope: scopes,
+          country: 'US',
+          options: {
+            service: mock_service
+          }
+        )
+        expect(response.compatible).to be true
+      end
+    end
+  end
+
+  describe '.get_user' do
+    context 'when a service object is provided' do
+      let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
+
+      it 'should use the provided service object' do
+        stub_request(:get, 'https://custom-api.smartcar.com/v2.0/user')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body:
+              {
+                user: { id: 'abc12345-6789-1234-abcd-123abc123abc' }
+              }.to_json
+            }
+          )
+
+        response = subject.get_user(
+          token: 'token',
+          options: {
+            service: mock_service
+          }
+        )
+        expect(response.user.id).to eq('abc12345-6789-1234-abcd-123abc123abc')
       end
     end
   end
@@ -155,6 +219,39 @@ RSpec.describe Smartcar do
       expect(response.paging.is_a?(OpenStruct)).to be_truthy
       expect(response.paging.offset).to be(0)
       expect(response.paging.count).to be(1)
+    end
+
+    context 'when a service object is provided' do
+      let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
+
+      it 'should use the provided service object' do
+        stub_request(:get, 'https://custom-api.smartcar.com/v2.0/vehicles?limit=1')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body:
+              {
+                vehicles: ['vehicle1'],
+                paging: { count: 1, offset: 0 }
+              }.to_json
+            }
+          )
+
+        response = subject.get_vehicles(
+          token: 'token',
+          paging: { limit: 1 },
+          options: {
+            service: mock_service
+          }
+        )
+        expect(response.vehicles.is_a?(Array)).to be_truthy
+        expect(response.vehicles[0] == 'vehicle1').to be_truthy
+        expect(response.paging.is_a?(OpenStruct)).to be_truthy
+        expect(response.paging.offset).to be(0)
+        expect(response.paging.count).to be(1)
+      end
     end
   end
 end
