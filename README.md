@@ -101,7 +101,7 @@ Example Usage for calling the reports API with oAuth token
 Example Usage for oAuth -
 ```ruby
 # To get the redirect URL :
-2.5.5 :002 > options = {test_mode: true}
+2.5.5 :002 > options = {mode: 'test'}
 2.5.5 :003 > require 'smartcar'
 2.5.5 :004 > client = Smartcar::AuthClient.new(options)
 2.5.5 :005 > url = client.get_auth_url(["read_battery","read_charge","read_fuel","read_location","control_security","read_odometer","read_tires","read_vin","read_vehicle_info"], {flags: ["country:DE"]})
@@ -155,7 +155,7 @@ export E2E_SMARTCAR_WEBHOOK_ID=<webhook id to use for tests>
 ```
 
 Tests can be run using either default rake command OR specific rspec command.
-```ruby
+```
 bundle exec rake spec
 ```
 

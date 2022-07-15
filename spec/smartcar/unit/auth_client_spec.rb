@@ -6,7 +6,7 @@ RSpec.describe Smartcar::AuthClient do
                                redirect_uri: 'test_url',
                                client_id: 'SMARTCAR_CLIENT_ID',
                                client_secret: 'SMARTCAR_CLIENT_SECRET',
-                               test_mode: true
+                               mode: 'test'
                              })
   end
   let(:obj) { double('dummy object for client') }

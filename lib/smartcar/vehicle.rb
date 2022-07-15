@@ -77,6 +77,7 @@ module Smartcar
       @unit_system = options[:unit_system] || METRIC
       @version = options[:version] || Smartcar.get_api_version
       @service = options[:service]
+      @flags = options[:flags] || {}
 
       raise InvalidParameterValue.new, "Invalid Units provided : #{@unit_system}" unless UNITS.include?(@unit_system)
       raise InvalidParameterValue.new, 'Vehicle ID (id) is a required field' if id.nil?

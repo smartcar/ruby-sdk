@@ -42,13 +42,13 @@ RSpec.describe Smartcar do
       end
     end
 
-    context 'when test mode is passed' do
+    context 'when mode is set to simulated' do
       it 'should add it in query params' do
         scopes = %w[read_odometer read_location]
         stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility')
           .with(
             basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']],
-            query: { country: 'US', mode: 'test', scope: 'read_odometer read_location', vin: 'vin' }
+            query: { country: 'US', mode: 'simulated', scope: 'read_odometer read_location', vin: 'vin' }
           )
           .to_return(
             {
@@ -66,7 +66,7 @@ RSpec.describe Smartcar do
           scope: scopes,
           country: 'US',
           options: {
-            test_mode: true
+            mode: 'simulated'
           }
         )
         expect(response.compatible).to be true

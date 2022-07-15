@@ -26,7 +26,7 @@ class AuthHelper
     def auth_client_params
       {
         redirect_uri: 'https://example.com/auth',
-        test_mode: true
+        mode: 'test'
       }
     end
 

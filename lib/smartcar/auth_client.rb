@@ -14,14 +14,18 @@ module Smartcar
     # @option options[:client_id] [String] - Client ID, if not passed fallsback to ENV['SMARTCAR_CLIENT_ID']
     # @option options[:client_secret] [String] - Client Secret, if not passed fallsback to ENV['SMARTCAR_CLIENT_SECRET']
     # @option options[:redirect_uri] [String] - Redirect URI, if not passed fallsback to ENV['SMARTCAR_REDIRECT_URI']
-    # @option options[:test_mode] [Boolean] - Setting this to 'true' runs it in test mode.
-    #
+    # @option options[:test_mode] [Boolean] - Setting this to 'true' runs it in test mode. [DEPRECATED]: Use mode instead
+    # @option options[:mode] [String] - Mode to Launch the Smartcar auth flow ['test'|'live'|'simulated'].
     # @return [Smartcar::AuthClient] Returns a Smartcar::AuthClient Object that has other methods
     def initialize(options)
       options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI')
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
-      options[:mode] = options[:test_mode].is_a?(TrueClass) ? TEST : LIVE
+      if options[:test_mode]
+        warn "[DEPRECATION] parameter `test_mode` is deprecated.  Please use `mode` instead."
+        options[:mode] = options[:test_mode].is_a?(TrueClass) ? TEST : LIVE
+      end
+      options[:mode] ||= LIVE
       options[:origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
       super
     end

@@ -67,7 +67,8 @@ module Smartcar
     # @option options [String] :client_secret Client Secret that overrides ENV
     # @option options [String] :version API version to use, defaults to what is globally set
     # @option options [Hash] :flags A hash of flag name string as key and a string or boolean value.
-    # @option options [Boolean] :test_mode Whether to use test mode or not.
+    # @option options [Boolean] :test_mode Whether to use test mode or not. [DEPRECATED]: Use mode instead
+    # @option options [String] :mode Mode to Launch the Smartcar auth flow ['test'|'live'|'simulated'].
     # @option options [String] :test_mode_compatibility_level this is required argument while using
     # test mode with a real vin. For more information refer to docs.
     # @option options [Faraday::Connection] :service Optional connection object to be used for requests
@@ -170,17 +171,21 @@ module Smartcar
         country: country
       }
       query_params[:flags] = options[:flags].map { |key, value| "#{key}:#{value}" }.join(' ') if options[:flags]
-      query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live' unless options[:test_mode].nil?
 
+      if options[:test_mode]
+        warn "[DEPRECATION] parameter `test_mode` is deprecated.  Please use `mode` instead."
+        query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live' unless options[:test_mode].nil?
+      end
+      if options[:mode]
+        query_params[:mode] = options[:mode]
+      end
       if options[:test_mode_compatibility_level]
         query_params[:test_mode_compatibility_level] =
           options[:test_mode_compatibility_level]
         query_params[:mode] = 'test'
       end
-
       query_params
     end
-
     # returns auth token for Basic auth
     #
     # @return [String] Base64 encoding of CLIENT:SECRET
