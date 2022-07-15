@@ -173,12 +173,10 @@ module Smartcar
       query_params[:flags] = options[:flags].map { |key, value| "#{key}:#{value}" }.join(' ') if options[:flags]
 
       if options[:test_mode]
-        warn "[DEPRECATION] parameter `test_mode` is deprecated.  Please use `mode` instead."
+        warn '[DEPRECATION] parameter `test_mode` is deprecated.  Please use `mode` instead.'
         query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live' unless options[:test_mode].nil?
       end
-      if options[:mode]
-        query_params[:mode] = options[:mode]
-      end
+      query_params[:mode] = options[:mode] if options[:mode]
       if options[:test_mode_compatibility_level]
         query_params[:test_mode_compatibility_level] =
           options[:test_mode_compatibility_level]
@@ -186,6 +184,7 @@ module Smartcar
       end
       query_params
     end
+
     # returns auth token for Basic auth
     #
     # @return [String] Base64 encoding of CLIENT:SECRET
