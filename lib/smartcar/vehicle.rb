@@ -183,7 +183,7 @@ module Smartcar
                         when :delete
                           delete(item[:path].call(id))
                         else
-                          query_params = unless @flags.nil? then {flags: @flags} else {} end
+                          query_params = @flags.nil? ? {} : { flags: @flags }
                           fetch(path: item[:path].call(id), query_params: query_params)
                         end
         build_aliases(build_response(body, headers), item[:aliases])
