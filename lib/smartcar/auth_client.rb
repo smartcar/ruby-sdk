@@ -14,18 +14,26 @@ module Smartcar
     # @option options[:client_id] [String] - Client ID, if not passed fallsback to ENV['SMARTCAR_CLIENT_ID']
     # @option options[:client_secret] [String] - Client Secret, if not passed fallsback to ENV['SMARTCAR_CLIENT_SECRET']
     # @option options[:redirect_uri] [String] - Redirect URI, if not passed fallsback to ENV['SMARTCAR_REDIRECT_URI']
-    # @option options[:test_mode] [Boolean] - Setting this to 'true' runs it in test mode [DEPRECATED]: Use mode instead
-    # @option options[:mode] [String] - Mode to Launch the Smartcar auth flow ['test'|'live'|'simulated'].
+    # @option options[:test_mode] [Boolean] - [DEPRECATED], please use `mode` instead.
+    # Launch Smartcar Connect in [test mode](https://smartcar.com/docs/guides/testing/).
+    # @option options[:mode] [String] - Determine what mode Smartcar Connect should be launched in.
+    # Should be one of test, live or simulated.
     # @return [Smartcar::AuthClient] Returns a Smartcar::AuthClient Object that has other methods
     def initialize(options)
       options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI')
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
+
       if options[:test_mode]
-        warn '[DEPRECATION] parameter `test_mode` is deprecated.  Please use `mode` instead.'
-        options[:mode] = options[:test_mode].is_a?(TrueClass) ? TEST : LIVE
+        warn '[DEPRECATION] The "testMode" parameter is deprecated, please use the "mode" parameter instead.'
+        options[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live'
       end
-      options[:mode] ||= LIVE
+      options[:mode] ||= 'live'
+
+      unless %w[test live simulated].include? options[:mode]
+        raise 'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
+      end
+
       options[:origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
       super
     end

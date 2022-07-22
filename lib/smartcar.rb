@@ -67,8 +67,10 @@ module Smartcar
     # @option options [String] :client_secret Client Secret that overrides ENV
     # @option options [String] :version API version to use, defaults to what is globally set
     # @option options [Hash] :flags A hash of flag name string as key and a string or boolean value.
-    # @option options [Boolean] :test_mode Whether to use test mode or not. [DEPRECATED]: Use mode instead
-    # @option options [String] :mode Mode to Launch the Smartcar auth flow ['test'|'live'|'simulated'].
+    # @option options[Boolean] :test_mode [DEPRECATED], please use `mode` instead.
+    # Launch Smartcar Connect in test mode(https://smartcar.com/docs/guides/testing/).
+    # @option options [String] :mode Determine what mode Smartcar Connect should be launched in.
+    # Should be one of test, live or simulated.
     # @option options [String] :test_mode_compatibility_level this is required argument while using
     # test mode with a real vin. For more information refer to docs.
     # @option options [Faraday::Connection] :service Optional connection object to be used for requests
@@ -173,15 +175,24 @@ module Smartcar
       query_params[:flags] = options[:flags].map { |key, value| "#{key}:#{value}" }.join(' ') if options[:flags]
 
       if options[:test_mode]
-        warn '[DEPRECATION] parameter `test_mode` is deprecated.  Please use `mode` instead.'
-        query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live' unless options[:test_mode].nil?
+        warn '[DEPRECATION] The "testMode" parameter is deprecated, please use the "mode" parameter instead.'
+        query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live'
       end
-      query_params[:mode] = options[:mode] if options[:mode]
+      query_params[:mode] = options[:mode] unless options[:mode].nil?
       if options[:test_mode_compatibility_level]
         query_params[:test_mode_compatibility_level] =
           options[:test_mode_compatibility_level]
         query_params[:mode] = 'test'
       end
+
+      puts query_params[:mode]
+
+      unless query_params[:mode].nil?
+        unless %w[test live simulated].include? query_params[:mode]
+          raise 'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
+        end
+      end
+
       query_params
     end
 

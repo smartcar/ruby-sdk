@@ -11,6 +11,7 @@ module Smartcar
   # @attr [Hash] options
   # @attr unit_system [String] Unit system to represent the data in, defaults to Imperial
   # @attr version [String] API version to be used.
+  # @attr flags [Hash] Object of flags where key is the name of the flag and value is string or boolean value.
   # @attr service [Faraday::Connection] An optional connection object to be used for requests.
   class Vehicle < Base
     attr_reader :id
@@ -77,7 +78,7 @@ module Smartcar
       @unit_system = options[:unit_system] || METRIC
       @version = options[:version] || Smartcar.get_api_version
       @service = options[:service]
-      @flags = options[:flags] || {}
+      @flags = options[:flags].map { |key, value| "#{key}:#{value}" }.join(' ') unless options[:flags].nil?
 
       raise InvalidParameterValue.new, "Invalid Units provided : #{@unit_system}" unless UNITS.include?(@unit_system)
       raise InvalidParameterValue.new, 'Vehicle ID (id) is a required field' if id.nil?
@@ -182,7 +183,8 @@ module Smartcar
                         when :delete
                           delete(item[:path].call(id))
                         else
-                          fetch(path: item[:path].call(id))
+                          query_params = unless @flags.nil? then {flags: @flags} else {} end
+                          fetch(path: item[:path].call(id), query_params: query_params)
                         end
         build_aliases(build_response(body, headers), item[:aliases])
       end

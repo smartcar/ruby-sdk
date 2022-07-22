@@ -54,6 +54,26 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    context 'with optional flags' do
+      it 'uses whatever is passed' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: { flags: { country: 'DE', flag: 'suboption' } }
+        )
+        stub_request(:get, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/odometer?flags=country%3ADE%20flag%3Asuboption')
+          .with(headers: { 'Authorization' => 'Bearer token', 'sc-unit-system' => 'metric' })
+          .to_return(
+            {
+              status: 200,
+              body: { pizza: 'pasta' }.to_json
+            }
+          )
+        result = subject.odometer
+        expect(result.pizza).to eq('pasta')
+      end
+    end
+
     context 'with a custom service' do
       let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
 

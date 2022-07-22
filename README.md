@@ -155,7 +155,7 @@ export E2E_SMARTCAR_WEBHOOK_ID=<webhook id to use for tests>
 ```
 
 Tests can be run using either default rake command OR specific rspec command.
-```
+```ruby
 bundle exec rake spec
 ```
 
