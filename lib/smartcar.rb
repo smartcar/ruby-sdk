@@ -176,7 +176,7 @@ module Smartcar
       }
       add_query_params(query_params, :flags, stringify_params(options[:flags]))
 
-      if options[:test_mode]
+      unless options[:test_mode].nil?
         warn '[DEPRECATION] The "test_mode" parameter is deprecated, please use the "mode" parameter instead.'
         add_query_params(query_params, :mode, options[:test_mode].is_a?(TrueClass) ? 'test' : 'live')
       end
@@ -188,7 +188,7 @@ module Smartcar
         end
       end
 
-      if options[:test_mode_compatibility_level]
+      unless options[:test_mode_compatibility_level].nil?
         add_query_params(query_params, :test_mode_compatibility_level, options[:test_mode_compatibility_level])
         add_query_params(query_params, :mode, 'test')
       end

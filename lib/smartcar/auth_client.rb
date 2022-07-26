@@ -24,7 +24,7 @@ module Smartcar
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
 
-      if options[:test_mode]
+      unless options[:test_mode].nil?
         warn '[DEPRECATION] The "test_mode" parameter is deprecated, please use the "mode" parameter instead.'
         options[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live'
       end
