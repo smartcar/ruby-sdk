@@ -61,7 +61,7 @@ RSpec.describe Smartcar::AuthClient do
       expect(obj).to receive(:authorize_url).with({
                                                     redirect_uri: 'test_url',
                                                     scope: 'testing1 testing2',
-                                                    mode: Smartcar::TEST,
+                                                    mode: 'test',
                                                     response_type: Smartcar::CODE,
                                                     flags: 'country:DE',
                                                     state: 'blah',
@@ -84,7 +84,7 @@ RSpec.describe Smartcar::AuthClient do
       expect(obj).to receive(:authorize_url).with({
                                                     redirect_uri: 'test_url',
                                                     scope: 'testing1 testing2',
-                                                    mode: Smartcar::TEST,
+                                                    mode: 'test',
                                                     response_type: Smartcar::CODE,
                                                     flags: 'country:DE',
                                                     state: 'blah',

@@ -78,7 +78,8 @@ module Smartcar
       @unit_system = options[:unit_system] || METRIC
       @version = options[:version] || Smartcar.get_api_version
       @service = options[:service]
-      @flags = options[:flags].map { |key, value| "#{key}:#{value}" }.join(' ') unless options[:flags].nil?
+      @query_params = {}
+      add_query_params(@query_params, :flags, stringify_params(options[:flags]))
 
       raise InvalidParameterValue.new, "Invalid Units provided : #{@unit_system}" unless UNITS.include?(@unit_system)
       raise InvalidParameterValue.new, 'Vehicle ID (id) is a required field' if id.nil?
@@ -179,12 +180,11 @@ module Smartcar
       define_method method do
         body, headers = case item[:type]
                         when :post
-                          post(item[:path].call(id), item[:body])
+                          post(item[:path].call(id), @query_params, item[:body])
                         when :delete
-                          delete(item[:path].call(id))
+                          delete(item[:path].call(id), @query_params)
                         else
-                          query_params = @flags.nil? ? {} : { flags: @flags }
-                          fetch(path: item[:path].call(id), query_params: query_params)
+                          get(item[:path].call(id), @query_params)
                         end
         build_aliases(build_response(body, headers), item[:aliases])
       end
@@ -198,7 +198,7 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-application-permissions
     #  and a meta attribute with the relevant items from response headers.
     def permissions(paging = {})
-      response, headers = fetch(path: METHODS.dig(:permissions, :path).call(id), query_params: paging)
+      response, headers = get(METHODS.dig(:permissions, :path).call(id), @query_params.merge(paging))
       build_response(response, headers)
     end
 
@@ -209,7 +209,7 @@ module Smartcar
     # @return [OpenStruct] An object representing the JSON response and a meta attribute
     #   with the relevant items from response headers.
     def subscribe!(webhook_id)
-      response, headers = post(METHODS.dig(:subscribe!, :path).call(id, webhook_id), {})
+      response, headers = post(METHODS.dig(:subscribe!, :path).call(id, webhook_id), @query_params)
       build_aliases(build_response(response, headers), METHODS.dig(:subscribe!, :aliases))
     end
 
@@ -223,7 +223,8 @@ module Smartcar
       # swapping off the token with amt for unsubscribe.
       access_token = token
       self.token = amt
-      response, headers = delete(METHODS.dig(:unsubscribe!, :path).call(id, webhook_id))
+      response, headers = delete(METHODS.dig(:unsubscribe!, :path).call(id, webhook_id),
+                                 @query_params)
       self.token = access_token
       build_response(response, headers)
     end
@@ -236,7 +237,7 @@ module Smartcar
     #  an OpenStruct object of the requested attribute or taises if it is an error.
     def batch(paths)
       request_body = { requests: paths.map { |path| { path: path } } }
-      response, headers = post("/vehicles/#{id}/batch", request_body)
+      response, headers = post("/vehicles/#{id}/batch", @query_params, request_body)
       process_batch_response(response, headers)
     end
 
@@ -252,7 +253,7 @@ module Smartcar
     #   response body and a "meta" attribute with the relevant items from response headers.
     def request(method, path, body = {}, headers = {})
       path = "/vehicles/#{id}/#{path}"
-      raw_response, headers = send(method.downcase, path, body, headers)
+      raw_response, headers = send(method.downcase, path, @query_params, body, headers)
       meta = build_meta(headers)
       json_to_ostruct({ body: raw_response, meta: meta })
     end

@@ -38,6 +38,7 @@ module Smartcar
   @api_version = '2.0'
 
   class << self
+    include Smartcar::Utils
     # Module method Used to set api version to be used.
     # This method can be used at the top to set the version and any
     # following request will use the version set here unless overridden
@@ -91,9 +92,9 @@ module Smartcar
 
       base_object.token = generate_basic_auth(options, base_object)
 
-      base_object.build_response(*base_object.fetch(
-        path: PATHS[:compatibility],
-        query_params: build_compatibility_params(vin, scope, country, options)
+      base_object.build_response(*base_object.get(
+        PATHS[:compatibility],
+        build_compatibility_params(vin, scope, country, options)
       ))
     end
 
@@ -115,7 +116,7 @@ module Smartcar
           service: options[:service]
         }
       )
-      base_object.build_response(*base_object.fetch(path: PATHS[:user]))
+      base_object.build_response(*base_object.get(PATHS[:user]))
     end
 
     # Module method Returns a paged list of all vehicles connected to the application for the current authorized user.
@@ -137,9 +138,9 @@ module Smartcar
           service: options[:service]
         }
       )
-      base_object.build_response(*base_object.fetch(
-        path: PATHS[:vehicles],
-        query_params: paging
+      base_object.build_response(*base_object.get(
+        PATHS[:vehicles],
+        paging
       ))
     end
 
@@ -173,24 +174,23 @@ module Smartcar
         scope: scope.join(' '),
         country: country
       }
-      query_params[:flags] = options[:flags].map { |key, value| "#{key}:#{value}" }.join(' ') if options[:flags]
+      add_query_params(query_params, :flags, stringify_params(options[:flags]))
 
       if options[:test_mode]
-        warn '[DEPRECATION] The "testMode" parameter is deprecated, please use the "mode" parameter instead.'
-        query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live'
+        warn '[DEPRECATION] The "test_mode" parameter is deprecated, please use the "mode" parameter instead.'
+        add_query_params(query_params, :mode, options[:test_mode].is_a?(TrueClass) ? 'test' : 'live')
       end
 
       unless options[:mode].nil?
-        query_params[:mode] = options[:mode]
+        add_query_params(query_params, :mode, options[:mode])
         unless %w[test live simulated].include? query_params[:mode]
           raise 'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
         end
       end
 
       if options[:test_mode_compatibility_level]
-        query_params[:test_mode_compatibility_level] =
-          options[:test_mode_compatibility_level]
-        query_params[:mode] = 'test'
+        add_query_params(query_params, :test_mode_compatibility_level, options[:test_mode_compatibility_level])
+        add_query_params(query_params, :mode, 'test')
       end
       query_params
     end
