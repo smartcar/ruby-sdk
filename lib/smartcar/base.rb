@@ -32,7 +32,7 @@ module Smartcar
             "Smartcar/#{VERSION} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
           request.headers = request_headers.merge(headers)
           complete_path = "/v#{version}#{path}"
-          complete_path += "?#{URI.encode_www_form(query_params)}" unless query_params.empty?
+          complete_path += "?#{URI.encode_www_form(query_params.compact)}" unless query_params.empty?
           if verb == :get
             request.url complete_path, data
           else

@@ -128,11 +128,6 @@ module Smartcar
       path.split('/').reject(&:empty?).join('_').to_sym
     end
 
-    # adds to query_params if value is not nil
-    def add_query_params(query_params, key, value)
-      query_params[key] = value unless value.nil?
-    end
-
     # takes query parameters and returns them as a string
     # EX - {'country': 'DE', 'flags': true} -> "county:DE flags:true"
     def stringify_params(query_params)

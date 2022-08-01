@@ -174,23 +174,23 @@ module Smartcar
         scope: scope.join(' '),
         country: country
       }
-      add_query_params(query_params, :flags, stringify_params(options[:flags]))
+      query_params[:flags] = stringify_params(options[:flags])
 
       unless options[:test_mode].nil?
         warn '[DEPRECATION] The "test_mode" parameter is deprecated, please use the "mode" parameter instead.'
-        add_query_params(query_params, :mode, options[:test_mode].is_a?(TrueClass) ? 'test' : 'live')
+        query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live'
       end
 
       unless options[:mode].nil?
-        add_query_params(query_params, :mode, options[:mode])
+        query_params[:mode] = options[:mode]
         unless %w[test live simulated].include? query_params[:mode]
           raise 'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
         end
       end
 
       unless options[:test_mode_compatibility_level].nil?
-        add_query_params(query_params, :test_mode_compatibility_level, options[:test_mode_compatibility_level])
-        add_query_params(query_params, :mode, 'test')
+        query_params[:test_mode_compatibility_level] = options[:test_mode_compatibility_level]
+        query_params[:mode] = 'test'
       end
       query_params
     end
