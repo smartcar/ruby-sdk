@@ -114,6 +114,42 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    context 'subscribe request' do
+      it 'uses optional flags' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: { flags: { country: 'DE', flag: 'suboption' } }
+        )
+        stub_request(:post, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/webhooks/webhook_id?flags=country:DE%20flag:suboption')
+          .with(
+            headers: {
+              'Authorization' => 'Bearer token'
+            }
+          )
+          .to_return(status: 200)
+        subject.subscribe!('webhook_id')
+      end
+    end
+
+    context 'unsubscribe request' do
+      it 'uses optional flags' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: { flags: { country: 'DE', flag: 'suboption' } }
+        )
+        stub_request(:delete, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/webhooks/webhook_id?flags=country:DE%20flag:suboption')
+          .with(
+            headers: {
+              'Authorization' => 'Bearer amt'
+            }
+          )
+          .to_return(status: 200)
+        subject.unsubscribe!('amt', 'webhook_id')
+      end
+    end
+
     context 'with a custom service' do
       let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
 
