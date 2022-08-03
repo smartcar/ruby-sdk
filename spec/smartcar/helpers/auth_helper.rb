@@ -26,7 +26,7 @@ class AuthHelper
     def auth_client_params
       {
         redirect_uri: 'https://example.com/auth',
-        test_mode: true
+        mode: 'test'
       }
     end
 
@@ -42,7 +42,7 @@ class AuthHelper
       driver.find_element(css: 'input[id=password').send_keys('password')
       driver.find_element(css: 'button[id=sign-in-button]').click
 
-      wait = Selenium::WebDriver::Wait.new(timeout: 30)
+      wait = Selenium::WebDriver::Wait.new(timeout: 60)
 
       %w[approval-button continue-button].each do |button|
         wait.until do

@@ -14,15 +14,17 @@ module Smartcar
     # @option options[:client_id] [String] - Client ID, if not passed fallsback to ENV['SMARTCAR_CLIENT_ID']
     # @option options[:client_secret] [String] - Client Secret, if not passed fallsback to ENV['SMARTCAR_CLIENT_SECRET']
     # @option options[:redirect_uri] [String] - Redirect URI, if not passed fallsback to ENV['SMARTCAR_REDIRECT_URI']
-    # @option options[:test_mode] [Boolean] - Setting this to 'true' runs it in test mode.
-    #
+    # @option options[:test_mode] [Boolean] - [DEPRECATED], please use `mode` instead.
+    # Launch Smartcar Connect in [test mode](https://smartcar.com/docs/guides/testing/).
+    # @option options[:mode] [String] - Determine what mode Smartcar Connect should be launched in.
+    # Should be one of test, live or simulated.
     # @return [Smartcar::AuthClient] Returns a Smartcar::AuthClient Object that has other methods
     def initialize(options)
       options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI')
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
-      options[:mode] = options[:test_mode].is_a?(TrueClass) ? TEST : LIVE
       options[:origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
+      options[:mode] = determine_mode(options[:test_mode], options[:mode]) || 'live'
       super
     end
 

@@ -22,7 +22,7 @@ module Smartcar
       # @param data [Hash] request body if needed.
       #
       # @return [Hash] The response Json parsed as a hash.
-      define_method verb do |path, data = nil, headers = {}|
+      define_method verb do |path, query_params = {}, data = nil, headers = {}|
         response = service.send(verb) do |request|
           request_headers = {}
           request_headers['Authorization'] = auth_type == BASIC ? "Basic #{token}" : "Bearer #{token}"
@@ -32,6 +32,7 @@ module Smartcar
             "Smartcar/#{VERSION} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
           request.headers = request_headers.merge(headers)
           complete_path = "/v#{version}#{path}"
+          complete_path += "?#{URI.encode_www_form(query_params.compact)}" unless query_params.empty?
           if verb == :get
             request.url complete_path, data
           else
@@ -44,17 +45,6 @@ module Smartcar
         body = response.body.empty? ? '{}' : response.body
         [JSON.parse(body), response.headers]
       end
-    end
-
-    # This requires a proc 'PATH' to be defined in the class
-    # @param path [String] resource path
-    # @param query_params [Hash] query params
-    # @param auth [String] type of auth
-    #
-    # @return [Object]
-    def fetch(path:, query_params: {})
-      path += "?#{URI.encode_www_form(query_params)}" unless query_params.empty?
-      get(path)
     end
 
     private

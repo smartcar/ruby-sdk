@@ -38,6 +38,7 @@ module Smartcar
   @api_version = '2.0'
 
   class << self
+    include Smartcar::Utils
     # Module method Used to set api version to be used.
     # This method can be used at the top to set the version and any
     # following request will use the version set here unless overridden
@@ -67,7 +68,10 @@ module Smartcar
     # @option options [String] :client_secret Client Secret that overrides ENV
     # @option options [String] :version API version to use, defaults to what is globally set
     # @option options [Hash] :flags A hash of flag name string as key and a string or boolean value.
-    # @option options [Boolean] :test_mode Whether to use test mode or not.
+    # @option options[Boolean] :test_mode [DEPRECATED], please use `mode` instead.
+    # Launch Smartcar Connect in test mode(https://smartcar.com/docs/guides/testing/).
+    # @option options [String] :mode Determine what mode Smartcar Connect should be launched in.
+    # Should be one of test, live or simulated.
     # @option options [String] :test_mode_compatibility_level this is required argument while using
     # test mode with a real vin. For more information refer to docs.
     # @option options [Faraday::Connection] :service Optional connection object to be used for requests
@@ -88,9 +92,9 @@ module Smartcar
 
       base_object.token = generate_basic_auth(options, base_object)
 
-      base_object.build_response(*base_object.fetch(
-        path: PATHS[:compatibility],
-        query_params: build_compatibility_params(vin, scope, country, options)
+      base_object.build_response(*base_object.get(
+        PATHS[:compatibility],
+        build_compatibility_params(vin, scope, country, options)
       ))
     end
 
@@ -112,7 +116,7 @@ module Smartcar
           service: options[:service]
         }
       )
-      base_object.build_response(*base_object.fetch(path: PATHS[:user]))
+      base_object.build_response(*base_object.get(PATHS[:user]))
     end
 
     # Module method Returns a paged list of all vehicles connected to the application for the current authorized user.
@@ -134,9 +138,9 @@ module Smartcar
           service: options[:service]
         }
       )
-      base_object.build_response(*base_object.fetch(
-        path: PATHS[:vehicles],
-        query_params: paging
+      base_object.build_response(*base_object.get(
+        PATHS[:vehicles],
+        paging
       ))
     end
 
@@ -169,15 +173,15 @@ module Smartcar
         scope: scope.join(' '),
         country: country
       }
-      query_params[:flags] = options[:flags].map { |key, value| "#{key}:#{value}" }.join(' ') if options[:flags]
-      query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live' unless options[:test_mode].nil?
+      query_params[:flags] = stringify_params(options[:flags])
 
-      if options[:test_mode_compatibility_level]
-        query_params[:test_mode_compatibility_level] =
-          options[:test_mode_compatibility_level]
-        query_params[:mode] = 'test'
+      mode = determine_mode(options[:test_mode], options[:mode])
+
+      unless options[:test_mode_compatibility_level].nil?
+        query_params[:test_mode_compatibility_level] = options[:test_mode_compatibility_level]
+        mode = 'test'
       end
-
+      query_params[:mode] = mode unless mode.nil?
       query_params
     end
 

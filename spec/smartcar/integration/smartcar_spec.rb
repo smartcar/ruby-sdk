@@ -42,8 +42,51 @@ RSpec.describe Smartcar do
       end
     end
 
-    context 'when test mode is passed' do
+    context 'when mode is invalid' do
+      it 'should raise error if mode is not live, test, or simulated' do
+        expect do
+          subject.get_compatibility(vin: 'vin', scope: ['scope'], options: { mode: 'invalid' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq(
+                   'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
+                 )
+               end)
+      end
+    end
+
+    context 'when mode is set to simulated' do
       it 'should add it in query params' do
+        scopes = %w[read_odometer read_location]
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility')
+          .with(
+            basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']],
+            query: { country: 'US', mode: 'simulated', scope: 'read_odometer read_location', vin: 'vin' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body:
+              {
+                compatible: true
+              }.to_json
+            }
+          )
+
+        response = subject.get_compatibility(
+          vin: 'vin',
+          scope: scopes,
+          country: 'US',
+          options: {
+            mode: 'simulated'
+          }
+        )
+        expect(response.compatible).to be true
+      end
+    end
+
+    context 'when test_mode is set to true' do
+      it 'should add mode=test in query params' do
         scopes = %w[read_odometer read_location]
         stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility')
           .with(
