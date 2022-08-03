@@ -133,5 +133,19 @@ module Smartcar
     def stringify_params(query_params)
       query_params&.map { |key, value| "#{key}:#{value}" }&.join(' ')
     end
+
+    def determine_mode(test_mode, mode)
+      unless mode.nil?
+        unless %w[test live simulated].include? mode
+          raise 'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
+        end
+
+        return mode
+      end
+      return if test_mode.nil?
+
+      warn '[DEPRECATION] The "test_mode" parameter is deprecated, please use the "mode" parameter instead.'
+      test_mode.is_a?(TrueClass) ? 'test' : 'live'
+    end
   end
 end

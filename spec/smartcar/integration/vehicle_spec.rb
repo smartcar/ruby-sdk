@@ -54,8 +54,8 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
-    context 'with optional flags' do
-      it 'uses whatever is passed' do
+    context 'get request' do
+      it 'uses optional flags' do
         subject = Smartcar::Vehicle.new(
           token: 'token',
           id: 'vehicle_id',
@@ -70,6 +70,46 @@ RSpec.describe Smartcar::Vehicle do
             }
           )
         result = subject.odometer
+        expect(result.pizza).to eq('pasta')
+      end
+    end
+
+    context 'post request' do
+      it 'uses optional flags' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: { flags: { country: 'DE', flag: 'suboption' } }
+        )
+        stub_request(:post, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/charge?flags=country%3ADE%20flag%3Asuboption')
+          .with(headers: { 'Authorization' => 'Bearer token' }, body: { 'action' => 'START' })
+          .to_return(
+            {
+              status: 200,
+              body: { pizza: 'pasta' }.to_json
+            }
+          )
+        result = subject.start_charge!
+        expect(result.pizza).to eq('pasta')
+      end
+    end
+
+    context 'delete request' do
+      it 'uses optional flags' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: { flags: { country: 'DE', flag: 'suboption' } }
+        )
+        stub_request(:delete, 'https://api.smartcar.com/v2.0/vehicles/vehicle_id/application?flags=country%3ADE%20flag%3Asuboption')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              body: { pizza: 'pasta' }.to_json
+            }
+          )
+        result = subject.disconnect!
         expect(result.pizza).to eq('pasta')
       end
     end

@@ -167,7 +167,6 @@ module Smartcar
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def build_compatibility_params(vin, scope, country, options)
       query_params = {
         vin: vin,
@@ -176,25 +175,15 @@ module Smartcar
       }
       query_params[:flags] = stringify_params(options[:flags])
 
-      unless options[:test_mode].nil?
-        warn '[DEPRECATION] The "test_mode" parameter is deprecated, please use the "mode" parameter instead.'
-        query_params[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live'
-      end
-
-      unless options[:mode].nil?
-        query_params[:mode] = options[:mode]
-        unless %w[test live simulated].include? query_params[:mode]
-          raise 'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
-        end
-      end
+      mode = determine_mode(options[:test_mode], options[:mode])
 
       unless options[:test_mode_compatibility_level].nil?
         query_params[:test_mode_compatibility_level] = options[:test_mode_compatibility_level]
-        query_params[:mode] = 'test'
+        mode = 'test'
       end
+      query_params[:mode] = mode unless mode.nil?
       query_params
     end
-    # rubocop:enable Metrics/MethodLength
 
     # returns auth token for Basic auth
     #

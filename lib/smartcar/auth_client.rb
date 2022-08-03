@@ -23,18 +23,8 @@ module Smartcar
       options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI')
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
-
-      unless options[:test_mode].nil?
-        warn '[DEPRECATION] The "test_mode" parameter is deprecated, please use the "mode" parameter instead.'
-        options[:mode] = options[:test_mode].is_a?(TrueClass) ? 'test' : 'live'
-      end
-      options[:mode] ||= 'live'
-
-      unless %w[test live simulated].include? options[:mode]
-        raise 'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
-      end
-
       options[:origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
+      options[:mode] = determine_mode(options[:test_mode], options[:mode]) || 'live'
       super
     end
 
