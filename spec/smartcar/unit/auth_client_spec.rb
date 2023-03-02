@@ -101,13 +101,23 @@ RSpec.describe Smartcar::AuthClient do
     end
   end
 
-  context 'client' do
+  context 'connect_client' do
     before do
       allow(subject).to receive(:connect_client).and_call_original
     end
     it 'should create OAuth2::Client object' do
       expect(OAuth2::Client).to receive(:new)
       subject.send(:connect_client)
+    end
+  end
+
+  context 'auth_client' do
+    before do
+      allow(subject).to receive(:auth_client).and_call_original
+    end
+    it 'should create OAuth2::Client object' do
+      expect(OAuth2::Client).to receive(:new)
+      subject.send(:auth_client)
     end
   end
 end
