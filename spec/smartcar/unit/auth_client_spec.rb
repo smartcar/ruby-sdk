@@ -6,7 +6,7 @@ RSpec.describe Smartcar::AuthClient do
                                redirect_uri: 'test_url',
                                client_id: 'SMARTCAR_CLIENT_ID',
                                client_secret: 'SMARTCAR_CLIENT_SECRET',
-                               mode: 'test',
+                               mode: 'test'
                              })
   end
   let(:obj) { double('dummy object for client') }
@@ -113,19 +113,19 @@ RSpec.describe Smartcar::AuthClient do
   context 'it should check the base url for connect_client and auth_client' do
     it 'verifies the auth_url' do
       client = Smartcar::AuthClient.new({
-        redirect_uri: 'test_url',
-        client_id: 'SMARTCAR_CLIENT_ID',
-        client_secret: 'SMARTCAR_CLIENT_SECRET'
-      })
+                                          redirect_uri: 'test_url',
+                                          client_id: 'SMARTCAR_CLIENT_ID',
+                                          client_secret: 'SMARTCAR_CLIENT_SECRET'
+                                        })
       url = client.instance_variable_get(:@auth_origin)
       expect(url).to eq('https://auth.smartcar.com')
     end
     it 'verifies the connect_url' do
       client = Smartcar::AuthClient.new({
-        redirect_uri: 'test_url',
-        client_id: 'SMARTCAR_CLIENT_ID',
-        client_secret: 'SMARTCAR_CLIENT_SECRET'
-      })
+                                          redirect_uri: 'test_url',
+                                          client_id: 'SMARTCAR_CLIENT_ID',
+                                          client_secret: 'SMARTCAR_CLIENT_SECRET'
+                                        })
       url = client.instance_variable_get(:@connect_origin)
       expect(url).to eq('https://connect.smartcar.com')
     end
@@ -140,5 +140,3 @@ RSpec.describe Smartcar::AuthClient do
     end
   end
 end
-
-

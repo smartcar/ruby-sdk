@@ -72,8 +72,8 @@ module Smartcar
       set_token_url(options[:flags])
 
       token_hash = auth_client.auth_code
-                         .get_token(code, redirect_uri: redirect_uri)
-                         .to_hash
+                              .get_token(code, redirect_uri: redirect_uri)
+                              .to_hash
 
       json_to_ostruct(token_hash)
     rescue OAuth2::Error => e
@@ -159,10 +159,8 @@ module Smartcar
     # @return [OAuth2::Client] A Oauth Client object.
     def connect_client
       @connect_client ||= OAuth2::Client.new(client_id,
-                                      client_secret,
-                                      site: connect_origin)
+                                             client_secret,
+                                             site: connect_origin)
     end
-
-
   end
 end
