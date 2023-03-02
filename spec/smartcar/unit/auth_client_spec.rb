@@ -6,13 +6,13 @@ RSpec.describe Smartcar::AuthClient do
                                redirect_uri: 'test_url',
                                client_id: 'SMARTCAR_CLIENT_ID',
                                client_secret: 'SMARTCAR_CLIENT_SECRET',
-                               mode: 'test'
+                               mode: 'test',
                              })
   end
   let(:obj) { double('dummy object for client') }
 
   before do
-    allow(subject).to receive_message_chain(:client, :auth_code).and_return(obj)
+    allow(subject).to receive_message_chain(:connect_client, :auth_code).and_return(obj)
   end
 
   context 'constructor' do
@@ -103,11 +103,11 @@ RSpec.describe Smartcar::AuthClient do
 
   context 'client' do
     before do
-      allow(subject).to receive(:client).and_call_original
+      allow(subject).to receive(:connect_client).and_call_original
     end
     it 'should create OAuth2::Client object' do
       expect(OAuth2::Client).to receive(:new)
-      subject.send(:client)
+      subject.send(:connect_client)
     end
   end
 end
