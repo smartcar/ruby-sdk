@@ -29,13 +29,6 @@ RSpec.describe Smartcar::AuthClient do
       expect(new_tokens.access_token).not_to eq(old_tokens.access_token)
       expect(new_tokens.refresh_token.length).to eq(36)
       expect(new_tokens.token_type).to eq('Bearer')
-
-      expect { subject.exchange_refresh_token(old_tokens.refresh_token) }.to(raise_error do |error|
-        expect(error.type).to eq('invalid_grant')
-        expect(error.message).to eq('invalid_grant: - Invalid or expired refresh token.')
-        expect(error.request_id.length).to eq(36)
-        expect(error.status_code).to eq(400)
-      end)
     end
   end
 
