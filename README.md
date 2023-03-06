@@ -31,6 +31,7 @@ not have access to the dashboard, please
 
 - Create a new `AuthClient` object with your `client_id`, `client_secret`,
   `redirect_uri`.
+    -
 - Redirect the user to Smartcar Connect using `get_auth_url` with required `scope` or with one
   of our frontend SDKs.
 - The user will login, and then accept or deny your `scope`'s permissions.
@@ -51,6 +52,10 @@ not have access to the dashboard, please
 - Make requests to the Smartcar API.
 - Use `exchange_refresh_token` on your saved `refresh_token` to retrieve a new token
   when your `access_token` expires.
+
+*Note:*
+- CONNECT_ORIGIN (`connect.smartcar.com`): where requests are initially sent to kick-off the Connect/OAuth flow
+- AUTH_ORIGIN (`auth.smartcar.com`): where requests are sent for all token exchanges
 
 ## Installation
 
