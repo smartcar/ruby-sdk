@@ -36,8 +36,9 @@ class AuthHelper
       options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
       driver = Selenium::WebDriver.for(:firefox, capabilities: [options])
       driver.navigate.to authorization_url
-      driver.find_element(css: 'button#continue-button').click
-      driver.find_element(css: "button.brand-selector-button[data-make=\"#{make}\"]").click
+      driver.manage.timeouts.implicit_wait = 10
+      driver.find_element(:css, 'button#continue-button').click
+      driver.find_element(css: "button[id=\"#{make}\"]").click
       driver.find_element(css: 'input[id=username]').send_keys(email)
       driver.find_element(css: 'input[id=password').send_keys('password')
       driver.find_element(css: 'button[id=sign-in-button]').click

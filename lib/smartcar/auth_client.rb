@@ -6,7 +6,7 @@ module Smartcar
   class AuthClient
     include Smartcar::Utils
 
-    attr_reader :redirect_uri, :client_id, :client_secret, :scope, :mode, :flags, :origin
+    attr_reader :redirect_uri, :client_id, :client_secret, :scope, :mode, :flags, :auth_origin, :connect_origin
 
     # Constructor for a client object
     #
@@ -23,7 +23,8 @@ module Smartcar
       options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI')
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
-      options[:origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
+      options[:auth_origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
+      options[:connect_origin] = ENV['SMARTCAR_CONNECT_ORIGIN'] || CONNECT_ORIGIN
       options[:mode] = determine_mode(options[:test_mode], options[:mode]) || 'live'
       super
     end
@@ -57,7 +58,7 @@ module Smartcar
     def get_auth_url(scope, options = {})
       initialize_auth_parameters(scope, options)
       add_single_select_options(options[:single_select])
-      client.auth_code.authorize_url(@auth_parameters)
+      connect_client.auth_code.authorize_url(@auth_parameters)
     end
 
     # Generates the tokens hash using the code returned in oauth process.
@@ -70,9 +71,9 @@ module Smartcar
     def exchange_code(code, options = {})
       set_token_url(options[:flags])
 
-      token_hash = client.auth_code
-                         .get_token(code, redirect_uri: redirect_uri)
-                         .to_hash
+      token_hash = auth_client.auth_code
+                              .get_token(code, redirect_uri: redirect_uri)
+                              .to_hash
 
       json_to_ostruct(token_hash)
     rescue OAuth2::Error => e
@@ -88,7 +89,7 @@ module Smartcar
     def exchange_refresh_token(token, options = {})
       set_token_url(options[:flags])
 
-      token_object = OAuth2::AccessToken.from_hash(client, { refresh_token: token })
+      token_object = OAuth2::AccessToken.from_hash(auth_client, { refresh_token: token })
       token_object = token_object.refresh!
 
       json_to_ostruct(token_object.to_hash)
@@ -101,7 +102,7 @@ module Smartcar
     #
     # @return [Boolean]
     def expired?(expires_at)
-      OAuth2::AccessToken.from_hash(client, { expires_at: expires_at }).expired?
+      OAuth2::AccessToken.from_hash(auth_client, { expires_at: expires_at }).expired?
     end
 
     private
@@ -117,7 +118,7 @@ module Smartcar
       params[:flags] = build_flags(flags) if flags
       # Note - The inbuild interface to get the token does not allow any way to pass additional
       # URL params. Hence building the token URL with the flags and setting it in client.
-      client.options[:token_url] = client.connection.build_url('/oauth/token', params).request_uri
+      auth_client.options[:token_url] = auth_client.connection.build_url('/oauth/token', params).request_uri
     end
 
     def initialize_auth_parameters(scope, options)
@@ -144,13 +145,22 @@ module Smartcar
       end
     end
 
-    # gets the Oauth Client object
+    # gets the Oauth Client object configured with auth.connect.smartcar.com
     #
     # @return [OAuth2::Client] A Oauth Client object.
-    def client
-      @client ||= OAuth2::Client.new(client_id,
-                                     client_secret,
-                                     site: origin)
+    def auth_client
+      @auth_client ||= OAuth2::Client.new(client_id,
+                                          client_secret,
+                                          site: auth_origin)
+    end
+
+    # gets the Oauth Client object configured with connect.smartcar.com
+    #
+    # @return [OAuth2::Client] A Oauth Client object.
+    def connect_client
+      @connect_client ||= OAuth2::Client.new(client_id,
+                                             client_secret,
+                                             site: connect_origin)
     end
   end
 end

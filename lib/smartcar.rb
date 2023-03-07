@@ -22,7 +22,8 @@ module Smartcar
   }.freeze
 
   # Path for smartcar oauth
-  AUTH_ORIGIN = 'https://connect.smartcar.com'
+  CONNECT_ORIGIN = 'https://connect.smartcar.com'
+  AUTH_ORIGIN = 'https://auth.smartcar.com'
   %w[success code test live force auto metric imperial].each do |constant|
     # Constant to represent the value
     const_set(constant.upcase, constant.freeze)

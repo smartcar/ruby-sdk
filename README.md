@@ -31,6 +31,7 @@ not have access to the dashboard, please
 
 - Create a new `AuthClient` object with your `client_id`, `client_secret`,
   `redirect_uri`.
+    -
 - Redirect the user to Smartcar Connect using `get_auth_url` with required `scope` or with one
   of our frontend SDKs.
 - The user will login, and then accept or deny your `scope`'s permissions.
@@ -76,6 +77,9 @@ Setup the environment variables for SMARTCAR_CLIENT_ID, SMARTCAR_CLIENT_SECRET a
 export SMARTCAR_CLIENT_ID=<client id>
 export SMARTCAR_CLIENT_SECRET=<client secret>
 export SMARTCAR_REDIRECT_URI=<redirect URI>
+# Optional ENV variables
+export SMARTCAR_CONNECT_ORIGIN=(default_value: connect.smartcar.com): Used as the host for the URL that starts the Connect/OAuth2 flow
+export SMARTCAR_AUTH_ORIGIN=(default_value: auth.smartcar.com): Used as the host for the token exchange requests
 ```
 
 Example Usage for calling the reports API with oAuth token
