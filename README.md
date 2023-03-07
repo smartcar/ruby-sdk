@@ -53,10 +53,6 @@ not have access to the dashboard, please
 - Use `exchange_refresh_token` on your saved `refresh_token` to retrieve a new token
   when your `access_token` expires.
 
-*Note:*
-- CONNECT_ORIGIN (`connect.smartcar.com`): where requests are initially sent to kick-off the Connect/OAuth flow
-- AUTH_ORIGIN (`auth.smartcar.com`): where requests are sent for all token exchanges
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -81,6 +77,9 @@ Setup the environment variables for SMARTCAR_CLIENT_ID, SMARTCAR_CLIENT_SECRET a
 export SMARTCAR_CLIENT_ID=<client id>
 export SMARTCAR_CLIENT_SECRET=<client secret>
 export SMARTCAR_REDIRECT_URI=<redirect URI>
+# Optional ENV variables
+export SMARTCAR_CONNECT_ORIGIN=(default_value: connect.smartcar.com): Used as the host for the URL that starts the Connect/OAuth2 flow
+export SMARTCAR_AUTH_ORIGIN=(default_value: auth.smartcar.com): Used as the host for the token exchange requests
 ```
 
 Example Usage for calling the reports API with oAuth token
