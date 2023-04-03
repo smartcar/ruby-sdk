@@ -11,9 +11,7 @@ class SmartcarError < StandardError
       @request_id = headers['sc-request-id']
       return
     end
-    if headers['retry-after']
-      @retry_after = headers['retry-after']
-    end
+    @retry_after = headers['retry-after']
     body = coerce_attributes(body)
 
     super("#{body[:type]}:#{body[:code]} - #{body[:description]}")
