@@ -2,7 +2,7 @@
 
 # Custom SmartcarError class to represent errors from Smartcar APIs.
 class SmartcarError < StandardError
-  attr_reader :code, :status_code, :request_id, :type, :description, :doc_url, :resolution, :detail
+  attr_reader :code, :status_code, :request_id, :type, :description, :doc_url, :resolution, :detail, :retry_after
 
   def initialize(status, body, headers)
     @status_code = status
@@ -11,6 +11,7 @@ class SmartcarError < StandardError
       @request_id = headers['sc-request-id']
       return
     end
+    @retry_after = headers['retry-after']
     body = coerce_attributes(body)
 
     super("#{body[:type]}:#{body[:code]} - #{body[:description]}")
