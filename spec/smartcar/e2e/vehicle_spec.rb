@@ -122,7 +122,7 @@ RSpec.describe Smartcar::Vehicle do
 
     describe '#charge_limit' do
       it 'should return an charge limit object' do
-        result = @vehicle.charge_limit
+        result = @vehicle.get_charge_limit
         expect(result.limit.is_a?(Numeric)).to eq(true)
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
       end
