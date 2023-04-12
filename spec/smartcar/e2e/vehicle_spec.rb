@@ -120,6 +120,14 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    describe '#charge_limit' do
+      it 'should return an charge limit object' do
+        result = @vehicle.charge_limit
+        expect(result.limit.is_a?(Numeric)).to eq(true)
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
     describe '#batch - success' do
       context 'with valid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
