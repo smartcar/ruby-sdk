@@ -225,7 +225,7 @@ RSpec.describe Smartcar::Vehicle do
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
     end
 
-    %i[lock! unlock! start_charge! stop_charge! set_charge_limit!].each do |action|
+    %i[lock! unlock! start_charge! stop_charge!].each do |action|
       describe "##{action}" do
         it 'should return a confirmation' do
           result = @vehicle.send(action)
@@ -233,6 +233,15 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.message).to eq('Successfully sent request to vehicle')
           expect(result.meta.request_id.length).to eq(36)
         end
+      end
+    end
+
+    context 'set_charge_limit' do
+      it 'should return success' do
+       result = @vehicle.send('set_charge_limit', 0.7)
+       expect(result.status).to eq('success')
+       expect(result.message).to eq('Successfully sent request to vehicle')
+       expect(result.meta.request_id.length).to eq(36)
       end
     end
 
