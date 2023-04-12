@@ -63,7 +63,7 @@ module Smartcar
         path: proc { |id| "/vehicles/#{id}/charge/limit" },
         body: proc { |limit| { limit: limit } },
         skip: true
-      }
+      },
       subscribe!: {
         type: :post,
         path: proc { |id, webhook_id| "/vehicles/#{id}/webhooks/#{webhook_id}" },
