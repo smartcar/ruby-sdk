@@ -61,7 +61,7 @@ module Smartcar
       set_charge_limit!: {
         type: :post,
         path: proc { |id| "/vehicles/#{id}/charge/limit" },
-        body: proc { |limit| {action:  {limit} }, },
+        body: proc { |limit| {limit: limit }, },
         skip: true
       }
       subscribe!: {
