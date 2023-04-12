@@ -244,6 +244,7 @@ module Smartcar
       response, headers = post(METHODS.dig(:set_charge_limit!, :path).call(id, limit))
       self.token = access_token
       build_response(response, headers)
+    end
 
     # Method to get batch requests.
     # API - https://smartcar.com/docs/api#post-batch-request
