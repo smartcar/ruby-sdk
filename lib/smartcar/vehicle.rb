@@ -61,7 +61,7 @@ module Smartcar
       set_charge_limit!: {
         type: :post,
         path: proc { |id| "/vehicles/#{id}/charge/limit" },
-        body: proc { |limit| {limit: limit }, },
+        body: proc { |limit| { limit: limit } },
         skip: true
       }
       subscribe!: {
@@ -241,8 +241,7 @@ module Smartcar
     #
     # @return [OpenStruct] Meta attribute with the relevant items from response headers.
     def set_charge_limit!(limit)
-      response, headers = post(METHODS.dig(:set_charge_limit!, :path).call(id, limit),
-                                 @query_params)
+      response, headers = post(METHODS.dig(:set_charge_limit!, :path).call(id, limit))
       self.token = access_token
       build_response(response, headers)
 
