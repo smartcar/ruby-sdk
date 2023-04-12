@@ -58,7 +58,12 @@ module Smartcar
       unlock!: { type: :post, path: proc { |id| "/vehicles/#{id}/security" }, body: { action: 'UNLOCK' } },
       start_charge!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge" }, body: { action: 'START' } },
       stop_charge!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge" }, body: { action: 'STOP' } },
-      set_charge_limit!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge/limit" }, body: proc { |limit| {action:  {limit} }, skip: true },
+      set_charge_limit!: {
+        type: :post,
+        path: proc { |id| "/vehicles/#{id}/charge/limit" },
+        body: proc { |limit| {action:  {limit} }, },
+        skip: true
+      }
       subscribe!: {
         type: :post,
         path: proc { |id, webhook_id| "/vehicles/#{id}/webhooks/#{webhook_id}" },
