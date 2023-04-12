@@ -225,7 +225,7 @@ RSpec.describe Smartcar::Vehicle do
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
     end
 
-    %i[lock! unlock! start_charge! stop_charge!].each do |action|
+    %i[lock! unlock! start_charge! stop_charge! set_charge_limit!].each do |action|
       describe "##{action}" do
         it 'should return a confirmation' do
           result = @vehicle.send(action)
