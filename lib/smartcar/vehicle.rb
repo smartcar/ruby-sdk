@@ -52,11 +52,13 @@ module Smartcar
         }
       },
       vin: { path: proc { |id| "/vehicles/#{id}/vin" } },
+      get_charge_limit: { path: proc { |id| "/vehicles/#{id}/charge/limit" } },
       disconnect!: { type: :delete, path: proc { |id| "/vehicles/#{id}/application" } },
       lock!: { type: :post, path: proc { |id| "/vehicles/#{id}/security" }, body: { action: 'LOCK' } },
       unlock!: { type: :post, path: proc { |id| "/vehicles/#{id}/security" }, body: { action: 'UNLOCK' } },
       start_charge!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge" }, body: { action: 'START' } },
       stop_charge!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge" }, body: { action: 'STOP' } },
+      set_charge_limit!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge/limit" }, body: proc { |limit| {action:  {limit} }, skip: true },
       subscribe!: {
         type: :post,
         path: proc { |id, webhook_id| "/vehicles/#{id}/webhooks/#{webhook_id}" },
@@ -227,6 +229,17 @@ module Smartcar
       self.token = access_token
       build_response(response, headers)
     end
+
+    # Set the charge limit for a given vehicle
+    #
+    # @param limit [float] A value between 0 and 1 denoting the charge limit to be set.
+    #
+    # @return [OpenStruct] Meta attribute with the relevant items from response headers.
+    def set_charge_limit!(limit)
+      response, headers = post(METHODS.dig(:set_charge_limit!, :path).call(id, limit),
+                                 @query_params)
+      self.token = access_token
+      build_response(response, headers)
 
     # Method to get batch requests.
     # API - https://smartcar.com/docs/api#post-batch-request
