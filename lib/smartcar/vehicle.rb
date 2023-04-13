@@ -241,7 +241,10 @@ module Smartcar
     #
     # @return [OpenStruct] Meta attribute with the relevant items from response headers.
     def set_charge_limit!(limit)
-      response, headers = post(METHODS.dig(:set_charge_limit!, :path).call(id, limit))
+      path = METHODS.dig(:set_charge_limit!, :path).call(id)
+      body = METHODS.dig(:set_charge_limit!, :body).call(limit)
+
+      response, headers = post(path, {}, body)
       build_response(response, headers)
     end
 
