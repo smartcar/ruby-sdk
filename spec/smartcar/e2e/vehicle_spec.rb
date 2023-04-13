@@ -238,7 +238,7 @@ RSpec.describe Smartcar::Vehicle do
 
     context 'set_charge_limit' do
       it 'should return success' do
-        result = @vehicle.set_charge_limit!(limit)
+        result = @vehicle.set_charge_limit!(0.7)
         expect(result.status).to eq('success')
         expect(result.message).to eq('Successfully sent request to vehicle')
         expect(result.meta.request_id.length).to eq(36)
