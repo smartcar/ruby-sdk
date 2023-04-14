@@ -120,6 +120,14 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    describe '#charge_limit' do
+      it 'should return an charge limit object' do
+        result = @vehicle.get_charge_limit
+        expect(result.limit.is_a?(Numeric)).to eq(true)
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+
     describe '#batch - success' do
       context 'with valid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
@@ -225,6 +233,15 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.message).to eq('Successfully sent request to vehicle')
           expect(result.meta.request_id.length).to eq(36)
         end
+      end
+    end
+
+    context 'set_charge_limit' do
+      it 'should return success' do
+        result = @vehicle.set_charge_limit!(0.7)
+        expect(result.status).to eq('success')
+        expect(result.message).to eq('Successfully sent request to vehicle')
+        expect(result.meta.request_id.length).to eq(36)
       end
     end
 
