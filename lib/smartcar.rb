@@ -216,7 +216,7 @@ module Smartcar
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-connections
     #  and a meta attribute with the relevant items from response headers.
-    def get_connections(amt, filters: {userId: nil, vehicleId: nil, cursor: nil }, options: {})
+    def get_connections(amt, filters: { user_id: nil, vehicle_id: nil, cursor: nil }, options: {})
       base_object = Base.new(
         token: generate_basic_management_auth(amt, options),
         version: options[:version] || Smartcar.get_api_version,
@@ -232,8 +232,9 @@ module Smartcar
       ))
     end
 
-    def delete_connections(amt, userId, vehicleId, options: {})
-      raise InvalidParameterValue.new, 'Filter can contain EITHER user_id OR vehicle_id, not both' if user_id && vehicle_id
+    def delete_connections(amt, user_id, vehicle_id, options: {})
+      error = 'Filter can contain EITHER user_id OR vehicle_id, not both'
+      raise InvalidParameterValue.new, error if user_id && vehicle_id
 
       query_params = {}
       query_params['user_id'] = user_id if user_id
@@ -244,7 +245,7 @@ module Smartcar
         auth_type: Base::BASIC,
         token: generate_basic_management_auth(amt, options),
         version: options[:version] || Smartcar.get_api_version,
-        service: options[:service],
+        service: options[:service]
       )
 
       base_object.build_response(*base_object.delete(
@@ -252,6 +253,5 @@ module Smartcar
         query_params
       ))
     end
-
   end
 end

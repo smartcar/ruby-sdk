@@ -7,6 +7,10 @@ AllCops:
 Metrics/AbcSize:
   Enabled: false
 
+# Lengthen module line length
+Metrics/ModuleLength:
+  Max: 200
+
 # Disabling this becuase we are using `set` and `get` prefixed methods to keep some commonality across SDKs
 Naming/AccessorMethodName:
   Enabled: false
