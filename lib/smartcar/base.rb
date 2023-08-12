@@ -14,7 +14,7 @@ module Smartcar
     # Constant for Basic auth type
     BASIC = 'Basic'
 
-    attr_accessor :token, :error, :unit_system, :version, :auth_type
+    attr_accessor :token, :error, :unit_system, :version, :auth_type, :url
 
     %i[get post patch put delete].each do |verb|
       # meta programming and define all Restful methods.
@@ -54,7 +54,7 @@ module Smartcar
     # @return [OAuth2::AccessToken] An initialized AccessToken instance that acts as service client
     def service
       @service ||= Faraday.new(
-        url: ENV['SMARTCAR_API_ORIGIN'] || API_ORIGIN,
+        url: url || ENV['SMARTCAR_API_ORIGIN'] || API_ORIGIN,
         request: { timeout: DEFAULT_REQUEST_TIMEOUT }
       )
     end

@@ -15,10 +15,12 @@ module Smartcar
 
   # Host to connect to smartcar
   API_ORIGIN = 'https://api.smartcar.com/'
+  MANAGEMENT_API_ORIGIN = 'https://management.smartcar.com'
   PATHS = {
     compatibility: '/compatibility',
     user: '/user',
-    vehicles: '/vehicles'
+    vehicles: '/vehicles',
+    connections: '/management/connections'
   }.freeze
 
   # Path for smartcar oauth
@@ -194,5 +196,62 @@ module Smartcar
       client_secret = options[:client_secret] || base_object.get_config('SMARTCAR_CLIENT_SECRET')
       Base64.strict_encode64("#{client_id}:#{client_secret}")
     end
+
+    # returns auth token for Basic vehicle management auth
+    #
+    # @return [String] Base64 encoding of default:amt
+    def generate_basic_management_auth(amt, options)
+      username = options[:username] || 'default'
+      Base64.strict_encode64("#{username}:#{amt}")
+    end
+
+    # Module method Returns a paged list of all vehicle connections connected to the application.
+    #
+    # API Documentation - https://smartcar.com/docs/api#get-connections
+    # @param amt [String] - Application Management token
+    # @param filters [Hash] - Optional filter parameters (check documentation)
+    # @param options [Hash] Other optional parameters including overrides
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
+    # @option options [String] :version Optional API version to use, defaults to what is globally set
+    #
+    # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-connections
+    #  and a meta attribute with the relevant items from response headers.
+    def get_connections(amt, filters: {userId: nil, vehicleId: nil, cursor: nil }, options: {})
+      base_object = Base.new(
+        token: generate_basic_management_auth(amt, options),
+        version: options[:version] || Smartcar.get_api_version,
+        service: options[:service],
+        auth_type: Base::BASIC,
+        url: ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] || MANAGEMENT_API_ORIGIN
+      )
+
+      base_object.build_response(*base_object.get(
+        PATHS[:connections],
+        filters,
+        paging
+      ))
+    end
+
+    def delete_connections(amt, userId, vehicleId, options: {})
+      raise InvalidParameterValue.new, 'Filter can contain EITHER user_id OR vehicle_id, not both' if user_id && vehicle_id
+
+      query_params = {}
+      query_params['user_id'] = user_id if user_id
+      query_params['vehicle_id'] = vehicle_id if vehicle_id
+
+      base_object = Base.new(
+        url: ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] || MANAGEMENT_API_ORIGIN,
+        auth_type: Base::BASIC,
+        token: generate_basic_management_auth(amt, options),
+        version: options[:version] || Smartcar.get_api_version,
+        service: options[:service],
+      )
+
+      base_object.build_response(*base_object.delete(
+        PATHS[:connections],
+        query_params
+      ))
+    end
+
   end
 end
