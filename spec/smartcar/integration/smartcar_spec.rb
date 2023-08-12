@@ -9,12 +9,15 @@ RSpec.describe Smartcar do
   before do
     @api_origin = ENV['SMARTCAR_API_ORIGIN']
     ENV['SMARTCAR_API_ORIGIN'] = 'https://pizza.pasta.pi'
+    @management_origin = ENV['SMARTCAR_MANAGEMENT_API_ORIGIN']
+    ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] = 'https://pizza.pasta.pi'
     WebMock.disable_net_connect!
   end
 
   after do
     WebMock.allow_net_connect!
     ENV['SMARTCAR_API_ORIGIN'] = @api_origin
+    ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] = @management_origin
   end
 
   describe '.get_compatibility' do
@@ -295,6 +298,73 @@ RSpec.describe Smartcar do
         expect(response.paging.offset).to be(0)
         expect(response.paging.count).to be(1)
       end
+    end
+  end
+
+  describe '.get_connections' do
+    it 'should return all connections associated with the amt (application management token)' do
+      amt = 'some-token'
+      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=10')
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: 'some-connection-time',
+                  userId: 'user-id-7',
+                  vehicleId: 'vehicle-id-1'
+                },
+                {
+                  connectedAt: 'some-connection-time',
+                  userId: 'user-id-6',
+                  vehicleId: 'vehicle-id-2'
+                },
+            ],
+              paging: { cursor: nil }
+            }.to_json
+          }
+        )
+      response = subject.get_connections(amt: amt)
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].vehicleId == 'vehicle-id-1').to be_truthy
+      expect(response.paging.is_a?(OpenStruct)).to be_truthy
+      expect(response.paging.cursor).to be nil
+    end
+    it 'should return all connections with a cursor' do
+      amt = 'some-token'
+      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=10')
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: 'some-connection-time',
+                  userId: 'user-id-7',
+                  vehicleId: 'vehicle-id-1'
+                },
+                {
+                  connectedAt: 'some-connection-time',
+                  userId: 'user-id-6',
+                  vehicleId: 'vehicle-id-2'
+                },
+            ],
+              paging: { cursor: 'arbitrary-cursor' }
+            }.to_json
+          }
+        )
+      response = subject.get_connections(amt: amt)
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].vehicleId == 'vehicle-id-1').to be_truthy
+      expect(response.paging.is_a?(OpenStruct)).to be_truthy
+      expect(response.paging.cursor).to be_truthy
     end
   end
 end
