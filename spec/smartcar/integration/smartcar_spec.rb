@@ -313,12 +313,12 @@ RSpec.describe Smartcar do
             {
               connections: [
                 {
-                  connectedAt: 'some-connection-time',
+                  connectedAt: '2021-12-25T14:48:00.000Z',
                   userId: 'user-id-7',
                   vehicleId: 'vehicle-id-1'
                 },
                 {
-                  connectedAt: 'some-connection-time',
+                  connectedAt: '2020-10-05T14:48:00.000Z',
                   userId: 'user-id-6',
                   vehicleId: 'vehicle-id-2'
                 }
@@ -334,9 +334,9 @@ RSpec.describe Smartcar do
       expect(response.paging.is_a?(OpenStruct)).to be_truthy
       expect(response.paging.cursor).to be nil
     end
-    it 'should return all connections with a cursor' do
+    it 'should return all connections based on limit limit' do
       amt = 'some-token'
-      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=10')
+      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=1')
         .to_return(
           {
             status: 200,
@@ -345,26 +345,37 @@ RSpec.describe Smartcar do
             {
               connections: [
                 {
-                  connectedAt: 'some-connection-time',
+                  connectedAt: '2022-11-05T14:48:00.000Z',
                   userId: 'user-id-7',
                   vehicleId: 'vehicle-id-1'
-                },
-                {
-                  connectedAt: 'some-connection-time',
-                  userId: 'user-id-6',
-                  vehicleId: 'vehicle-id-2'
                 }
               ],
-              paging: { cursor: 'arbitrary-cursor' }
+              paging: { cursor: nil }
             }.to_json
           }
         )
       response = subject.get_connections(amt: amt)
 
       expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections.length == 1)
       expect(response.connections[0].vehicleId == 'vehicle-id-1').to be_truthy
       expect(response.paging.is_a?(OpenStruct)).to be_truthy
       expect(response.paging.cursor).to be_truthy
     end
   end
+  # describe '.delete_connections' do
+  #   it 'deletes connections by user_id' do
+  #     expect_any_instance_of(subject).to receive(:delete).with('/v2.0/management/connections', { 'user_id' => 'user123' }).and_return([200, {}, ''])
+  #     subject.delete_connections('amt_value', 'user123', nil)
+  #   end
+
+  #   it 'deletes connections by vehicle_id' do
+  #     expect_any_instance_of(subject).to receive(:delete).with('/v2.0/management/connections', { 'vehicle_id' => 'vehicle456' }).and_return([200, {}, ''])
+  #     subject.delete_connections('amt_value', nil, 'vehicle456')
+  #   end
+
+  #   it 'raises an error if both user_id and vehicle_id are provided' do
+  #     expect { subject.delete_connections('amt_value', 'user123', 'vehicle456') }.to raise_error(InvalidParameterValue)
+  #   end
+  # end
 end

@@ -173,13 +173,14 @@ module Smartcar
     # API Documentation - https://smartcar.com/docs/api#get-connections
     # @param amt [String] - Application Management token
     # @param filters [Hash] - Optional filter parameters (check documentation)
+    # @param paging [Hash] - Pass a cursor for paginated results
     # @param options [Hash] Other optional parameters including overrides
     # @option options [Faraday::Connection] :service Optional connection object to be used for requests
     # @option options [String] :version Optional API version to use, defaults to what is globally set
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-connections
     #  and a meta attribute with the relevant items from response headers.
-    def get_connections(amt, filters: { user_id: nil, vehicle_id: nil, cursor: nil, limit: 10 }, options: {})
+    def get_connections(amt, filters: { user_id: nil, vehicle_id: nil, limit: 10 }, paging: { cursor: nil }, options: {})
       base_object = Base.new(
         token: generate_basic_management_auth(amt, options),
         version: options[:version] || Smartcar.get_api_version,
@@ -187,7 +188,7 @@ module Smartcar
         auth_type: Base::BASIC,
         url: ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] || MANAGEMENT_API_ORIGIN
       )
-      query_params = get_hash_values(filters)
+      query_params = get_hash_values(filters, paging)
 
       base_object.build_response(*base_object.get(
         PATHS[:connections],
@@ -257,9 +258,10 @@ module Smartcar
     # returns items of a hash of non nil or undefined values
     #
     # @return [Hash] values that are not nil
-    def get_hash_values(input_hash)
-      filtered_hash = input_hash.compact
-      return filtered_hash
+    def get_hash_values(hash1, hash2)
+      combined_hash = hash1.merge(hash2)
+      filtered_hash = combined_hash.compact
+      filtered_hash
     end
   end
 end
