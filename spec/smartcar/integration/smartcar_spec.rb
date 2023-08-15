@@ -321,8 +321,8 @@ RSpec.describe Smartcar do
                   connectedAt: 'some-connection-time',
                   userId: 'user-id-6',
                   vehicleId: 'vehicle-id-2'
-                },
-            ],
+                }
+              ],
               paging: { cursor: nil }
             }.to_json
           }
@@ -353,8 +353,8 @@ RSpec.describe Smartcar do
                   connectedAt: 'some-connection-time',
                   userId: 'user-id-6',
                   vehicleId: 'vehicle-id-2'
-                },
-            ],
+                }
+              ],
               paging: { cursor: 'arbitrary-cursor' }
             }.to_json
           }

@@ -168,7 +168,7 @@ module Smartcar
       hash_challenge(amt, body.to_json) == signature
     end
 
-        # Module method Returns a paged list of all vehicle connections connected to the application.
+    # Module method Returns a paged list of all vehicle connections connected to the application.
     #
     # API Documentation - https://smartcar.com/docs/api#get-connections
     # @param amt [String] - Application Management token
@@ -179,7 +179,7 @@ module Smartcar
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-connections
     #  and a meta attribute with the relevant items from response headers.
-    def get_connections(amt, filters: { user_id: nil, vehicle_id: nil, cursor: nil, limit: 10, cursor: nil }, options: {})
+    def get_connections(amt, filters: { user_id: nil, vehicle_id: nil, cursor: nil, limit: 10 }, options: {})
       base_object = Base.new(
         token: generate_basic_management_auth(amt, options),
         version: options[:version] || Smartcar.get_api_version,
@@ -191,7 +191,7 @@ module Smartcar
 
       base_object.build_response(*base_object.get(
         PATHS[:connections],
-        query_params,
+        query_params
       ))
     end
 
@@ -216,7 +216,6 @@ module Smartcar
         query_params
       ))
     end
-
 
     # returns auth token for Basic vehicle management auth
     #
@@ -255,10 +254,12 @@ module Smartcar
       Base64.strict_encode64("#{client_id}:#{client_secret}")
     end
 
-    # returns a hash of non nil or undefined values
+    # returns items of a hash of non nil or undefined values
+    #
+    # @return [Hash] values that are not nil
     def get_hash_values(input_hash)
-      input_hash.reject { |_key, value| value.nil? }
+      filtered_hash = input_hash.compact
+      return filtered_hash
     end
-
   end
 end
