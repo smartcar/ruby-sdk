@@ -180,7 +180,8 @@ module Smartcar
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-connections
     #  and a meta attribute with the relevant items from response headers.
-    def get_connections(amt, filters: { user_id: nil, vehicle_id: nil, limit: 10 }, paging: { cursor: nil }, options: {})
+    def get_connections(amt:, filter: {}, paging: {}, options: {})
+      paging[:limit] ||= 10
       base_object = Base.new(
         token: generate_basic_management_auth(amt, options),
         version: options[:version] || Smartcar.get_api_version,
@@ -188,7 +189,7 @@ module Smartcar
         auth_type: Base::BASIC,
         url: ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] || MANAGEMENT_API_ORIGIN
       )
-      query_params = get_hash_values(filters, paging)
+      query_params = filter.merge(paging).compact
 
       base_object.build_response(*base_object.get(
         PATHS[:connections],
@@ -196,9 +197,14 @@ module Smartcar
       ))
     end
 
-    def delete_connections(amt, user_id, vehicle_id, options: {})
-      error = 'Filter can contain EITHER user_id OR vehicle_id, not both'
-      raise InvalidParameterValue.new, error if user_id && vehicle_id
+    def delete_connections(amt:, filter: {}, options: {})
+      user_id = filter[:user_id]
+      vehicle_id = filter[:vehicle_id]
+      error_message = nil
+      error_message = 'Filter can contain EITHER user_id OR vehicle_id, not both.' if user_id && vehicle_id
+      error_message = 'Filter needs one of user_id OR vehicle_id.' unless user_id || vehicle_id
+
+      raise Base::InvalidParameterValue.new, error_message if error_message
 
       query_params = {}
       query_params['user_id'] = user_id if user_id
@@ -221,7 +227,7 @@ module Smartcar
     # returns auth token for Basic vehicle management auth
     #
     # @return [String] Base64 encoding of default:amt
-    def generate_basic_management_auth(amt, options)
+    def generate_basic_management_auth(amt, options = {})
       username = options[:username] || 'default'
       Base64.strict_encode64("#{username}:#{amt}")
     end
@@ -253,15 +259,6 @@ module Smartcar
       client_id = options[:client_id] || base_object.get_config('SMARTCAR_CLIENT_ID')
       client_secret = options[:client_secret] || base_object.get_config('SMARTCAR_CLIENT_SECRET')
       Base64.strict_encode64("#{client_id}:#{client_secret}")
-    end
-
-    # returns items of a hash of non nil or undefined values
-    #
-    # @return [Hash] values that are not nil
-    def get_hash_values(hash1, hash2)
-      combined_hash = hash1.merge(hash2)
-      filtered_hash = combined_hash.compact
-      filtered_hash
     end
   end
 end

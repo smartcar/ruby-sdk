@@ -11,6 +11,7 @@ RSpec.describe Smartcar do
     ENV['SMARTCAR_API_ORIGIN'] = 'https://pizza.pasta.pi'
     @management_origin = ENV['SMARTCAR_MANAGEMENT_API_ORIGIN']
     ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] = 'https://pizza.pasta.pi'
+    @amt = 'some-token'
     WebMock.disable_net_connect!
   end
 
@@ -329,8 +330,10 @@ RSpec.describe Smartcar do
 
   describe '.get_connections' do
     it 'should return all connections associated with the amt (application management token)' do
-      amt = 'some-token'
+      header_token = subject.generate_basic_management_auth(@amt)
+
       stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=10')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
         .to_return(
           {
             status: 200,
@@ -353,16 +356,19 @@ RSpec.describe Smartcar do
             }.to_json
           }
         )
-      response = subject.get_connections(amt: amt)
+      response = subject.get_connections(amt: @amt)
 
       expect(response.connections.is_a?(Array)).to be_truthy
-      expect(response.connections[0].vehicleId == 'vehicle-id-1').to be_truthy
+      expect(response.connections[0].vehicleId).to eq('vehicle-id-1')
       expect(response.paging.is_a?(OpenStruct)).to be_truthy
       expect(response.paging.cursor).to be nil
     end
-    it 'should return all connections based on limit limit' do
-      amt = 'some-token'
-      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=1')
+
+    it 'should return all connections based on given additional filters and paging options' do
+      header_token = subject.generate_basic_management_auth(@amt)
+
+      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=13&user_id=user_id&cursor=cursor')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
         .to_return(
           {
             status: 200,
@@ -371,37 +377,107 @@ RSpec.describe Smartcar do
             {
               connections: [
                 {
-                  connectedAt: '2022-11-05T14:48:00.000Z',
-                  userId: 'user-id-7',
+                  connectedAt: '2021-12-25T14:48:00.000Z',
+                  userId: 'user_id',
                   vehicleId: 'vehicle-id-1'
+                },
+                {
+                  connectedAt: '2020-10-05T14:48:00.000Z',
+                  userId: 'user_id',
+                  vehicleId: 'vehicle-id-2'
                 }
               ],
-              paging: { cursor: nil }
+              paging: { cursor: 'cursor2' }
             }.to_json
           }
         )
-      response = subject.get_connections(amt: amt)
+      response = subject.get_connections(amt: @amt, filter: { user_id: 'user_id' },
+                                         paging: { cursor: 'cursor', limit: 13 })
 
       expect(response.connections.is_a?(Array)).to be_truthy
-      expect(response.connections.length == 1)
-      expect(response.connections[0].vehicleId == 'vehicle-id-1').to be_truthy
+      expect(response.connections[0].vehicleId).to eq('vehicle-id-1')
       expect(response.paging.is_a?(OpenStruct)).to be_truthy
-      expect(response.paging.cursor).to be_truthy
+      expect(response.paging.cursor).to eq('cursor2')
     end
   end
-  # describe '.delete_connections' do
-  #   it 'deletes connections by user_id' do
-  #     expect_any_instance_of(subject).to receive(:delete).with('/v2.0/management/connections', { 'user_id' => 'user123' }).and_return([200, {}, ''])
-  #     subject.delete_connections('amt_value', 'user123', nil)
-  #   end
 
-  #   it 'deletes connections by vehicle_id' do
-  #     expect_any_instance_of(subject).to receive(:delete).with('/v2.0/management/connections', { 'vehicle_id' => 'vehicle456' }).and_return([200, {}, ''])
-  #     subject.delete_connections('amt_value', nil, 'vehicle456')
-  #   end
+  describe '.delete_connections' do
+    context 'when both user_id and vehicle_id are provided' do
+      it 'raises an error' do
+        expect do
+          subject.delete_connections(amt: @amt, filter: { user_id: 'user_id', vehicle_id: 'vehicle_id' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq(
+                   'Filter can contain EITHER user_id OR vehicle_id, not both.'
+                 )
+               end)
+      end
+    end
 
-  #   it 'raises an error if both user_id and vehicle_id are provided' do
-  #     expect { subject.delete_connections('amt_value', 'user123', 'vehicle456') }.to raise_error(InvalidParameterValue)
-  #   end
-  # end
+    context 'when neither user_id or vehicle_id is provided' do
+      it 'raises an error' do
+        expect do
+          subject.delete_connections(amt: @amt)
+        end.to(raise_error do |error|
+                 expect(error.message).to eq(
+                   'Filter needs one of user_id OR vehicle_id.'
+                 )
+               end)
+      end
+    end
+
+    it 'deletes connections by user_id' do
+      header_token = subject.generate_basic_management_auth(@amt)
+
+      stub_request(:delete, 'https://pizza.pasta.pi/v2.0/management/connections?user_id=user_id')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: '2021-12-25T14:48:00.000Z',
+                  userId: 'user_id',
+                  vehicleId: 'vehicle-id-1'
+                }
+              ]
+            }.to_json
+          }
+        )
+      response = subject.delete_connections(amt: @amt, filter: { user_id: 'user_id' })
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].userId).to eq('user_id')
+    end
+
+    it 'deletes connections by vehicle_id' do
+      header_token = subject.generate_basic_management_auth(@amt)
+
+      stub_request(:delete, 'https://pizza.pasta.pi/v2.0/management/connections?vehicle_id=vehicle_id')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: '2021-12-25T14:48:00.000Z',
+                  userId: 'user_id',
+                  vehicleId: 'vehicle_id'
+                }
+              ]
+            }.to_json
+          }
+        )
+      response = subject.delete_connections(amt: @amt, filter: { vehicle_id: 'vehicle_id' })
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].vehicleId).to eq('vehicle_id')
+    end
+  end
 end
