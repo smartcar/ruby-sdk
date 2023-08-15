@@ -82,8 +82,8 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#compatibility-api
     #  and a meta attribute with the relevant items from response headers.
     def get_compatibility(vin:, scope:, country: 'US', options: {})
-      raise InvalidParameterValue.new, 'vin is a required field' if vin.nil?
-      raise InvalidParameterValue.new, 'scope is a required field' if scope.nil?
+      raise Base::InvalidParameterValue.new, 'vin is a required field' if vin.nil?
+      raise Base::InvalidParameterValue.new, 'scope is a required field' if scope.nil? || scope.empty?
 
       base_object = Base.new(
         {

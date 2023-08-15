@@ -57,6 +57,32 @@ RSpec.describe Smartcar do
       end
     end
 
+    context 'when vin is nil' do
+      it 'should raise error' do
+        expect do
+          subject.get_compatibility(vin: nil, scope: ['scope'], options: { mode: 'invalid' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq('vin is a required field')
+               end)
+      end
+    end
+
+    context 'when scope is nil or empty' do
+      it 'should raise error' do
+        expect do
+          subject.get_compatibility(vin: 'vin', scope: [], options: { mode: 'invalid' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq('scope is a required field')
+               end)
+
+        expect do
+          subject.get_compatibility(vin: 'vin', scope: nil, options: { mode: 'invalid' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq('scope is a required field')
+               end)
+      end
+    end
+
     context 'when mode is set to simulated' do
       it 'should add it in query params' do
         scopes = %w[read_odometer read_location]
