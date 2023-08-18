@@ -9,12 +9,16 @@ RSpec.describe Smartcar do
   before do
     @api_origin = ENV['SMARTCAR_API_ORIGIN']
     ENV['SMARTCAR_API_ORIGIN'] = 'https://pizza.pasta.pi'
+    @management_origin = ENV['SMARTCAR_MANAGEMENT_API_ORIGIN']
+    ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] = 'https://pizza.pasta.pi'
+    @amt = 'some-token'
     WebMock.disable_net_connect!
   end
 
   after do
     WebMock.allow_net_connect!
     ENV['SMARTCAR_API_ORIGIN'] = @api_origin
+    ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] = @management_origin
   end
 
   describe '.get_compatibility' do
@@ -50,6 +54,32 @@ RSpec.describe Smartcar do
                  expect(error.message).to eq(
                    'The "mode" parameter MUST be one of the following: \'test\', \'live\', \'simulated\''
                  )
+               end)
+      end
+    end
+
+    context 'when vin is nil' do
+      it 'should raise error' do
+        expect do
+          subject.get_compatibility(vin: nil, scope: ['scope'], options: { mode: 'invalid' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq('vin is a required field')
+               end)
+      end
+    end
+
+    context 'when scope is nil or empty' do
+      it 'should raise error' do
+        expect do
+          subject.get_compatibility(vin: 'vin', scope: [], options: { mode: 'invalid' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq('scope is a required field')
+               end)
+
+        expect do
+          subject.get_compatibility(vin: 'vin', scope: nil, options: { mode: 'invalid' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq('scope is a required field')
                end)
       end
     end
@@ -295,6 +325,159 @@ RSpec.describe Smartcar do
         expect(response.paging.offset).to be(0)
         expect(response.paging.count).to be(1)
       end
+    end
+  end
+
+  describe '.get_connections' do
+    it 'should return all connections associated with the amt (application management token)' do
+      header_token = subject.generate_basic_management_auth(@amt)
+
+      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=10')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: '2021-12-25T14:48:00.000Z',
+                  userId: 'user-id-7',
+                  vehicleId: 'vehicle-id-1'
+                },
+                {
+                  connectedAt: '2020-10-05T14:48:00.000Z',
+                  userId: 'user-id-6',
+                  vehicleId: 'vehicle-id-2'
+                }
+              ],
+              paging: { cursor: nil }
+            }.to_json
+          }
+        )
+      response = subject.get_connections(amt: @amt)
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].vehicleId).to eq('vehicle-id-1')
+      expect(response.paging.is_a?(OpenStruct)).to be_truthy
+      expect(response.paging.cursor).to be nil
+    end
+
+    it 'should return all connections based on given additional filters and paging options' do
+      header_token = subject.generate_basic_management_auth(@amt)
+
+      stub_request(:get, 'https://pizza.pasta.pi/v2.0/management/connections?limit=13&user_id=user_id&cursor=cursor')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: '2021-12-25T14:48:00.000Z',
+                  userId: 'user_id',
+                  vehicleId: 'vehicle-id-1'
+                },
+                {
+                  connectedAt: '2020-10-05T14:48:00.000Z',
+                  userId: 'user_id',
+                  vehicleId: 'vehicle-id-2'
+                }
+              ],
+              paging: { cursor: 'cursor2' }
+            }.to_json
+          }
+        )
+      response = subject.get_connections(amt: @amt, filter: { user_id: 'user_id' },
+                                         paging: { cursor: 'cursor', limit: 13 })
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].vehicleId).to eq('vehicle-id-1')
+      expect(response.paging.is_a?(OpenStruct)).to be_truthy
+      expect(response.paging.cursor).to eq('cursor2')
+    end
+  end
+
+  describe '.delete_connections' do
+    context 'when both user_id and vehicle_id are provided' do
+      it 'raises an error' do
+        expect do
+          subject.delete_connections(amt: @amt, filter: { user_id: 'user_id', vehicle_id: 'vehicle_id' })
+        end.to(raise_error do |error|
+                 expect(error.message).to eq(
+                   'Filter can contain EITHER user_id OR vehicle_id, not both.'
+                 )
+               end)
+      end
+    end
+
+    context 'when neither user_id or vehicle_id is provided' do
+      it 'raises an error' do
+        expect do
+          subject.delete_connections(amt: @amt)
+        end.to(raise_error do |error|
+                 expect(error.message).to eq(
+                   'Filter needs one of user_id OR vehicle_id.'
+                 )
+               end)
+      end
+    end
+
+    it 'deletes connections by user_id' do
+      header_token = subject.generate_basic_management_auth(@amt)
+
+      stub_request(:delete, 'https://pizza.pasta.pi/v2.0/management/connections?user_id=user_id')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: '2021-12-25T14:48:00.000Z',
+                  userId: 'user_id',
+                  vehicleId: 'vehicle-id-1'
+                }
+              ]
+            }.to_json
+          }
+        )
+      response = subject.delete_connections(amt: @amt, filter: { user_id: 'user_id' })
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].userId).to eq('user_id')
+    end
+
+    it 'deletes connections by vehicle_id' do
+      header_token = subject.generate_basic_management_auth(@amt)
+
+      stub_request(:delete, 'https://pizza.pasta.pi/v2.0/management/connections?vehicle_id=vehicle_id')
+        .with(headers: { 'Authorization' => "Basic #{header_token}" })
+        .to_return(
+          {
+            status: 200,
+            headers: { 'content-type' => 'application/json; charset=utf-8' },
+            body:
+            {
+              connections: [
+                {
+                  connectedAt: '2021-12-25T14:48:00.000Z',
+                  userId: 'user_id',
+                  vehicleId: 'vehicle_id'
+                }
+              ]
+            }.to_json
+          }
+        )
+      response = subject.delete_connections(amt: @amt, filter: { vehicle_id: 'vehicle_id' })
+
+      expect(response.connections.is_a?(Array)).to be_truthy
+      expect(response.connections[0].vehicleId).to eq('vehicle_id')
     end
   end
 end

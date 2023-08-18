@@ -15,10 +15,12 @@ module Smartcar
 
   # Host to connect to smartcar
   API_ORIGIN = 'https://api.smartcar.com/'
+  MANAGEMENT_API_ORIGIN = 'https://management.smartcar.com'
   PATHS = {
     compatibility: '/compatibility',
     user: '/user',
-    vehicles: '/vehicles'
+    vehicles: '/vehicles',
+    connections: '/management/connections'
   }.freeze
 
   # Path for smartcar oauth
@@ -80,8 +82,8 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#compatibility-api
     #  and a meta attribute with the relevant items from response headers.
     def get_compatibility(vin:, scope:, country: 'US', options: {})
-      raise InvalidParameterValue.new, 'vin is a required field' if vin.nil?
-      raise InvalidParameterValue.new, 'scope is a required field' if scope.nil?
+      raise Base::InvalidParameterValue.new, 'vin is a required field' if vin.nil?
+      raise Base::InvalidParameterValue.new, 'scope is a required field' if scope.nil? || scope.empty?
 
       base_object = Base.new(
         {
@@ -164,6 +166,70 @@ module Smartcar
     # @return [true, false] - true if signature matches the hex digest of amt and body
     def verify_payload(amt, signature, body)
       hash_challenge(amt, body.to_json) == signature
+    end
+
+    # Module method Returns a paged list of all vehicle connections connected to the application.
+    #
+    # API Documentation - https://smartcar.com/docs/api#get-connections
+    # @param amt [String] - Application Management token
+    # @param filters [Hash] - Optional filter parameters (check documentation)
+    # @param paging [Hash] - Pass a cursor for paginated results
+    # @param options [Hash] Other optional parameters including overrides
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
+    # @option options [String] :version Optional API version to use, defaults to what is globally set
+    #
+    # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-connections
+    #  and a meta attribute with the relevant items from response headers.
+    def get_connections(amt:, filter: {}, paging: {}, options: {})
+      paging[:limit] ||= 10
+      base_object = Base.new(
+        token: generate_basic_management_auth(amt, options),
+        version: options[:version] || Smartcar.get_api_version,
+        service: options[:service],
+        auth_type: Base::BASIC,
+        url: ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] || MANAGEMENT_API_ORIGIN
+      )
+      query_params = filter.merge(paging).compact
+
+      base_object.build_response(*base_object.get(
+        PATHS[:connections],
+        query_params
+      ))
+    end
+
+    def delete_connections(amt:, filter: {}, options: {})
+      user_id = filter[:user_id]
+      vehicle_id = filter[:vehicle_id]
+      error_message = nil
+      error_message = 'Filter can contain EITHER user_id OR vehicle_id, not both.' if user_id && vehicle_id
+      error_message = 'Filter needs one of user_id OR vehicle_id.' unless user_id || vehicle_id
+
+      raise Base::InvalidParameterValue.new, error_message if error_message
+
+      query_params = {}
+      query_params['user_id'] = user_id if user_id
+      query_params['vehicle_id'] = vehicle_id if vehicle_id
+
+      base_object = Base.new(
+        url: ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] || MANAGEMENT_API_ORIGIN,
+        auth_type: Base::BASIC,
+        token: generate_basic_management_auth(amt, options),
+        version: options[:version] || Smartcar.get_api_version,
+        service: options[:service]
+      )
+
+      base_object.build_response(*base_object.delete(
+        PATHS[:connections],
+        query_params
+      ))
+    end
+
+    # returns auth token for Basic vehicle management auth
+    #
+    # @return [String] Base64 encoding of default:amt
+    def generate_basic_management_auth(amt, options = {})
+      username = options[:username] || 'default'
+      Base64.strict_encode64("#{username}:#{amt}")
     end
 
     private

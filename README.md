@@ -144,6 +144,8 @@ Example of providing a custom Faraday connection to various methods:
 
   # Passing the custom service into a Smartcar::Vehicle object
   vehicle = Smartcar::Vehicle.new(token: token, id: id, options: { service: service })
+
+  connections = Smartcar.get_connections(amt: 'amt', filter: {userId: 'user-id'}, options: {service: service})
 ```
 
 ## Development
