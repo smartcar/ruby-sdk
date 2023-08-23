@@ -127,6 +127,18 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
       end
     end
+    describe '#lock_status' do
+      it 'should return a lock status object' do
+        result = @vehicle.lock_status
+        expect([true, false].include?(result.is_locked)).to eq(true)
+        expect(result.doors.is_a?(Array))
+        expect(result.windows.is_a?(Array))
+        expect(result.sunroof.is_a?(Array))
+        expect(result.storage.is_a?(Array))
+        expect(result.charging_port.is_a?(Array))
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
 
     describe '#batch - success' do
       context 'with valid attributes' do

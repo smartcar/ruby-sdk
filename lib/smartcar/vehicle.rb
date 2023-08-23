@@ -54,6 +54,13 @@ module Smartcar
       vin: { path: proc { |id| "/vehicles/#{id}/vin" } },
       get_charge_limit: { path: proc { |id| "/vehicles/#{id}/charge/limit" } },
       disconnect!: { type: :delete, path: proc { |id| "/vehicles/#{id}/application" } },
+      lock_status: {
+        path: proc { |id| "/vehicles/#{id}/security" },
+        aliases: {
+          'isLocked' => 'is_locked',
+          'chargingPort' => 'charging_port'
+        }
+      },
       lock!: { type: :post, path: proc { |id| "/vehicles/#{id}/security" }, body: { action: 'LOCK' } },
       unlock!: { type: :post, path: proc { |id| "/vehicles/#{id}/security" }, body: { action: 'UNLOCK' } },
       start_charge!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge" }, body: { action: 'START' } },
