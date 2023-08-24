@@ -125,6 +125,8 @@ module Smartcar
       # Adding this because else it would become tires_pressure
       return :tire_pressure if path == '/tires/pressure'
 
+      return :lock_status if path == '/security'
+
       path.split('/').reject(&:empty?).join('_').to_sym
     end
 
