@@ -171,7 +171,6 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.lock_status.sunroof).not_to be_nil
           expect(result.lock_status.charging_port).not_to be_nil
           expect(result.lock_status.meta).not_to be_nil
-
         end
       end
     end
