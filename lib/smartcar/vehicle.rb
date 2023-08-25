@@ -179,6 +179,16 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-vin
     #  and a meta attribute with the relevant items from response headers.
 
+    # @!method lock_status()
+    # Returns the lock status for a vehicle and the open status of its doors, windows, storage units, sunroof and charging port where available.
+    # The open status array(s) will be empty if a vehicle has partial support. The request will error if lock status can not be retrieved from the vehicle or
+    # the brand is not supported.
+    #
+    # API Documentation https://smartcar.com/docs/api#get-security
+    #
+    # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-security
+    #  and a meta attribute with the relevant items from response headers.
+
     # NOTES :
     # - We only generate the methods where there is no query string or additional options considering thats
     #   the majority, for all the ones that require parameters, write them separately.
