@@ -127,11 +127,23 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
       end
     end
+    describe '#lock_status' do
+      it 'should return a lock status object' do
+        result = @vehicle.lock_status
+        expect([true, false].include?(result.is_locked)).to eq(true)
+        expect(result.doors.is_a?(Array))
+        expect(result.windows.is_a?(Array))
+        expect(result.sunroof.is_a?(Array))
+        expect(result.storage.is_a?(Array))
+        expect(result.charging_port.is_a?(Array))
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
 
     describe '#batch - success' do
       context 'with valid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
-          attributes = ['/charge', '/battery', '/odometer', '/tires/pressure']
+          attributes = ['/charge', '/battery', '/odometer', '/tires/pressure', '/security']
           result = @vehicle.batch(attributes)
           expect(result.is_a?(OpenStruct)).to eq(true)
           expect(result.charge.is_a?(OpenStruct)).to eq(true)
@@ -152,6 +164,13 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.tire_pressure.front_right).not_to be_nil
           expect(result.tire_pressure.back_left).not_to be_nil
           expect(result.tire_pressure.back_right).not_to be_nil
+          expect(result.lock_status.is_a?(OpenStruct)).to eq(true)
+          expect([true, false].include?(result.lock_status.is_locked)).to eq(true)
+          expect(result.lock_status.doors).not_to be_nil
+          expect(result.lock_status.windows).not_to be_nil
+          expect(result.lock_status.sunroof).not_to be_nil
+          expect(result.lock_status.charging_port).not_to be_nil
+          expect(result.lock_status.meta).not_to be_nil
         end
       end
     end

@@ -15,7 +15,8 @@ class AuthHelper
            'required:read_battery',
            'required:read_charge',
            'required:read_engine_oil',
-           'required:read_tires'].freeze
+           'required:read_tires',
+           'required:read_security'].freeze
 
   class << self
     def get_code(uri)

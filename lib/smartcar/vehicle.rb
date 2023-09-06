@@ -54,6 +54,13 @@ module Smartcar
       vin: { path: proc { |id| "/vehicles/#{id}/vin" } },
       get_charge_limit: { path: proc { |id| "/vehicles/#{id}/charge/limit" } },
       disconnect!: { type: :delete, path: proc { |id| "/vehicles/#{id}/application" } },
+      lock_status: {
+        path: proc { |id| "/vehicles/#{id}/security" },
+        aliases: {
+          'isLocked' => 'is_locked',
+          'chargingPort' => 'charging_port'
+        }
+      },
       lock!: { type: :post, path: proc { |id| "/vehicles/#{id}/security" }, body: { action: 'LOCK' } },
       unlock!: { type: :post, path: proc { |id| "/vehicles/#{id}/security" }, body: { action: 'UNLOCK' } },
       start_charge!: { type: :post, path: proc { |id| "/vehicles/#{id}/charge" }, body: { action: 'START' } },
@@ -170,6 +177,17 @@ module Smartcar
     # API Documentation https://smartcar.com/docs/api#get-vin
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-vin
+    #  and a meta attribute with the relevant items from response headers.
+
+    # @!method lock_status()
+    # Returns the lock status for a vehicle and the open status of its doors, windows, storage units,
+    # sunroof and charging port where available. The open status array(s) will be empty if a vehicle
+    # has partial support. The request will error if lock status can not be retrieved from the vehicle or
+    # the brand is not supported.
+    #
+    # API Documentation https://smartcar.com/docs/api#get-security
+    #
+    # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-security
     #  and a meta attribute with the relevant items from response headers.
 
     # NOTES :
