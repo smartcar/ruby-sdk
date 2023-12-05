@@ -238,7 +238,11 @@ RSpec.describe Smartcar::Vehicle do
       @token = AuthHelper.run_auth_flow_and_get_tokens(
         nil,
         'FORD',
-        ['required:control_charge', 'required:control_security', 'read_charge']
+        [
+          'required:control_charge',
+          'required:control_security',
+          'required:control_navigation',
+          'read_charge']
       )[:access_token]
       @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
@@ -248,6 +252,16 @@ RSpec.describe Smartcar::Vehicle do
       describe "##{action}" do
         it 'should return a confirmation' do
           result = @vehicle.send(action)
+          expect(result.status).to eq('success')
+          expect(result.message).to eq('Successfully sent request to vehicle')
+          expect(result.meta.request_id.length).to eq(36)
+        end
+      end
+
+      describe '#send_destination!' do
+        it 'should return a confirmation' do
+          result = @vehicle.send_destination!(47.6205063, -122.3518523)
+          puts result.to_s
           expect(result.status).to eq('success')
           expect(result.message).to eq('Successfully sent request to vehicle')
           expect(result.meta.request_id.length).to eq(36)
