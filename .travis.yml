@@ -10,7 +10,7 @@ rvm:
 - 2.7
 - 3.0
 before_install:
-  - gem install bundler -v 2.1.2
+  - gem install bundler -v 2.3.1
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
   - mkdir geckodriver
   - tar -xzf geckodriver-v0.26.0-linux64.tar.gz -C geckodriver
