@@ -242,7 +242,8 @@ RSpec.describe Smartcar::Vehicle do
           'required:control_charge',
           'required:control_security',
           'required:control_navigation',
-          'read_charge']
+          'read_charge'
+        ]
       )[:access_token]
       @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
