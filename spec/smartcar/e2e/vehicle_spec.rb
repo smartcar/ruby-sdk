@@ -218,7 +218,7 @@ RSpec.describe Smartcar::Vehicle do
           expect(error.status_code).to eq(401)
           expect(error.type).to eq('AUTHENTICATION')
           expect(error.description).to eq(expected_description)
-          expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#authentication')
+          expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/authentication-errors#authentication')
         end)
       end
     end
@@ -298,7 +298,7 @@ RSpec.describe Smartcar::Vehicle do
             expect(error.status_code).to eq(403)
             expect(error.type).to eq('PERMISSION')
             expect(error.description).to eq(expected_description)
-            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#permission')
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/permission-errors#null')
             expect(error.resolution.type).to eq('REAUTHENTICATE')
           end)
         end

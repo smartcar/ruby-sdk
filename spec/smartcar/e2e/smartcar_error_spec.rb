@@ -52,7 +52,7 @@ RSpec.describe SmartcarError do
             expect(error.type).to eq('VEHICLE_STATE')
             expect(error.code).to eq('UNKNOWN')
             expect(error.description).to eq(expected_description)
-            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/vehicle-state/#unknown')
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/vehicle-state-errors#unknown')
             expect(error.resolution.type).to eq('RETRY_LATER')
             expect(error.message).to eq("VEHICLE_STATE:UNKNOWN - #{expected_description}")
           end)
@@ -69,7 +69,7 @@ Please prompt the user to re-add the vehicle to their account."
             expect(error.type).to eq('CONNECTED_SERVICES_ACCOUNT')
             expect(error.code).to eq('VEHICLE_MISSING')
             expect(error.description).to eq(expected_description)
-            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/connected-services-account/#vehicle_missing')
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/connected-services-account-errors#vehicle_missing')
             expect(error.resolution.type).to be_nil
             expect(error.message).to eq("CONNECTED_SERVICES_ACCOUNT:VEHICLE_MISSING - #{expected_description}")
           end)
@@ -86,7 +86,7 @@ Please prompt the user to re-authenticate using Smartcar Connect."
             expect(error.type).to eq('PERMISSION')
             expect(error.code).to be_nil
             expect(error.description).to eq(expected_description)
-            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#permission')
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/connected-services-account-errors#permission')
             expect(error.resolution.type).to eq('REAUTHENTICATE')
             expect(error.message).to eq("PERMISSION: - #{expected_description}")
           end)
