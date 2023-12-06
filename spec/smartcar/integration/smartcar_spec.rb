@@ -7,9 +7,9 @@ RSpec.describe Smartcar do
   subject { Smartcar }
 
   before do
-    @api_origin = ENV['SMARTCAR_API_ORIGIN']
+    @api_origin = ENV.fetch('SMARTCAR_API_ORIGIN', nil)
     ENV['SMARTCAR_API_ORIGIN'] = 'https://pizza.pasta.pi'
-    @management_origin = ENV['SMARTCAR_MANAGEMENT_API_ORIGIN']
+    @management_origin = ENV.fetch('SMARTCAR_MANAGEMENT_API_ORIGIN', nil)
     ENV['SMARTCAR_MANAGEMENT_API_ORIGIN'] = 'https://pizza.pasta.pi'
     @amt = 'some-token'
     WebMock.disable_net_connect!
@@ -24,7 +24,7 @@ RSpec.describe Smartcar do
   describe '.get_compatibility' do
     context 'when client id is not set' do
       it 'should raise error' do
-        client_id = ENV['E2E_SMARTCAR_CLIENT_ID']
+        client_id = ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil)
         ENV.delete('E2E_SMARTCAR_CLIENT_ID')
 
         expect { subject.get_compatibility(vin: 'vin', scope: ['scope']) }.to(raise_error do |error|
@@ -36,7 +36,7 @@ RSpec.describe Smartcar do
 
     context 'when client secret is not set' do
       it 'should raise error if client secret is not set' do
-        client_secret = ENV['E2E_SMARTCAR_CLIENT_SECRET']
+        client_secret = ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)
         ENV.delete('E2E_SMARTCAR_CLIENT_SECRET')
 
         expect { subject.get_compatibility(vin: 'vin', scope: ['scope']) }.to(raise_error do |error|
@@ -89,7 +89,7 @@ RSpec.describe Smartcar do
         scopes = %w[read_odometer read_location]
         stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility')
           .with(
-            basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']],
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
             query: { country: 'US', mode: 'simulated', scope: 'read_odometer read_location', vin: 'vin' }
           )
           .to_return(
@@ -120,7 +120,7 @@ RSpec.describe Smartcar do
         scopes = %w[read_odometer read_location]
         stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility')
           .with(
-            basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']],
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
             query: { country: 'US', mode: 'test', scope: 'read_odometer read_location', vin: 'vin' }
           )
           .to_return(
@@ -151,7 +151,7 @@ RSpec.describe Smartcar do
         scopes = %w[read_odometer read_location]
         stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility')
           .with(
-            basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']],
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
             query: { country: 'US', mode: 'test', scope: 'read_odometer read_location', vin: 'vin',
                      test_mode_compatibility_level: 'pizza' }
           )
@@ -183,7 +183,10 @@ RSpec.describe Smartcar do
         scopes = %w[read_odometer read_location]
         stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility?country=US&flags=flagA:a%20flagB:b&scope=read_odometer%20read_location&vin=vin')
           .with(
-            basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']]
+            basic_auth: [
+              ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil),
+              ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)
+            ]
           )
           .to_return(
             {
@@ -215,7 +218,7 @@ RSpec.describe Smartcar do
         scopes = %w[read_odometer read_location]
         stub_request(:get, 'https://custom-api.smartcar.com/v2.0/compatibility?country=US&scope=read_odometer%20read_location&vin=vin')
           .with(
-            basic_auth: [ENV['E2E_SMARTCAR_CLIENT_ID'], ENV['E2E_SMARTCAR_CLIENT_SECRET']]
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)]
           )
           .to_return(
             {

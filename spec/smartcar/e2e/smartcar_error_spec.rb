@@ -69,7 +69,7 @@ Please prompt the user to re-add the vehicle to their account."
             expect(error.type).to eq('CONNECTED_SERVICES_ACCOUNT')
             expect(error.code).to eq('VEHICLE_MISSING')
             expect(error.description).to eq(expected_description)
-            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/connected-services-account-errors#vehicle_missing')
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/connected-services-account-errors#vehicle-missing')
             expect(error.resolution.type).to be_nil
             expect(error.message).to eq("CONNECTED_SERVICES_ACCOUNT:VEHICLE_MISSING - #{expected_description}")
           end)
@@ -86,7 +86,7 @@ Please prompt the user to re-authenticate using Smartcar Connect."
             expect(error.type).to eq('PERMISSION')
             expect(error.code).to be_nil
             expect(error.description).to eq(expected_description)
-            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/connected-services-account-errors#permission')
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/permission-errors#null')
             expect(error.resolution.type).to eq('REAUTHENTICATE')
             expect(error.message).to eq("PERMISSION: - #{expected_description}")
           end)
