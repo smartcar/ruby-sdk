@@ -71,6 +71,12 @@ module Smartcar
         body: proc { |limit| { limit: limit } },
         skip: true
       },
+      send_destination!: {
+        type: :post,
+        path: proc { |id| "/vehicles/#{id}/navigation/destination" },
+        body: proc { |latitude, longitude| { latitude: latitude, longitude: longitude } },
+        skip: true
+      },
       subscribe!: {
         type: :post,
         path: proc { |id, webhook_id| "/vehicles/#{id}/webhooks/#{webhook_id}" },
@@ -263,6 +269,20 @@ module Smartcar
       body = METHODS.dig(:set_charge_limit!, :body).call(limit)
 
       response, headers = post(path, {}, body)
+      build_response(response, headers)
+    end
+
+    # Send coordinates to the vehicle's navigation system
+    #
+    # @param latitude [float] value representing the destination's latitude
+    # @param longitude [float] value representing the destination's longitude
+
+    # @return [OpenStruct] Meta attribute with the relevant items from response headers
+    def send_destination!(latitude, longitude)
+      method_config = METHODS[:send_destination!]
+
+      response, headers = post(method_config[:path].call(id), @query_params,
+                               method_config[:body].call(latitude, longitude))
       build_response(response, headers)
     end
 

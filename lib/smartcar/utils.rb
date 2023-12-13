@@ -22,7 +22,7 @@ module Smartcar
       config_name = "E2E_#{config_name}" if ENV['MODE'] == 'test'
       raise Smartcar::ConfigNotFound, "Environment variable #{config_name} not found !" unless ENV[config_name]
 
-      ENV[config_name]
+      ENV.fetch(config_name, nil)
     end
 
     # Converts a hash to RecursiveOpenStruct (a powered up OpenStruct object).
@@ -59,7 +59,9 @@ module Smartcar
 
     def build_aliases(response, aliases)
       (aliases || []).each do |original_name, alias_name|
+        # rubocop:disable Lint/SymbolConversion
         response.send("#{alias_name}=".to_sym, response.send(original_name.to_sym))
+        # rubocop:enable Lint/SymbolConversion
       end
 
       response

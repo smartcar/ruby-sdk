@@ -3,6 +3,14 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
 
+# Disabling for now. Will when updating to 3.1 and 3.2
+Gemspec/DevelopmentDependencies:
+  Enabled: false
+
+# Disabling for now. Will when updating to 3.1 and 3.2
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
 # Disabling ABC size for now as refactoring few places seems pointless for now
 Metrics/AbcSize:
   Enabled: false

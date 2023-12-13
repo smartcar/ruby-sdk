@@ -204,7 +204,7 @@ RSpec.describe Smartcar::Vehicle do
 
     describe '#request - override auth header' do
       it 'should throw error in making request' do
-        expected_description = 'The authorization header is missing or malformed, '\
+        expected_description = 'The authorization header is missing or malformed, ' \
                                'or it contains invalid or expired authentication credentials. Please ' \
                                'check for missing parameters, spelling and casing mistakes, and ' \
                                'other syntax issues.'
@@ -218,7 +218,7 @@ RSpec.describe Smartcar::Vehicle do
           expect(error.status_code).to eq(401)
           expect(error.type).to eq('AUTHENTICATION')
           expect(error.description).to eq(expected_description)
-          expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#authentication')
+          expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/authentication-errors#null')
         end)
       end
     end
@@ -238,7 +238,12 @@ RSpec.describe Smartcar::Vehicle do
       @token = AuthHelper.run_auth_flow_and_get_tokens(
         nil,
         'FORD',
-        ['required:control_charge', 'required:control_security', 'read_charge']
+        [
+          'required:control_charge',
+          'required:control_security',
+          'required:control_navigation',
+          'read_charge'
+        ]
       )[:access_token]
       @vehicle_ids = Smartcar.get_vehicles(token: @token).vehicles
       @vehicle = Smartcar::Vehicle.new(token: @token, id: @vehicle_ids.first)
@@ -248,6 +253,16 @@ RSpec.describe Smartcar::Vehicle do
       describe "##{action}" do
         it 'should return a confirmation' do
           result = @vehicle.send(action)
+          expect(result.status).to eq('success')
+          expect(result.message).to eq('Successfully sent request to vehicle')
+          expect(result.meta.request_id.length).to eq(36)
+        end
+      end
+
+      describe '#send_destination!' do
+        it 'should return a confirmation' do
+          result = @vehicle.send_destination!(47.6205063, -122.3518523)
+          puts result
           expect(result.status).to eq('success')
           expect(result.message).to eq('Successfully sent request to vehicle')
           expect(result.meta.request_id.length).to eq(36)
@@ -267,8 +282,8 @@ RSpec.describe Smartcar::Vehicle do
     describe '#batch - success' do
       context 'with valid and invalid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
-          expected_description = 'Your application has insufficient permissions to access the requested resource.'\
-                                 ' Please prompt the user to re-authenticate using Smartcar Connect.'
+          expected_description = 'Your application has insufficient permissions to access the requested resource. ' \
+                                 'Please prompt the user to re-authenticate using Smartcar Connect.'
           attributes = ['/charge', '/fuel']
           result = @vehicle.batch(attributes)
 
@@ -283,7 +298,7 @@ RSpec.describe Smartcar::Vehicle do
             expect(error.status_code).to eq(403)
             expect(error.type).to eq('PERMISSION')
             expect(error.description).to eq(expected_description)
-            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/v2.0/other-errors/#permission')
+            expect(error.doc_url).to eq('https://smartcar.com/docs/errors/api-errors/permission-errors#null')
             expect(error.resolution.type).to eq('REAUTHENTICATE')
           end)
         end
@@ -292,16 +307,16 @@ RSpec.describe Smartcar::Vehicle do
 
     describe '#subscribe!' do
       it 'should return webhook and vehicleId with meta' do
-        result = @vehicle.subscribe!(ENV['E2E_SMARTCAR_WEBHOOK_ID'])
+        result = @vehicle.subscribe!(ENV.fetch('E2E_SMARTCAR_WEBHOOK_ID', nil))
         expect(result.vehicle_id).to eq(@vehicle.id)
-        expect(result.webhook_id).to eq(ENV['E2E_SMARTCAR_WEBHOOK_ID'])
+        expect(result.webhook_id).to eq(ENV.fetch('E2E_SMARTCAR_WEBHOOK_ID', nil))
         expect(result.meta.request_id.length).to eq(36)
       end
     end
 
     describe '#unsubscribe!' do
       it 'should return webhook and vehicleId with meta' do
-        result = @vehicle.unsubscribe!(ENV['E2E_SMARTCAR_AMT'], ENV['E2E_SMARTCAR_WEBHOOK_ID'])
+        result = @vehicle.unsubscribe!(ENV.fetch('E2E_SMARTCAR_AMT', nil), ENV.fetch('E2E_SMARTCAR_WEBHOOK_ID', nil))
         expect(result.meta.request_id.length).to eq(36)
       end
     end

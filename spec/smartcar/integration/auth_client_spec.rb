@@ -15,7 +15,7 @@ RSpec.describe Smartcar::AuthClient do
     )
   end
   before do
-    @auth_origin = ENV['SMARTCAR_AUTH_ORIGIN']
+    @auth_origin = ENV.fetch('SMARTCAR_AUTH_ORIGIN', nil)
     ENV['SMARTCAR_AUTH_ORIGIN'] = 'https://pizza.pasta.pi'
     WebMock.disable_net_connect!
   end
@@ -51,7 +51,7 @@ RSpec.describe Smartcar::AuthClient do
 
   context 'constructor' do
     it 'raises error if redirect URL is not present' do
-      redirect_url = ENV['E2E_SMARTCAR_REDIRECT_URI']
+      redirect_url = ENV.fetch('E2E_SMARTCAR_REDIRECT_URI', nil)
       ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
 
       expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
@@ -61,7 +61,7 @@ RSpec.describe Smartcar::AuthClient do
     end
 
     it 'raises error if client ID is not present' do
-      client_id = ENV['E2E_SMARTCAR_CLIENT_ID']
+      client_id = ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil)
       ENV.delete('E2E_SMARTCAR_CLIENT_ID')
 
       expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
@@ -71,7 +71,7 @@ RSpec.describe Smartcar::AuthClient do
     end
 
     it 'raises error if client secret is not present' do
-      client_secret = ENV['E2E_SMARTCAR_CLIENT_SECRET']
+      client_secret = ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)
       ENV.delete('E2E_SMARTCAR_CLIENT_SECRET')
 
       expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
