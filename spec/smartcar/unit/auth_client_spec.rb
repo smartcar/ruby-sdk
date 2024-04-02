@@ -101,6 +101,28 @@ RSpec.describe Smartcar::AuthClient do
     end
   end
 
+  context 'authorization_url with user' do
+    it 'should call authorize_url from client.authcode' do
+      expect(obj).to receive(:authorize_url).with({
+                                                    redirect_uri: 'test_url',
+                                                    scope: 'testing1 testing2',
+                                                    mode: 'test',
+                                                    response_type: Smartcar::CODE,
+                                                    flags: 'country:DE',
+                                                    state: 'blah',
+                                                    make: 'blah',
+                                                    user: 'test-user-id'
+                                                  }).and_return('result')
+      expect(subject.get_auth_url(%w[testing1 testing2],
+                                  {
+                                    flags: { country: 'DE' },
+                                    state: 'blah',
+                                    make_bypass: 'blah',
+                                    user: 'test-user-id'
+                                  })).to eq 'result'
+    end
+  end
+
   context 'connect_client' do
     before do
       allow(subject).to receive(:connect_client).and_call_original
