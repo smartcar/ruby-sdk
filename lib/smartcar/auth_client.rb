@@ -53,6 +53,8 @@ module Smartcar
     # For a complete list of supported makes, please see our
     # [API Reference](https://smartcar.com/docs/api#authorization) documentation.
     # @option options[:flags] [Hash] - A hash of flag name string as key and a string or boolean value.
+    # @option options[:user] [String] - An optional unique identifier for a vehicle owner. This identifier
+    # is used to aggregate analytics across Connect sessions for each vehicle owner.
     #
     # @return [String] Authorization URL string
     def get_auth_url(scope, options = {})
@@ -132,6 +134,7 @@ module Smartcar
       @auth_parameters[:state] = options[:state] if options[:state]
       @auth_parameters[:make] = options[:make_bypass] if options[:make_bypass]
       @auth_parameters[:flags] = build_flags(options[:flags]) if options[:flags]
+      @auth_parameters[:user] = options[:user] if options[:user]
     end
 
     def add_single_select_options(single_select)
