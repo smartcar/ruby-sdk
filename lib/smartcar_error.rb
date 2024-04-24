@@ -2,10 +2,7 @@
 
 # Custom SmartcarError class to represent errors from Smartcar APIs.
 class SmartcarError < StandardError
-  # rubocop:disable Style/AccessorGrouping
-  attr_reader :code, :status_code, :request_id, :type, :description
-  attr_reader :doc_url, :resolution, :detail, :retry_after, :suggested_user_message
-  # rubocop:enable Style/AccessorGrouping
+  attr_reader :code, :status_code, :request_id, :type, :description, :doc_url, :resolution, :detail, :retry_after, :suggested_user_message
 
   def initialize(status, body, headers)
     @status_code = status
