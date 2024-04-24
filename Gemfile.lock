@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    smartcar (3.8.0)
+    smartcar (3.9.0)
       oauth2 (~> 1.4)
       recursive-open-struct (~> 1.1.3)
 
