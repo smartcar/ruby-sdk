@@ -48,3 +48,8 @@ Metrics/CyclomaticComplexity:
 
 Metrics/PerceivedComplexity:
   Max: 10
+
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'lib/smartcar_error.rb'
