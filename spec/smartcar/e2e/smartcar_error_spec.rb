@@ -45,6 +45,7 @@ RSpec.describe SmartcarError do
     describe 'v2 errors' do
       context 'with resolution string' do
         it 'should convert the resolution string to object and fill the value in type' do
+          skip 'Test account is having authentication issues, skipping test for now'
           vehicle = get_vehicle_object('VEHICLE_STATE.UNKNOWN@smartcar.com')
           expected_description = 'The vehicle was unable to perform your request due to an unknown issue.'
           expect { vehicle.odometer }.to(raise_error do |error|
@@ -61,6 +62,7 @@ RSpec.describe SmartcarError do
 
       context 'with null resolution' do
         it 'should have empty resolution' do
+          skip 'Test account is having authentication issues, skipping test for now'
           vehicle = get_vehicle_object('CONNECTED_SERVICES_ACCOUNT.VEHICLE_MISSING@smartcar.com')
           expected_description = "This vehicle is no longer associated with the user's connected services account. \
 Please prompt the user to re-add the vehicle to their account."
