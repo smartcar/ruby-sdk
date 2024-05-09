@@ -50,7 +50,7 @@ module Smartcar
           query_params << "end_date=#{end_date}" unless end_date.nil?
           "#{base_path}?#{query_params.join('&')}" unless query_params.empty?
         },
-        skip: true  
+        skip: true
       },
       tire_pressure: {
         path: proc { |id| "/vehicles/#{id}/tires/pressure" },
@@ -245,7 +245,7 @@ module Smartcar
     # Retrieves a list of service records for the vehicle, optionally filtered by a specified date range.
     # If no dates are specified, the method defaults to returning records from the last year.
     #
-    # This method calls the Smartcar API to fetch the vehicle's service history and processes the 
+    # This method calls the Smartcar API to fetch the vehicle's service history and processes the
     # response to return structured data.
     #
     # @param start_date [String, nil] the start date of the period from which records are retrieved (inclusive).
@@ -269,12 +269,11 @@ module Smartcar
       build_response(body, headers)
     end
 
-
     # Utility method to provide default dates
     def default_date_range
-      end_date = DateTime.now.new_offset(0).to_date  
-      start_date = end_date - 365         
-      return start_date.to_s, end_date.to_s 
+      end_date = DateTime.now.new_offset(0).to_date
+      start_date = end_date - 365
+      [start_date.to_s, end_date.to_s]
     end
 
     # Subscribe the vehicle to given webhook Id.

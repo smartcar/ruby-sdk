@@ -35,7 +35,7 @@ class AuthHelper
     def run_auth_flow(authorization_url, test_email = nil, make = nil)
       email = test_email || "#{SecureRandom.uuid}@email.com"
       make ||= 'CHEVROLET'
-      headless_mode = ENV['HEADLESS'] != 'false' ? ['-headless'] : ['']
+      headless_mode = ENV['HEADLESS'] == 'false' ? [''] : ['-headless']
       options = Selenium::WebDriver::Firefox::Options.new(args: headless_mode)
       driver = Selenium::WebDriver.for(:firefox, capabilities: [options])
       driver.navigate.to authorization_url
