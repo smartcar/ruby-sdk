@@ -42,6 +42,7 @@ module Smartcar
       },
       location: { path: proc { |id| "/vehicles/#{id}/location" } },
       odometer: { path: proc { |id| "/vehicles/#{id}/odometer" } },
+      service_history: { path: proc { |id| "/vehicles/#{id}/service/history" } },
       tire_pressure: {
         path: proc { |id| "/vehicles/#{id}/tires/pressure" },
         aliases: {

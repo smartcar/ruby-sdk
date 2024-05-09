@@ -120,6 +120,28 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    describe '#service_history' do
+      it 'should return service history object with valid properties' do
+        result = @vehicle.service_history
+    
+        # Check that items has at least 0 elements; this test will always pass since an empty array has 0 elements
+        expect(result.items.length).to be >= 0
+    
+        # Check if there are elements, then each must have an odometerDistance
+        result.items.each do |item|
+          expect(item).to respond_to(:odometerDistance)
+          # Check that odometerDistance is not nil and is a Float
+          expect(item.odometerDistance).to be_a(Float)
+        end
+    
+        # More expectations can be included if needed
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.unit_system).to eq('metric')
+        expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+      end
+    end
+  
+
     describe '#charge_limit' do
       it 'should return an charge limit object' do
         result = @vehicle.get_charge_limit

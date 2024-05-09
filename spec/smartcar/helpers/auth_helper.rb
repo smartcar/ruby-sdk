@@ -16,6 +16,7 @@ class AuthHelper
            'required:read_charge',
            'required:read_engine_oil',
            'required:read_tires',
+           'required:read_service_history',
            'required:read_security'].freeze
 
   class << self
@@ -34,7 +35,8 @@ class AuthHelper
     def run_auth_flow(authorization_url, test_email = nil, make = nil)
       email = test_email || "#{SecureRandom.uuid}@email.com"
       make ||= 'CHEVROLET'
-      options = Selenium::WebDriver::Firefox::Options.new(args: ['-headless'])
+      headless_mode = ENV['HEADLESS'] != 'false' ? ['-headless'] : ['']
+      options = Selenium::WebDriver::Firefox::Options.new(args: headless_mode)
       driver = Selenium::WebDriver.for(:firefox, capabilities: [options])
       driver.navigate.to authorization_url
       driver.manage.timeouts.implicit_wait = 10
@@ -43,10 +45,8 @@ class AuthHelper
       driver.find_element(css: 'input[id=username]').send_keys(email)
       driver.find_element(css: 'input[id=password').send_keys('password')
       driver.find_element(css: 'button[id=sign-in-button]').click
-
       wait = Selenium::WebDriver::Wait.new(timeout: 60)
-
-      %w[approval-button continue-button].each do |button|
+      %w[approval-button].each do |button|
         wait.until do
           element = driver.find_element(:css, "button[id=#{button}]")
           element if element.displayed?
@@ -58,6 +58,7 @@ class AuthHelper
       uri = wait.until do
         driver.current_url if driver.current_url.match('example.com')
       end
+
       driver.quit
       get_code(uri)
     end
