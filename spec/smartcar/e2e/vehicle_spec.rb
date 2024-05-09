@@ -122,7 +122,7 @@ RSpec.describe Smartcar::Vehicle do
 
     describe '#service_history' do
       it 'should return service history object with valid properties' do
-        result = @vehicle.service_history
+        result = @vehicle.service_history('2021-01-01', '2021-12-31')
     
         # Check that items has at least 0 elements; this test will always pass since an empty array has 0 elements
         expect(result.items.length).to be >= 0

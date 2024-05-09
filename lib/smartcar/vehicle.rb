@@ -42,7 +42,16 @@ module Smartcar
       },
       location: { path: proc { |id| "/vehicles/#{id}/location" } },
       odometer: { path: proc { |id| "/vehicles/#{id}/odometer" } },
-      service_history: { path: proc { |id| "/vehicles/#{id}/service/history" } },
+      service_history: {
+        path: proc { |id, start_date = nil, end_date = nil|
+          base_path = "/vehicles/#{id}/service/history"
+          query_params = []
+          query_params << "start_date=#{start_date}" unless start_date.nil?
+          query_params << "end_date=#{end_date}" unless end_date.nil?
+          "#{base_path}?#{query_params.join('&')}" unless query_params.empty?
+        },
+        skip: true  
+      },
       tire_pressure: {
         path: proc { |id| "/vehicles/#{id}/tires/pressure" },
         aliases: {
@@ -231,6 +240,41 @@ module Smartcar
     def permissions(paging = {})
       response, headers = get(METHODS.dig(:permissions, :path).call(id), @query_params.merge(paging))
       build_response(response, headers)
+    end
+
+    # Retrieves a list of service records for the vehicle, optionally filtered by a specified date range.
+    # If no dates are specified, the method defaults to returning records from the last year.
+    #
+    # This method calls the Smartcar API to fetch the vehicle's service history and processes the 
+    # response to return structured data.
+    #
+    # @param start_date [String, nil] the start date of the period from which records are retrieved (inclusive).
+    #                                 Expected in 'YYYY-MM-DD' format. If nil, defaults to one year ago from today.
+    # @param end_date [String, nil] the end date of the period until which records are retrieved (inclusive).
+    #                               Expected in 'YYYY-MM-DD' format. If nil, defaults to today's date.
+    #
+    # @return [OpenStruct] An object representing the parsed JSON response from the API, with service history
+    #         data and metadata extracted from the response headers.
+    #
+    # Example usage:
+    #   vehicle.service_history('2021-01-01', '2021-12-31')
+    #
+    # Note: This method assumes that the necessary error handling is embedded within the `get` method or handled
+    #       externally when exceptions arise due to network issues, API limitations, or data encoding problems.
+    def service_history(start_date = nil, end_date = nil)
+      start_date, end_date = default_date_range if start_date.nil? || end_date.nil?
+
+      path = METHODS[:service_history][:path].call(id, start_date, end_date)
+      body, headers = get(path, @query_params)
+      build_response(body, headers)
+    end
+
+
+    # Utility method to provide default dates
+    def default_date_range
+      end_date = DateTime.now.new_offset(0).to_date  
+      start_date = end_date - 365         
+      return start_date.to_s, end_date.to_s 
     end
 
     # Subscribe the vehicle to given webhook Id.
