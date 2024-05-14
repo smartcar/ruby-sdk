@@ -34,7 +34,23 @@ module Smartcar
     #
     # @return [RecursiveOpenStruct]
     def json_to_ostruct(hash)
-      RecursiveOpenStruct.new(hash, recurse_over_arrays: true)
+      convert_to_ostruct_recursively(hash)
+    end
+
+    # Helper method to recursively convert hashes and arrays to RecursiveOpenStruct
+    def convert_to_ostruct_recursively(obj)
+      case obj
+      when Array
+        obj.map { |el| convert_to_ostruct_recursively(el) }
+      when Hash
+        RecursiveOpenStruct.new(
+          obj.transform_values { |value| convert_to_ostruct_recursively(value) },
+          recurse_over_arrays: true
+        )
+
+      else
+        obj
+      end
     end
 
     def build_meta(headers)
@@ -46,14 +62,25 @@ module Smartcar
         meta[key] = headers[header_name] if headers[header_name]
       end
       meta = json_to_ostruct(meta_hash)
-      meta.data_age &&= DateTime.parse(meta.data_age)
-
+      if meta.data_age
+        begin
+          meta.data_age = DateTime.parse(meta.data_age)
+        rescue ArgumentError
+          meta.data_age = nil
+        end
+      end
       meta
     end
 
     def build_response(body, headers)
-      response = json_to_ostruct(body)
-      response.meta = build_meta(headers)
+      # Check if body is already parsed (i.e., a Hash) or if it needs parsing (i.e., a String)
+      body_data = body.is_a?(String) ? JSON.parse(body) : body
+      if body_data.is_a?(Array)
+        response = OpenStruct.new(items: json_to_ostruct(body), meta: build_meta(headers))
+      else
+        response = json_to_ostruct(body)
+        response.meta = build_meta(headers)
+      end
       response
     end
 
