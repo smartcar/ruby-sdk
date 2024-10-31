@@ -152,7 +152,7 @@ module Smartcar
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-ev-battery
     #  and a meta attribute with the relevant items from response headers.
-    
+
     # @!method diagnostic_system_status()
     # Returns the status of the vehicle's diagnostic systems.
     #
