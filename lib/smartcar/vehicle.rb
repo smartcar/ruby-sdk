@@ -30,10 +30,10 @@ module Smartcar
         aliases: { 'isPluggedIn' => 'is_plugged_in?' }
       },
       diagnostic_system_status: {
-        path: proc { |id| "/vehicles/#{id}/diagnostic/status" }
+        path: proc { |id| "/vehicles/#{id}/diagnostics/system_status" }
       },
       diagnostic_trouble_codes: {
-        path: proc { |id| "/vehicles/#{id}/diagnostic/troublecodes" }
+        path: proc { |id| "/vehicles/#{id}/diagnostics/dtcs" }
       },
       engine_oil: {
         path: proc { |id| "/vehicles/#{id}/engine/oil" },
