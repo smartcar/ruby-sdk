@@ -186,8 +186,8 @@ RSpec.describe Smartcar::Vehicle do
     describe '#batch - success' do
       context 'with valid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
-          attributes = ['/charge', '/battery', '/odometer', '/tires/pressure', '/security', '/diagnostics/system_status',
-                        '/diagnostics/dtcs']
+          attributes = ['/charge', '/battery', '/odometer', '/tires/pressure', '/security',
+                        '/diagnostics/system_status', '/diagnostics/dtcs']
           result = @vehicle.batch(attributes)
 
           # Basic response type checks
