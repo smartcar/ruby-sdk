@@ -17,6 +17,7 @@ class AuthHelper
            'required:read_engine_oil',
            'required:read_tires',
            'required:read_service_history',
+           'required:read_diagnostics',
            'required:read_security'].freeze
 
   class << self
