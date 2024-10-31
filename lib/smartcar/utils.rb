@@ -156,6 +156,9 @@ module Smartcar
 
       return :lock_status if path == '/security'
 
+      return :diagnostic_system_status if path == '/diagnostics/system_status'
+      return :diagnostic_trouble_codes if path == '/diagnostics/trouble_codes'
+
       path.split('/').reject(&:empty?).join('_').to_sym
     end
 
