@@ -61,6 +61,32 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    describe '#diagnostic_system_status' do
+      it 'should return a diagnostic system status object' do
+        result = @vehicle.diagnostic_system_status
+        expect(result.systems).to be_an(Array)
+        unless result.systems.empty?
+          expect(result.systems.first).to have_key('name')
+          expect(result.systems.first).to have_key('status')
+        end
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age).to be_a(DateTime)
+      end
+    end
+
+    describe '#diagnostic_trouble_codes' do
+      it 'should return a diagnostic trouble codes object' do
+        result = @vehicle.diagnostic_trouble_codes
+        expect(result.codes).to be_an(Array)
+        unless result.codes.empty?
+          expect(result.codes.first).to have_key('code')
+          expect(result.codes.first).to have_key('description')
+        end
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age).to be_a(DateTime)
+      end
+    end
+
     describe '#fuel' do
       it 'should return an fuel object' do
         result = @vehicle.fuel
