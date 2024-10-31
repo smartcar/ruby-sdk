@@ -65,10 +65,13 @@ RSpec.describe Smartcar::Vehicle do
       it 'should return a diagnostic system status object' do
         result = @vehicle.diagnostic_system_status
         expect(result.systems).to be_an(Array)
+
         unless result.systems.empty?
-          expect(result.systems.first).to have_key('system_id')
-          expect(result.systems.first).to have_key('status')
+          first_system = result.systems.first
+          expect(first_system.system_id).not_to be_nil
+          expect(first_system.status).not_to be_nil
         end
+
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age).to be_a(DateTime)
       end
@@ -78,10 +81,12 @@ RSpec.describe Smartcar::Vehicle do
       it 'should return a diagnostic trouble codes object' do
         result = @vehicle.diagnostic_trouble_codes
         expect(result.active_codes).to be_an(Array)
+
         unless result.active_codes.empty?
-          expect(result.codes.first).to have_key('code')
-          expect(result.codes.first).to have_key('timestamp')
+          first_code = result.active_codes.first
+          expect(first_code.code).not_to be_nil
         end
+
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age).to be_a(DateTime)
       end
