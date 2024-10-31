@@ -26,12 +26,8 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  # General dependencies
-  spec.add_dependency 'oauth2', '~> 1.4'
-  spec.add_dependency 'recursive-open-struct', '~> 1.1.3'
-
-  # Development dependencies with Ruby version-specific handling
   spec.add_development_dependency 'bundler', '~> 2.0'
+  spec.add_development_dependency 'byebug', '~> 11.0'
   spec.add_development_dependency 'codecov', '~> 0.5.2'
   spec.add_development_dependency 'rake', '~> 12.3', '>= 12.3.3'
   spec.add_development_dependency 'redcarpet', '~> 3.5.0'
@@ -39,11 +35,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 1.12'
   spec.add_development_dependency 'selenium-webdriver', '~> 4.1.0'
   spec.add_development_dependency 'webmock', '~> 3.13'
-
-  # Ruby version-specific dependencies
-  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0')
-    spec.add_development_dependency 'racc', '~> 1.7' # For Ruby 3.0 compatibility
-  else
-    spec.add_development_dependency 'byebug', '~> 11.0' # Specific to Ruby 2.7 and below
-  end
+  spec.add_dependency 'oauth2', '~> 1.4'
+  spec.add_dependency 'recursive-open-struct', '~> 1.1.3'
 end
