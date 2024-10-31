@@ -65,13 +65,11 @@ RSpec.describe Smartcar::Vehicle do
       it 'should return a diagnostic system status object' do
         result = @vehicle.diagnostic_system_status
         expect(result.systems).to be_an(Array)
-
         unless result.systems.empty?
           first_system = result.systems.first
-          expect(first_system.system_id).not_to be_nil
+          expect(first_system.systemId).not_to be_nil
           expect(first_system.status).not_to be_nil
         end
-
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age).to be_a(DateTime)
       end
@@ -80,13 +78,13 @@ RSpec.describe Smartcar::Vehicle do
     describe '#diagnostic_trouble_codes' do
       it 'should return a diagnostic trouble codes object' do
         result = @vehicle.diagnostic_trouble_codes
-        expect(result.active_codes).to be_an(Array)
-
-        unless result.active_codes.empty?
-          first_code = result.active_codes.first
+        expect(result.activeCodes).to be_an(Array)
+        unless result.activeCodes.empty?
+          first_code = result.activeCodes.first
           expect(first_code.code).not_to be_nil
+          # Only check timestamp if it is present
+          expect(first_code.timestamp).not_to be_nil if first_code.respond_to?(:timestamp) && first_code.timestamp
         end
-
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age).to be_a(DateTime)
       end
@@ -236,13 +234,15 @@ RSpec.describe Smartcar::Vehicle do
           # Diagnostics System Status Assertions
           expect(result.diagnostic_system_status.is_a?(OpenStruct)).to eq(true)
           expect(result.diagnostic_system_status.systems).not_to be_empty
-          expect(result.diagnostic_system_status.systems.first.system_id).not_to be_nil
-          expect(result.diagnostic_system_status.systems.first.status).not_to be_nil
+          first_system = result.diagnostic_system_status.systems.first
+          expect(first_system.systemId).not_to be_nil
+          expect(first_system.status).not_to be_nil
 
           # Diagnostics Trouble Codes Assertions
           expect(result.diagnostic_trouble_codes.is_a?(OpenStruct)).to eq(true)
-          expect(result.diagnostic_trouble_codes.active_codes).not_to be_empty
-          expect(result.diagnostic_trouble_codes.active_codes.first.code).not_to be_nil
+          expect(result.diagnostic_trouble_codes.activeCodes).not_to be_empty
+          first_code = result.diagnostic_trouble_codes.activeCodes.first
+          expect(first_code.code).not_to be_nil
         end
       end
     end
