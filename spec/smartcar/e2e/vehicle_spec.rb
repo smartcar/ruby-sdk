@@ -61,6 +61,35 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    describe '#diagnostic_system_status' do
+      it 'should return a diagnostic system status object' do
+        result = @vehicle.diagnostic_system_status
+        expect(result.systems).to be_an(Array)
+        unless result.systems.empty?
+          first_system = result.systems.first
+          expect(first_system.systemId).not_to be_nil
+          expect(first_system.status).not_to be_nil
+        end
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age).to be_a(DateTime)
+      end
+    end
+
+    describe '#diagnostic_trouble_codes' do
+      it 'should return a diagnostic trouble codes object' do
+        result = @vehicle.diagnostic_trouble_codes
+        expect(result.activeCodes).to be_an(Array)
+        unless result.activeCodes.empty?
+          first_code = result.activeCodes.first
+          expect(first_code.code).not_to be_nil
+          # Only check timestamp if it is present
+          expect(first_code.timestamp).not_to be_nil if first_code.respond_to?(:timestamp) && first_code.timestamp
+        end
+        expect(result.meta.request_id.length).to eq(36)
+        expect(result.meta.data_age).to be_a(DateTime)
+      end
+    end
+
     describe '#fuel' do
       it 'should return an fuel object' do
         result = @vehicle.fuel
@@ -160,27 +189,40 @@ RSpec.describe Smartcar::Vehicle do
     describe '#batch - success' do
       context 'with valid attributes' do
         it 'should return hash of objects with attribute requested as keys' do
-          attributes = ['/charge', '/battery', '/odometer', '/tires/pressure', '/security']
+          attributes = ['/charge', '/battery', '/odometer', '/tires/pressure', '/security',
+                        '/diagnostics/system_status', '/diagnostics/dtcs']
           result = @vehicle.batch(attributes)
+
+          # Basic response type checks
           expect(result.is_a?(OpenStruct)).to eq(true)
+
+          # Charge Assertions
           expect(result.charge.is_a?(OpenStruct)).to eq(true)
           expect(result.charge.is_plugged_in?).not_to be_nil
           expect(result.charge.state).not_to be_nil
           expect(result.charge.meta).not_to be_nil
           expect(result.charge.meta.request_id.length).to eq(36)
+
+          # Battery Assertions
           expect(result.battery.is_a?(OpenStruct)).to eq(true)
           expect(result.battery.percentage_remaining).not_to be_nil
           expect(result.battery.range).not_to be_nil
           expect(result.battery.meta).not_to be_nil
+
+          # Odometer Assertions
           expect(result.odometer.is_a?(OpenStruct)).to eq(true)
           expect(result.odometer.meta).not_to be_nil
           expect(result.odometer.distance).not_to be_nil
+
+          # Tire Pressure Assertions
           expect(result.tire_pressure.is_a?(OpenStruct)).to eq(true)
           expect(result.tire_pressure.meta).not_to be_nil
           expect(result.tire_pressure.front_left).not_to be_nil
           expect(result.tire_pressure.front_right).not_to be_nil
           expect(result.tire_pressure.back_left).not_to be_nil
           expect(result.tire_pressure.back_right).not_to be_nil
+
+          # Lock Status Assertions
           expect(result.lock_status.is_a?(OpenStruct)).to eq(true)
           expect([true, false].include?(result.lock_status.is_locked)).to eq(true)
           expect(result.lock_status.doors).not_to be_nil
@@ -188,6 +230,19 @@ RSpec.describe Smartcar::Vehicle do
           expect(result.lock_status.sunroof).not_to be_nil
           expect(result.lock_status.charging_port).not_to be_nil
           expect(result.lock_status.meta).not_to be_nil
+
+          # Diagnostics System Status Assertions
+          expect(result.diagnostic_system_status.is_a?(OpenStruct)).to eq(true)
+          expect(result.diagnostic_system_status.systems).not_to be_empty
+          first_system = result.diagnostic_system_status.systems.first
+          expect(first_system.systemId).not_to be_nil
+          expect(first_system.status).not_to be_nil
+
+          # Diagnostics Trouble Codes Assertions
+          expect(result.diagnostic_trouble_codes.is_a?(OpenStruct)).to eq(true)
+          expect(result.diagnostic_trouble_codes.activeCodes).not_to be_empty
+          first_code = result.diagnostic_trouble_codes.activeCodes.first
+          expect(first_code.code).not_to be_nil
         end
       end
     end

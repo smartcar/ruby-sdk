@@ -29,6 +29,12 @@ module Smartcar
         path: proc { |id| "/vehicles/#{id}/charge" },
         aliases: { 'isPluggedIn' => 'is_plugged_in?' }
       },
+      diagnostic_system_status: {
+        path: proc { |id| "/vehicles/#{id}/diagnostics/system_status" }
+      },
+      diagnostic_trouble_codes: {
+        path: proc { |id| "/vehicles/#{id}/diagnostics/dtcs" }
+      },
       engine_oil: {
         path: proc { |id| "/vehicles/#{id}/engine/oil" },
         aliases: { 'lifeRemaining' => 'life_remaining' }
@@ -146,6 +152,20 @@ module Smartcar
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-ev-battery
     #  and a meta attribute with the relevant items from response headers.
+
+    # @!method diagnostic_system_status()
+    # Returns the status of the vehicle's diagnostic systems.
+    #
+    # API Documentation: https://smartcar.com/docs/api#get-diagnostic-system-status
+    #
+    # @return [OpenStruct] An object representing the diagnostic system status and metadata.
+
+    # @!method diagnostic_trouble_codes()
+    # Retrieves diagnostic trouble codes (DTCs) from the vehicle.
+    #
+    # API Documentation: https://smartcar.com/docs/api#get-diagnostic-trouble-codes
+    #
+    # @return [OpenStruct] An object containing the DTCs and metadata.
 
     # @!method engine_oil()
     # Returns the remaining life span of a vehicle's engine oil
