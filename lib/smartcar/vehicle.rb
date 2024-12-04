@@ -25,6 +25,7 @@ module Smartcar
         aliases: { 'percentRemaining' => 'percentage_remaining' }
       },
       battery_capacity: { path: proc { |id| "/vehicles/#{id}/battery/capacity" } },
+      nominal_capacity: { path: proc { |id| "/vehicles/#{id}/battery/nominal_capacity" } },
       charge: {
         path: proc { |id| "/vehicles/#{id}/charge" },
         aliases: { 'isPluggedIn' => 'is_plugged_in?' }
@@ -143,6 +144,14 @@ module Smartcar
     # API Documentation https://smartcar.com/docs/api#get-ev-battery-capacity
     #
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-ev-battery-capacity
+    #  and a meta attribute with the relevant items from response headers.
+
+    # @!method nominal_capacity()
+    # Returns a list of nominal rated battery capacities for a vehicle.
+    #
+    # API Documentation https://smartcar.com/docs/api-reference/get-nominal-capacity
+    #
+    # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api-reference/get-nominal-capacity
     #  and a meta attribute with the relevant items from response headers.
 
     # @!method charge()

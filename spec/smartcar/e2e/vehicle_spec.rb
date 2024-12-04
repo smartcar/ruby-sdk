@@ -42,6 +42,15 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
 
+    describe '#nominal_capacity' do
+      it 'should return an nominal_capacity object' do
+        result = @vehicle.nominal_capacity
+        expect(result.availableCapacities).to be_an(Array)
+        expect(result.capacity.is_a?(OpenStruct)).to eq(true)
+        expect(result.meta.request_id.length).to eq(36)
+      end
+    end
+
     describe '#charge' do
       it 'should return an charge object' do
         result = @vehicle.charge
