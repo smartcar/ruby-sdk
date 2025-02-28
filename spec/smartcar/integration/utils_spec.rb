@@ -163,7 +163,7 @@ RSpec.describe Smartcar::Utils do
     end
 
     context 'with missing headers' do
-      it 'should not include missing headers in meta object' do
+      it 'should et date fields to nil when missing headers in meta object' do
         headers = {
           'sc-request-id' => 'request_id',
           'sc-unit-system' => 'metric'
@@ -172,8 +172,8 @@ RSpec.describe Smartcar::Utils do
 
         expect(meta.request_id).to eq('request_id')
         expect(meta.unit_system).to eq('metric')
-        expect(meta.respond_to?(:data_age)).to be_falsey
-        expect(meta.respond_to?(:fetched_at)).to be_falsey
+        expect(meta.data_age).to be_nil
+        expect(meta.fetched_at).to be_nil
       end
     end
 
