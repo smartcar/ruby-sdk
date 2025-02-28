@@ -40,4 +40,33 @@ RSpec.describe Smartcar::Utils do
       end
     end
   end
+
+  describe '#parse_date_safely' do
+    context 'with valid date string' do
+      it 'should return a DateTime object' do
+        date_string = '2023-05-04T07:20:50.844Z'
+        result = subject.send(:parse_date_safely, date_string)
+
+        expect(result).to be_a(DateTime)
+        expect(result.to_s).to include('2023-05-04T07:20:50')
+      end
+    end
+
+    context 'with nil input' do
+      it 'should return nil' do
+        result = subject.send(:parse_date_safely, nil)
+
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with invalid date format' do
+      it 'should return nil' do
+        invalid_date = 'not-a-valid-date'
+        result = subject.send(:parse_date_safely, invalid_date)
+
+        expect(result).to be_nil
+      end
+    end
+  end
 end

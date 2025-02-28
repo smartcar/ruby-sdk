@@ -31,6 +31,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.range.instance_of?(Float)).to eq(true)
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
@@ -58,6 +59,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(%w[CHARGING FULLY_CHARGED NOT_CHARGING].include?(result.state)).to eq(true)
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
@@ -67,6 +69,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.life_remaining >= 0 && result.life_remaining <= 1).to eq(true)
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
@@ -81,6 +84,7 @@ RSpec.describe Smartcar::Vehicle do
         end
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age).to be_a(DateTime)
+        expect(result.meta.fetched_at).to be_a(DateTime)
       end
     end
 
@@ -96,6 +100,7 @@ RSpec.describe Smartcar::Vehicle do
         end
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age).to be_a(DateTime)
+        expect(result.meta.fetched_at).to be_a(DateTime)
       end
     end
 
@@ -107,6 +112,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
@@ -117,6 +123,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.latitude.instance_of?(Float)).to eq(true)
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
@@ -155,6 +162,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
@@ -173,6 +181,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
     describe '#charge_limit' do
@@ -180,6 +189,7 @@ RSpec.describe Smartcar::Vehicle do
         result = @vehicle.get_charge_limit
         expect(result.limit.is_a?(Numeric)).to eq(true)
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
     describe '#lock_status' do
@@ -192,6 +202,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.storage.is_a?(Array))
         expect(result.charging_port.is_a?(Array))
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
@@ -263,6 +274,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.meta.request_id.length).to eq(36)
         expect(result.meta.unit_system).to eq('metric')
         expect(result.meta.data_age.is_a?(DateTime)).to eq(true)
+        expect(result.meta.fetched_at.is_a?(DateTime)).to eq(true)
       end
     end
 
