@@ -57,7 +57,8 @@ module Smartcar
       meta_hash = {
         'sc-data-age' => :data_age,
         'sc-unit-system' => :unit_system,
-        'sc-request-id' => :request_id
+        'sc-request-id' => :request_id,
+        'sc-fetched-at' => :fetched_at
       }.each_with_object({}) do |(header_name, key), meta|
         meta[key] = headers[header_name] if headers[header_name]
       end
@@ -67,6 +68,13 @@ module Smartcar
           meta.data_age = DateTime.parse(meta.data_age)
         rescue ArgumentError
           meta.data_age = nil
+        end
+      end
+      if meta.fetched_at
+        begin
+          meta.fetched_at = DateTime.parse(meta.fetched_at)
+        rescue ArgumentError
+          meta.fetched_at = nil
         end
       end
       meta
