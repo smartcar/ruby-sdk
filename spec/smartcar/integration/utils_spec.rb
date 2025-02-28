@@ -151,9 +151,8 @@ RSpec.describe Smartcar::Utils do
           'sc-unit-system' => 'metric',
           'sc-fetched-at' => '2023-05-04T07:20:51.844Z'
         }
-        
         meta = subject.build_meta(headers)
-        
+
         expect(meta.request_id).to eq('request_id')
         expect(meta.data_age).to be_a(DateTime)
         expect(meta.data_age.to_s).to include('2023-05-04T07:20:50')
@@ -169,9 +168,8 @@ RSpec.describe Smartcar::Utils do
           'sc-request-id' => 'request_id',
           'sc-unit-system' => 'metric'
         }
-        
         meta = subject.build_meta(headers)
-        
+
         expect(meta.request_id).to eq('request_id')
         expect(meta.unit_system).to eq('metric')
         expect(meta.respond_to?(:data_age)).to be_falsey
@@ -187,9 +185,8 @@ RSpec.describe Smartcar::Utils do
           'sc-unit-system' => 'metric',
           'sc-fetched-at' => 'another-invalid-date'
         }
-        
         meta = subject.build_meta(headers)
-        
+
         expect(meta.request_id).to eq('request_id')
         expect(meta.data_age).to be_nil
         expect(meta.unit_system).to eq('metric')

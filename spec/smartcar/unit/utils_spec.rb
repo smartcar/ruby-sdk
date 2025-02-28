@@ -51,7 +51,7 @@ RSpec.describe Smartcar::Utils do
         expect(result.to_s).to include('2023-05-04T07:20:50')
       end
     end
-    
+
     context 'with nil input' do
       it 'should return nil' do
         result = subject.send(:parse_date_safely, nil)
@@ -59,7 +59,7 @@ RSpec.describe Smartcar::Utils do
         expect(result).to be_nil
       end
     end
-    
+
     context 'with invalid date format' do
       it 'should return nil' do
         invalid_date = 'not-a-valid-date'
