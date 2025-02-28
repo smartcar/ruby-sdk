@@ -56,7 +56,7 @@ module Smartcar
     # Parse date string to DateTime or return nil on error
     def parse_date_safely(date_string)
       return nil unless date_string
-      
+
       begin
         DateTime.parse(date_string)
       rescue ArgumentError
@@ -73,7 +73,7 @@ module Smartcar
       }.each_with_object({}) do |(header_name, key), meta|
         meta[key] = headers[header_name] if headers[header_name]
       end
-      
+
       meta = json_to_ostruct(meta_hash)
       meta.data_age = parse_date_safely(meta.data_age)
       meta.fetched_at = parse_date_safely(meta.fetched_at)
