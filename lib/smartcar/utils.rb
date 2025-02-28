@@ -53,6 +53,17 @@ module Smartcar
       end
     end
 
+    # Parse date string to DateTime or return nil on error
+    def parse_date_safely(date_string)
+      return nil unless date_string
+      
+      begin
+        DateTime.parse(date_string)
+      rescue ArgumentError
+        nil
+      end
+    end
+
     def build_meta(headers)
       meta_hash = {
         'sc-data-age' => :data_age,
@@ -62,21 +73,10 @@ module Smartcar
       }.each_with_object({}) do |(header_name, key), meta|
         meta[key] = headers[header_name] if headers[header_name]
       end
+      
       meta = json_to_ostruct(meta_hash)
-      if meta.data_age
-        begin
-          meta.data_age = DateTime.parse(meta.data_age)
-        rescue ArgumentError
-          meta.data_age = nil
-        end
-      end
-      if meta.fetched_at
-        begin
-          meta.fetched_at = DateTime.parse(meta.fetched_at)
-        rescue ArgumentError
-          meta.fetched_at = nil
-        end
-      end
+      meta.data_age = parse_date_safely(meta.data_age)
+      meta.fetched_at = parse_date_safely(meta.fetched_at)
       meta
     end
 
