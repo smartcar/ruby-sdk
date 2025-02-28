@@ -141,4 +141,60 @@ RSpec.describe Smartcar::Utils do
       end
     end
   end
+
+  describe '#build_meta' do
+    context 'with valid headers' do
+      it 'should build meta object with correct values' do
+        headers = {
+          'sc-request-id' => 'request_id',
+          'sc-data-age' => '2023-05-04T07:20:50.844Z',
+          'sc-unit-system' => 'metric',
+          'sc-fetched-at' => '2023-05-04T07:20:51.844Z'
+        }
+        
+        meta = subject.build_meta(headers)
+        
+        expect(meta.request_id).to eq('request_id')
+        expect(meta.data_age).to be_a(DateTime)
+        expect(meta.data_age.to_s).to include('2023-05-04T07:20:50')
+        expect(meta.unit_system).to eq('metric')
+        expect(meta.fetched_at).to be_a(DateTime)
+        expect(meta.fetched_at.to_s).to include('2023-05-04T07:20:51')
+      end
+    end
+
+    context 'with missing headers' do
+      it 'should not include missing headers in meta object' do
+        headers = {
+          'sc-request-id' => 'request_id',
+          'sc-unit-system' => 'metric'
+        }
+        
+        meta = subject.build_meta(headers)
+        
+        expect(meta.request_id).to eq('request_id')
+        expect(meta.unit_system).to eq('metric')
+        expect(meta.respond_to?(:data_age)).to be_falsey
+        expect(meta.respond_to?(:fetched_at)).to be_falsey
+      end
+    end
+
+    context 'with invalid date formats' do
+      it 'should set date fields to nil when they cannot be parsed' do
+        headers = {
+          'sc-request-id' => 'request_id',
+          'sc-data-age' => 'invalid-date-format',
+          'sc-unit-system' => 'metric',
+          'sc-fetched-at' => 'another-invalid-date'
+        }
+        
+        meta = subject.build_meta(headers)
+        
+        expect(meta.request_id).to eq('request_id')
+        expect(meta.data_age).to be_nil
+        expect(meta.unit_system).to eq('metric')
+        expect(meta.fetched_at).to be_nil
+      end
+    end
+  end
 end
