@@ -112,13 +112,7 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-user
     #  and a meta attribute with the relevant items from response headers.
     def get_user(token:, version: Smartcar.get_api_version, options: {})
-      base_object = Base.new(
-        {
-          token: token,
-          version: version,
-          service: options[:service]
-        }
-      )
+      base_object = base_initializer(token, version, options)
       base_object.build_response(*base_object.get(PATHS[:user]))
     end
 
@@ -134,13 +128,7 @@ module Smartcar
     # @return [OpenStruct] And object representing the JSON response mentioned in https://smartcar.com/docs/api#get-all-vehicles
     #  and a meta attribute with the relevant items from response headers.
     def get_vehicles(token:, paging: {}, version: Smartcar.get_api_version, options: {})
-      base_object = Base.new(
-        {
-          token: token,
-          version: version,
-          service: options[:service]
-        }
-      )
+      base_object = base_initializer(token, version, options)
       base_object.build_response(*base_object.get(
         PATHS[:vehicles],
         paging
@@ -259,6 +247,16 @@ module Smartcar
       client_id = options[:client_id] || base_object.get_config('SMARTCAR_CLIENT_ID')
       client_secret = options[:client_secret] || base_object.get_config('SMARTCAR_CLIENT_SECRET')
       Base64.strict_encode64("#{client_id}:#{client_secret}")
+    end
+
+    def base_initializer(token, version, options)
+      Base.new(
+        {
+          token: token,
+          version: version,
+          service: options[:service]
+        }
+      )
     end
   end
 end
