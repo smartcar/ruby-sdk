@@ -1,0 +1,52 @@
+- pipeline: cd
+  name: CD
+  events:
+    - type: PUSH
+      refs:
+        - refs/heads/master
+  fail_on_prepare_env_warning: true
+  actions:
+    - action: semantic release
+      type: BUILD
+      docker_image_name: library/ruby
+      docker_image_tag: 2.7
+      execute_commands:
+        - "set -e  # Exit immediately if a command exits with non-zero status"
+        - export GEM_NAME="smartcar"
+        - export GEMSPEC_FILE="ruby-sdk.gemspec"
+        - 'export GEM_HOST_API_KEY="${RUBYGEMSAPI_KEY}"'
+        - ""
+        - 'if [ "${BUDDY_EXECUTION_TAG}" != "" ] && [ "${BUDDY_EXECUTION_BRANCH}" == "master" ]; then'
+        - '  echo "Tagged commit on master branch detected, proceeding with deployment..."'
+        - "  gem install bundler -v 2.3.1"
+        - "  gem build ${GEMSPEC_FILE}"
+        - '  GEM_VERSION=$(ruby -e "require ''rubygems''; spec = Gem::Specification::load(''${GEMSPEC_FILE}''); puts spec.version")'
+        - "  "
+        - '  echo "Publishing ${GEM_NAME} version ${GEM_VERSION} to RubyGems..."'
+        - '  gem push "${GEM_NAME}-${GEM_VERSION}.gem"'
+        - '  echo "Deployment to RubyGems completed successfully"'
+        - else
+        - '  echo "Skipping deployment: This is not a tagged commit on the master branch"'
+        - fi
+      setup_commands:
+        - "set -e  # Exit immediately if a command exits with non-zero status"
+        - ""
+        - export GEM_NAME="smartcar"
+        - export GEMSPEC_FILE="ruby-sdk.gemspec"
+        - 'export GEM_HOST_API_KEY="${RUBYGEMSAPI_KEY}"'
+        - ""
+        - "# Only deploy if this is a tagged commit on the master branch"
+        - 'if [ "${BUDDY_EXECUTION_TAG}" != "" ] && [ "${BUDDY_EXECUTION_BRANCH}" == "master" ]; then'
+        - '  echo "Tagged commit on master branch detected, proceeding with deployment..."'
+        - "  "
+        - "  gem install bundler -v 2.3.1"
+        - "  gem build ${GEMSPEC_FILE}"
+        - '  GEM_VERSION=$(ruby -e "require ''rubygems''; spec = Gem::Specification::load(''${GEMSPEC_FILE}''); puts spec.version")'
+        - "  "
+        - '  echo "Publishing ${GEM_NAME} version ${GEM_VERSION} to RubyGems..."'
+        - '  gem push "${GEM_NAME}-${GEM_VERSION}.gem"'
+        - '  echo "Deployment to RubyGems completed successfully"'
+        - else
+        - '  echo "Skipping deployment: This is not a tagged commit on the master branch"'
+        - fi
+      shell: BASH
