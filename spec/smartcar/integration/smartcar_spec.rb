@@ -244,6 +244,235 @@ RSpec.describe Smartcar do
     end
   end
 
+  describe '.get_compatibility_matrix' do
+    context 'when region is not set' do
+      it 'should raise error' do
+        expect { subject.get_compatibility_matrix(nil) }.to(raise_error do |error|
+          expect(error.message).to eq('region is a required field')
+        end)
+
+        expect { subject.get_compatibility_matrix('') }.to(raise_error do |error|
+          expect(error.message).to eq('region is a required field')
+        end)
+      end
+    end
+
+    context 'when client id is not set' do
+      it 'should raise error' do
+        client_id = ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil)
+        ENV.delete('E2E_SMARTCAR_CLIENT_ID')
+
+        expect { subject.get_compatibility_matrix('US') }.to(raise_error do |error|
+          expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_ID not found !')
+        end)
+        ENV['E2E_SMARTCAR_CLIENT_ID'] = client_id
+      end
+    end
+
+    context 'when client secret is not set' do
+      it 'should raise error if client secret is not set' do
+        client_secret = ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)
+        ENV.delete('E2E_SMARTCAR_CLIENT_SECRET')
+
+        expect { subject.get_compatibility_matrix('US') }.to(raise_error do |error|
+          expect(error.message).to eq('Environment variable E2E_SMARTCAR_CLIENT_SECRET not found !')
+        end)
+        ENV['E2E_SMARTCAR_CLIENT_SECRET'] = client_secret
+      end
+    end
+
+    context 'when only region is provided' do
+      it 'should make request with only region' do
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility/matrix')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
+            query: { region: 'US' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: {
+                TESLA: [
+                  {
+                    model: 'Model S',
+                    startYear: 2015,
+                    endYear: 2023,
+                    type: 'BEV',
+                    endpoints: ['/battery', '/charge'],
+                    permissions: ['read_battery', 'read_charge']
+                  }
+                ]
+              }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US')
+        expect(response.TESLA).to be_an(Array)
+        expect(response.TESLA.first.model).to eq('Model S')
+      end
+    end
+
+    context 'when scope is provided as array' do
+      it 'should convert scope array to space-separated string' do
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility/matrix')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
+            query: { region: 'US', scope: 'read_battery read_charge' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: { TESLA: [] }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US', { scope: %w[read_battery read_charge] })
+        expect(response.TESLA).to eq([])
+      end
+    end
+
+    context 'when make is provided as array' do
+      it 'should convert make array to space-separated string' do
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility/matrix')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
+            query: { region: 'US', make: 'TESLA NISSAN' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: { TESLA: [], NISSAN: [] }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US', { make: %w[TESLA NISSAN] })
+        expect(response.TESLA).to eq([])
+        expect(response.NISSAN).to eq([])
+      end
+    end
+
+    context 'when make is provided as string' do
+      it 'should use make string as-is' do
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility/matrix')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
+            query: { region: 'US', make: 'TESLA' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: { TESLA: [] }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US', { make: 'TESLA' })
+        expect(response.TESLA).to eq([])
+      end
+    end
+
+    context 'when type is provided' do
+      it 'should include type in query params' do
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility/matrix')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
+            query: { region: 'US', type: 'BEV' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: { TESLA: [] }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US', { type: 'BEV' })
+        expect(response.TESLA).to eq([])
+      end
+    end
+
+    context 'when all parameters are provided' do
+      it 'should include all parameters in query' do
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility/matrix')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
+            query: { region: 'US', make: 'TESLA', type: 'BEV', scope: 'read_battery read_charge' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: {
+                TESLA: [
+                  {
+                    model: 'Model S',
+                    startYear: 2015,
+                    endYear: 2023,
+                    type: 'BEV',
+                    endpoints: ['/battery', '/charge'],
+                    permissions: ['read_battery', 'read_charge']
+                  }
+                ]
+              }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US', {
+                                                      make: 'TESLA',
+                                                      type: 'BEV',
+                                                      scope: %w[read_battery read_charge]
+                                                    })
+        expect(response.TESLA).to be_an(Array)
+        expect(response.TESLA.first.model).to eq('Model S')
+        expect(response.TESLA.first.type).to eq('BEV')
+      end
+    end
+
+    context 'when mode is set to test' do
+      it 'should add mode=test in query params' do
+        stub_request(:get, 'https://pizza.pasta.pi/v2.0/compatibility/matrix')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)],
+            query: { region: 'US', mode: 'test' }
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: { TESLA: [] }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US', { mode: 'test' })
+        expect(response.TESLA).to eq([])
+      end
+    end
+
+    context 'when a service object is provided' do
+      let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
+
+      it 'should use the provided service object' do
+        stub_request(:get, 'https://custom-api.smartcar.com/v2.0/compatibility/matrix?region=US')
+          .with(
+            basic_auth: [ENV.fetch('E2E_SMARTCAR_CLIENT_ID', nil), ENV.fetch('E2E_SMARTCAR_CLIENT_SECRET', nil)]
+          )
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json; charset=utf-8' },
+              body: { TESLA: [] }.to_json
+            }
+          )
+
+        response = subject.get_compatibility_matrix('US', { service: mock_service })
+        expect(response.TESLA).to eq([])
+      end
+    end
+  end
+
   describe '.get_user' do
     context 'when a service object is provided' do
       let(:mock_service) { Faraday.new(url: 'https://custom-api.smartcar.com') }
