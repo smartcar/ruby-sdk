@@ -13,14 +13,16 @@ module Smartcar
     # @param [Hash] options
     # @option options[:client_id] [String] - Client ID, if not passed fallsback to ENV['SMARTCAR_CLIENT_ID']
     # @option options[:client_secret] [String] - Client Secret, if not passed fallsback to ENV['SMARTCAR_CLIENT_SECRET']
-    # @option options[:redirect_uri] [String] - Redirect URI, if not passed fallsback to ENV['SMARTCAR_REDIRECT_URI']
+    # @option options[:redirect_uri] [String] - Redirect URI registered in the
+    # application settings. The given URL must exactly match one of the registered URLs.
+    # This parameter is optional and should normally be set within the Smartcar Dashboard.
     # @option options[:test_mode] [Boolean] - [DEPRECATED], please use `mode` instead.
     # Launch Smartcar Connect in [test mode](https://smartcar.com/docs/guides/testing/).
     # @option options[:mode] [String] - Determine what mode Smartcar Connect should be launched in.
     # Should be one of test, live or simulated.
     # @return [Smartcar::AuthClient] Returns a Smartcar::AuthClient Object that has other methods
     def initialize(options)
-      options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI')
+      options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI', { nullable: true})
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
       options[:auth_origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
@@ -30,9 +32,11 @@ module Smartcar
     end
 
     # Generate the OAuth authorization URL.
-    # @param scope [Array<String>] Array of permissions that specify what the user can access
+    # @param scope_or_options [Array<String>, Hash] Array of permissions that specify what the user can access
     #   EXAMPLE : ['read_odometer', 'read_vehicle_info', 'required:read_location']
-    # For further details refer to https://smartcar.com/docs/guides/scope/
+    #   For further details refer to https://smartcar.com/docs/guides/scope/
+    #   This parameter is optional and should normally be set within the Smartcar Dashboard.
+    #   Can also be a Hash of options if scope is not needed.
     # @param [Hash] options
     # @option options[:force_prompt] [Boolean] - Setting `force_prompt` to
     # `true` will show the permissions approval screen on every authentication
@@ -57,7 +61,15 @@ module Smartcar
     # is used to aggregate analytics across Connect sessions for each vehicle owner.
     #
     # @return [String] Authorization URL string
-    def get_auth_url(scope, options = {})
+    def get_auth_url(scope_or_options = {}, options = {})
+      scope = nil
+      if scope_or_options.is_a?(Array)
+        scope = scope_or_options
+        options = options || {}
+      elsif scope_or_options.is_a?(Hash)
+        options = scope_or_options
+      end
+
       initialize_auth_parameters(scope, options)
       add_single_select_options(options[:single_select])
       connect_client.auth_code.authorize_url(@auth_parameters)
@@ -126,10 +138,10 @@ module Smartcar
     def initialize_auth_parameters(scope, options)
       @auth_parameters = {
         response_type: CODE,
-        redirect_uri: redirect_uri,
-        mode: mode,
-        scope: scope.join(' ')
+        mode: mode
       }
+      @auth_parameters[:redirect_uri] = redirect_uri if redirect_uri
+      @auth_parameters[:scope] = scope.join(' ') if scope
       @auth_parameters[:approval_prompt] = options[:force_prompt] ? FORCE : AUTO unless options[:force_prompt].nil?
       @auth_parameters[:state] = options[:state] if options[:state]
       @auth_parameters[:make] = options[:make_bypass] if options[:make_bypass]

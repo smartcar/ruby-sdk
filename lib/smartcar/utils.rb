@@ -15,12 +15,19 @@ module Smartcar
 
     # gets a given env variable, checks for existence and throws exception if not present
     # @param config_name [String] key of the env variable
+    # @param options [Hash] options hash, supports :nullable key (default: false)
     #
     # @return [String] value of the env variable
-    def get_config(config_name)
+    def get_config(config_name, options = {})
       # ENV.MODE is set to test by e2e tests.
       config_name = "E2E_#{config_name}" if ENV['MODE'] == 'test'
-      raise Smartcar::ConfigNotFound, "Environment variable #{config_name} not found !" unless ENV[config_name]
+
+      unless ENV[config_name]
+        nullable = options.fetch(:nullable, false)
+        return nil if nullable
+
+        raise Smartcar::ConfigNotFound, "Environment variable #{config_name} not found !"
+      end
 
       ENV.fetch(config_name, nil)
     end
