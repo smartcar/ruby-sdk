@@ -15,6 +15,7 @@ module Smartcar
 
   # Host to connect to smartcar
   API_ORIGIN = 'https://api.smartcar.com/'
+  VEHICLE_API_ORIGIN = 'https://vehicle.api.smartcar.com'
   MANAGEMENT_API_ORIGIN = 'https://management.smartcar.com'
   PATHS = {
     compatibility: '/compatibility',

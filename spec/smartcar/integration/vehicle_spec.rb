@@ -263,4 +263,179 @@ RSpec.describe Smartcar::Vehicle do
       end
     end
   end
+
+  describe '#get_signal' do
+    context 'when signal_code is nil or empty' do
+      it 'raises an error' do
+        expect { subject.get_signal(nil) }.to raise_error(Smartcar::Base::InvalidParameterValue, 'signal_code is a required field')
+        expect { subject.get_signal('') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'signal_code is a required field')
+      end
+    end
+
+    context 'when requesting a specific signal' do
+      it 'uses the vehicle API origin and v3 version' do
+        stub_request(:get, 'https://vehicle.api.smartcar.com/v3/vehicles/vehicle_id/signals/odometer-traveleddistance')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: {
+                'content-type' => 'application/json',
+                'sc-request-id' => 'signal-request-id'
+              },
+              body: {
+                id: 'odometer-traveleddistance',
+                type: 'signal',
+                attributes: {
+                  code: 'odometer-traveleddistance',
+                  name: 'TraveledDistance',
+                  group: 'Odometer',
+                  status: {
+                    value: 'SUCCESS'
+                  },
+                  body: {
+                    unit: 'kilometers',
+                    value: 12345.6
+                  }
+                },
+                meta: {
+                  retrievedAt: 1752104218549,
+                  oemUpdatedAt: 1752104118549
+                },
+                links: {
+                  self: '/vehicles/vehicle_id/signals/odometer-traveleddistance'
+                }
+              }.to_json
+            }
+          )
+
+        result = subject.get_signal('odometer-traveleddistance')
+
+        expect(result.body.attributes.body.value).to eq(12345.6)
+        expect(result.body.attributes.body.unit).to eq('kilometers')
+        expect(result.headers.content_type).to eq('application/json')
+        expect(result.headers.sc_request_id).to eq('signal-request-id')
+      end
+    end
+
+    context 'when signal includes query parameters with flags' do
+      it 'includes flags in the request' do
+        subject = Smartcar::Vehicle.new(
+          token: 'token',
+          id: 'vehicle_id',
+          options: { flags: { country: 'DE' } }
+        )
+
+        stub_request(:get, 'https://vehicle.api.smartcar.com/v3/vehicles/vehicle_id/signals/odometer?flags=country%3ADE')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json' },
+              body: {
+                id: 'odometer-traveleddistance',
+                type: 'signal',
+                attributes: {
+                  code: 'odometer-traveleddistance',
+                  name: 'TraveledDistance',
+                  group: 'Odometer',
+                  status: { value: 'SUCCESS' },
+                  body: {
+                    unit: 'kilometers',
+                    value: 12345.6
+                  }
+                }
+              }.to_json
+            }
+          )
+
+        result = subject.get_signal('odometer')
+        expect(result.body.attributes.body.value).to eq(12345.6)
+      end
+    end
+  end
+
+  describe '#get_signals' do
+    context 'when requesting all signals' do
+      it 'uses the vehicle API origin and v3 version' do
+        stub_request(:get, 'https://vehicle.api.smartcar.com/v3/vehicles/vehicle_id/signals')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: {
+                'content-type' => 'application/json',
+                'sc-request-id' => 'signals-request-id',
+                'sc-data-age' => '2023-03-15T12:00:00Z'
+              },
+              body: {
+                signals: [
+                  {
+                    id: 'odometer-traveleddistance',
+                    type: 'signal',
+                    attributes: {
+                      code: 'odometer-traveleddistance',
+                      name: 'TraveledDistance',
+                      group: 'Odometer',
+                      status: { value: 'SUCCESS' },
+                      body: {
+                        unit: 'kilometers',
+                        value: 12345.6
+                      }
+                    }
+                  },
+                  {
+                    id: 'odometer-traveleddistance',
+                    type: 'signal',
+                    attributes: {
+                      code: 'odometer-traveleddistance',
+                      name: 'TraveledDistance',
+                      group: 'Odometer',
+                      status: { value: 'SUCCESS' },
+                      body: {
+                        unit: 'kilometers',
+                        value: 12345.6
+                      }
+                    }
+                  }
+                ]
+              }.to_json
+            }
+          )
+
+        result = subject.get_signals
+
+        expect(result.body.signals).to be_an(Array)
+        expect(result.body.signals.length).to eq(2)
+        expect(result.body.signals[0].id).to eq('odometer-traveleddistance')
+        expect(result.body.signals[1].id).to eq('odometer-traveleddistance')
+        expect(result.body.signals[0].attributes.body.value).to eq(12345.6)
+        expect(result.headers.content_type).to eq('application/json')
+        expect(result.headers.sc_request_id).to eq('signals-request-id')
+        expect(result.headers.sc_data_age).to eq('2023-03-15T12:00:00Z')
+      end
+    end
+
+    context 'when using custom vehicle API origin via environment' do
+      it 'uses the custom origin' do
+        original_origin = ENV['SMARTCAR_VEHICLE_API_ORIGIN']
+        ENV['SMARTCAR_VEHICLE_API_ORIGIN'] = 'https://custom-vehicle-api.smartcar.com'
+
+        stub_request(:get, 'https://custom-vehicle-api.smartcar.com/v3/vehicles/vehicle_id/signals')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json' },
+              body: { signals: [] }.to_json
+            }
+          )
+
+        result = subject.get_signals
+        expect(result.body.signals).to eq([])
+
+        ENV['SMARTCAR_VEHICLE_API_ORIGIN'] = original_origin
+      end
+    end
+  end
 end
