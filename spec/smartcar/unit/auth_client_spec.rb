@@ -188,7 +188,7 @@ RSpec.describe Smartcar::AuthClient do
 
     it 'should work without redirect_uri parameter' do
       # Temporarily remove the E2E_SMARTCAR_REDIRECT_URI env var to test without redirect_uri
-      original_redirect = ENV['E2E_SMARTCAR_REDIRECT_URI']
+      original_redirect = ENV.fetch('E2E_SMARTCAR_REDIRECT_URI', nil)
       ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
 
       client = Smartcar::AuthClient.new({
@@ -217,7 +217,7 @@ RSpec.describe Smartcar::AuthClient do
 
     it 'should work without both scope and redirect_uri' do
       # Temporarily remove the E2E_SMARTCAR_REDIRECT_URI env var to test without redirect_uri
-      original_redirect = ENV['E2E_SMARTCAR_REDIRECT_URI']
+      original_redirect = ENV.fetch('E2E_SMARTCAR_REDIRECT_URI', nil)
       ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
 
       client = Smartcar::AuthClient.new({

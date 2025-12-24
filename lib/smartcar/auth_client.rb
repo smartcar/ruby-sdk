@@ -22,7 +22,7 @@ module Smartcar
     # Should be one of test, live or simulated.
     # @return [Smartcar::AuthClient] Returns a Smartcar::AuthClient Object that has other methods
     def initialize(options)
-      options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI', { nullable: true})
+      options[:redirect_uri] ||= get_config('SMARTCAR_REDIRECT_URI', { nullable: true })
       options[:client_id] ||= get_config('SMARTCAR_CLIENT_ID')
       options[:client_secret] ||= get_config('SMARTCAR_CLIENT_SECRET')
       options[:auth_origin] = ENV['SMARTCAR_AUTH_ORIGIN'] || AUTH_ORIGIN
@@ -65,7 +65,7 @@ module Smartcar
       scope = nil
       if scope_or_options.is_a?(Array)
         scope = scope_or_options
-        options = options || {}
+        options ||= {}
       elsif scope_or_options.is_a?(Hash)
         options = scope_or_options
       end

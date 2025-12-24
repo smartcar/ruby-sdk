@@ -63,7 +63,7 @@ module Smartcar
     # Helper method to convert string from camelCase or kebab-case to snake_case
     def to_snake_case(str)
       str.to_s
-         .gsub('-', '_')  # Convert kebab-case to snake_case
+         .gsub('-', '_') # Convert kebab-case to snake_case
          .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
          .gsub(/([a-z\d])([A-Z])/, '\1_\2')
          .downcase

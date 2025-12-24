@@ -267,8 +267,12 @@ RSpec.describe Smartcar::Vehicle do
   describe '#get_signal' do
     context 'when signal_code is nil or empty' do
       it 'raises an error' do
-        expect { subject.get_signal(nil) }.to raise_error(Smartcar::Base::InvalidParameterValue, 'signal_code is a required field')
-        expect { subject.get_signal('') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'signal_code is a required field')
+        expect do
+          subject.get_signal(nil)
+        end.to raise_error(Smartcar::Base::InvalidParameterValue, 'signal_code is a required field')
+        expect do
+          subject.get_signal('')
+        end.to raise_error(Smartcar::Base::InvalidParameterValue, 'signal_code is a required field')
       end
     end
 
@@ -295,12 +299,12 @@ RSpec.describe Smartcar::Vehicle do
                   },
                   body: {
                     unit: 'kilometers',
-                    value: 12345.6
+                    value: 12_345.6
                   }
                 },
                 meta: {
-                  retrievedAt: 1752104218549,
-                  oemUpdatedAt: 1752104118549
+                  retrievedAt: 1_752_104_218_549,
+                  oemUpdatedAt: 1_752_104_118_549
                 },
                 links: {
                   self: '/vehicles/vehicle_id/signals/odometer-traveleddistance'
@@ -311,7 +315,7 @@ RSpec.describe Smartcar::Vehicle do
 
         result = subject.get_signal('odometer-traveleddistance')
 
-        expect(result.body.attributes.body.value).to eq(12345.6)
+        expect(result.body.attributes.body.value).to eq(12_345.6)
         expect(result.body.attributes.body.unit).to eq('kilometers')
         expect(result.headers.content_type).to eq('application/json')
         expect(result.headers.sc_request_id).to eq('signal-request-id')
@@ -342,7 +346,7 @@ RSpec.describe Smartcar::Vehicle do
                   status: { value: 'SUCCESS' },
                   body: {
                     unit: 'kilometers',
-                    value: 12345.6
+                    value: 12_345.6
                   }
                 }
               }.to_json
@@ -350,7 +354,7 @@ RSpec.describe Smartcar::Vehicle do
           )
 
         result = subject.get_signal('odometer')
-        expect(result.body.attributes.body.value).to eq(12345.6)
+        expect(result.body.attributes.body.value).to eq(12_345.6)
       end
     end
   end
@@ -380,7 +384,7 @@ RSpec.describe Smartcar::Vehicle do
                       status: { value: 'SUCCESS' },
                       body: {
                         unit: 'kilometers',
-                        value: 12345.6
+                        value: 12_345.6
                       }
                     }
                   },
@@ -394,7 +398,7 @@ RSpec.describe Smartcar::Vehicle do
                       status: { value: 'SUCCESS' },
                       body: {
                         unit: 'kilometers',
-                        value: 12345.6
+                        value: 12_345.6
                       }
                     }
                   }
@@ -409,7 +413,7 @@ RSpec.describe Smartcar::Vehicle do
         expect(result.body.signals.length).to eq(2)
         expect(result.body.signals[0].id).to eq('odometer-traveleddistance')
         expect(result.body.signals[1].id).to eq('odometer-traveleddistance')
-        expect(result.body.signals[0].attributes.body.value).to eq(12345.6)
+        expect(result.body.signals[0].attributes.body.value).to eq(12_345.6)
         expect(result.headers.content_type).to eq('application/json')
         expect(result.headers.sc_request_id).to eq('signals-request-id')
         expect(result.headers.sc_data_age).to eq('2023-03-15T12:00:00Z')
@@ -418,7 +422,7 @@ RSpec.describe Smartcar::Vehicle do
 
     context 'when using custom vehicle API origin via environment' do
       it 'uses the custom origin' do
-        original_origin = ENV['SMARTCAR_VEHICLE_API_ORIGIN']
+        original_origin = ENV.fetch('SMARTCAR_VEHICLE_API_ORIGIN', nil)
         ENV['SMARTCAR_VEHICLE_API_ORIGIN'] = 'https://custom-vehicle-api.smartcar.com'
 
         stub_request(:get, 'https://custom-vehicle-api.smartcar.com/v3/vehicles/vehicle_id/signals')

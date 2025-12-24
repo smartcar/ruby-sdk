@@ -114,7 +114,8 @@ module Smartcar
     # @param region [String] One of the following regions: US, CA, or EUROPE
     # @param options [Hash] Optional parameters
     # @option options [Array<String>] :scope List of permissions to filter the matrix by
-    # @option options [String, Array<String>] :make List of makes to filter the matrix by (space-separated string or array)
+    # @option options [String, Array<String>] :make List of makes to filter the matrix by
+    #   (space-separated string or array)
     # @option options [String] :type Engine type to filter the matrix by (e.g., "ICE", "HEV", "PHEV", "BEV")
     # @option options [String] :client_id Client ID that overrides ENV
     # @option options [String] :client_secret Client Secret that overrides ENV

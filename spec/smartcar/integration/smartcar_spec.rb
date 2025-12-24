@@ -300,7 +300,7 @@ RSpec.describe Smartcar do
                     endYear: 2023,
                     type: 'BEV',
                     endpoints: ['/battery', '/charge'],
-                    permissions: ['read_battery', 'read_charge']
+                    permissions: %w[read_battery read_charge]
                   }
                 ]
               }.to_json
@@ -413,7 +413,7 @@ RSpec.describe Smartcar do
                     endYear: 2023,
                     type: 'BEV',
                     endpoints: ['/battery', '/charge'],
-                    permissions: ['read_battery', 'read_charge']
+                    permissions: %w[read_battery read_charge]
                   }
                 ]
               }.to_json
@@ -716,15 +716,27 @@ RSpec.describe Smartcar do
   describe '.get_vehicle' do
     context 'when vehicle_id is nil or empty' do
       it 'raises an error' do
-        expect { subject.get_vehicle(vehicle_id: nil, token: 'token') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'vehicle_id is a required field')
-        expect { subject.get_vehicle(vehicle_id: '', token: 'token') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'vehicle_id is a required field')
+        expect do
+          subject.get_vehicle(vehicle_id: nil,
+                              token: 'token')
+        end.to raise_error(Smartcar::Base::InvalidParameterValue, 'vehicle_id is a required field')
+        expect do
+          subject.get_vehicle(vehicle_id: '',
+                              token: 'token')
+        end.to raise_error(Smartcar::Base::InvalidParameterValue, 'vehicle_id is a required field')
       end
     end
 
     context 'when token is nil or empty' do
       it 'raises an error' do
-        expect { subject.get_vehicle(vehicle_id: 'vehicle_id', token: nil) }.to raise_error(Smartcar::Base::InvalidParameterValue, 'token is a required field')
-        expect { subject.get_vehicle(vehicle_id: 'vehicle_id', token: '') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'token is a required field')
+        expect do
+          subject.get_vehicle(vehicle_id: 'vehicle_id',
+                              token: nil)
+        end.to raise_error(Smartcar::Base::InvalidParameterValue, 'token is a required field')
+        expect do
+          subject.get_vehicle(vehicle_id: 'vehicle_id',
+                              token: '')
+        end.to raise_error(Smartcar::Base::InvalidParameterValue, 'token is a required field')
       end
     end
 
@@ -790,7 +802,7 @@ RSpec.describe Smartcar do
 
     context 'when using custom vehicle API origin via environment' do
       it 'uses the custom origin' do
-        original_origin = ENV['SMARTCAR_VEHICLE_API_ORIGIN']
+        original_origin = ENV.fetch('SMARTCAR_VEHICLE_API_ORIGIN', nil)
         ENV['SMARTCAR_VEHICLE_API_ORIGIN'] = 'https://custom-vehicle-api.smartcar.com'
 
         stub_request(:get, 'https://custom-vehicle-api.smartcar.com/v3/vehicles/vehicle_id')
