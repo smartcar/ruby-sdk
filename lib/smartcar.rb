@@ -267,6 +267,45 @@ module Smartcar
       ))
     end
 
+    # Module method to retrieve vehicle information using the v3 API.
+    #
+    # API Documentation - https://smartcar.com/docs/api-reference/get-vehicle
+    # @param vehicle_id [String] The vehicle ID
+    # @param token [String] Access token
+    # @param options [Hash] Optional parameters
+    # @option options [Hash] :flags A hash of flag name string as key and a string or boolean value.
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
+    #
+    # @return [OpenStruct] An object with a "body" attribute containing the vehicle data
+    #   and a "headers" attribute containing the response headers.
+    def get_vehicle(vehicle_id:, token:, options: {})
+      raise Base::InvalidParameterValue.new, 'vehicle_id is a required field' if vehicle_id.nil? || vehicle_id.empty?
+      raise Base::InvalidParameterValue.new, 'token is a required field' if token.nil? || token.empty?
+
+      vehicle_service = Faraday.new(
+        url: ENV['SMARTCAR_VEHICLE_API_ORIGIN'] || VEHICLE_API_ORIGIN,
+        request: { timeout: DEFAULT_REQUEST_TIMEOUT }
+      )
+
+      query_params = { flags: stringify_params(options[:flags]) }
+
+      response = vehicle_service.get do |request|
+        request.headers['Authorization'] = "Bearer #{token}"
+        request.headers['Content-Type'] = 'application/json'
+        request.headers['User-Agent'] =
+          "Smartcar/#{VERSION} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
+
+        complete_path = "/v3/vehicles/#{vehicle_id}"
+        complete_path += "?#{URI.encode_www_form(query_params.compact)}" unless query_params.empty?
+        request.url complete_path
+      end
+
+      raise build_error(response.status, response.body, response.headers) unless [200, 204].include?(response.status)
+
+      body = response.body.empty? ? '{}' : response.body
+      build_v3_response(body, response.headers.to_h)
+    end
+
     # returns auth token for Basic vehicle management auth
     #
     # @return [String] Base64 encoding of default:amt

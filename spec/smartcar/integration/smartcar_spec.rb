@@ -712,4 +712,106 @@ RSpec.describe Smartcar do
       expect(response.connections[0].vehicleId).to eq('vehicle_id')
     end
   end
+
+  describe '.get_vehicle' do
+    context 'when vehicle_id is nil or empty' do
+      it 'raises an error' do
+        expect { subject.get_vehicle(vehicle_id: nil, token: 'token') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'vehicle_id is a required field')
+        expect { subject.get_vehicle(vehicle_id: '', token: 'token') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'vehicle_id is a required field')
+      end
+    end
+
+    context 'when token is nil or empty' do
+      it 'raises an error' do
+        expect { subject.get_vehicle(vehicle_id: 'vehicle_id', token: nil) }.to raise_error(Smartcar::Base::InvalidParameterValue, 'token is a required field')
+        expect { subject.get_vehicle(vehicle_id: 'vehicle_id', token: '') }.to raise_error(Smartcar::Base::InvalidParameterValue, 'token is a required field')
+      end
+    end
+
+    context 'when requesting vehicle information' do
+      it 'uses the vehicle API origin and v3 version' do
+        stub_request(:get, 'https://vehicle.api.smartcar.com/v3/vehicles/vehicle_id')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: {
+                'content-type' => 'application/json',
+                'sc-request-id' => 'vehicle-request-id'
+              },
+              body: {
+                id: 'vehicle_id',
+                type: 'vehicle',
+                attributes: {
+                  make: 'TESLA',
+                  model: 'Model 3',
+                  year: 2021
+                }
+              }.to_json
+            }
+          )
+
+        result = subject.get_vehicle(vehicle_id: 'vehicle_id', token: 'token')
+
+        expect(result.body.id).to eq('vehicle_id')
+        expect(result.body.type).to eq('vehicle')
+        expect(result.body.attributes.make).to eq('TESLA')
+        expect(result.body.attributes.model).to eq('Model 3')
+        expect(result.body.attributes.year).to eq(2021)
+        expect(result.headers.content_type).to eq('application/json')
+        expect(result.headers.sc_request_id).to eq('vehicle-request-id')
+      end
+    end
+
+    context 'when using flags' do
+      it 'includes flags in the request' do
+        stub_request(:get, 'https://vehicle.api.smartcar.com/v3/vehicles/vehicle_id?flags=country%3ADE')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json' },
+              body: {
+                id: 'vehicle_id',
+                type: 'vehicle',
+                attributes: {
+                  make: 'BMW',
+                  model: 'i3',
+                  year: 2020
+                }
+              }.to_json
+            }
+          )
+
+        result = subject.get_vehicle(vehicle_id: 'vehicle_id', token: 'token', options: { flags: { country: 'DE' } })
+        expect(result.body.attributes.make).to eq('BMW')
+      end
+    end
+
+    context 'when using custom vehicle API origin via environment' do
+      it 'uses the custom origin' do
+        original_origin = ENV['SMARTCAR_VEHICLE_API_ORIGIN']
+        ENV['SMARTCAR_VEHICLE_API_ORIGIN'] = 'https://custom-vehicle-api.smartcar.com'
+
+        stub_request(:get, 'https://custom-vehicle-api.smartcar.com/v3/vehicles/vehicle_id')
+          .with(headers: { 'Authorization' => 'Bearer token' })
+          .to_return(
+            {
+              status: 200,
+              headers: { 'content-type' => 'application/json' },
+              body: {
+                id: 'vehicle_id',
+                type: 'vehicle',
+                attributes: {}
+              }.to_json
+            }
+          )
+
+        result = subject.get_vehicle(vehicle_id: 'vehicle_id', token: 'token')
+        expect(result.body.id).to eq('vehicle_id')
+
+        ENV['SMARTCAR_VEHICLE_API_ORIGIN'] = original_origin
+      end
+    end
+  end
 end
