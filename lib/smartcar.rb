@@ -15,6 +15,7 @@ module Smartcar
 
   # Host to connect to smartcar
   API_ORIGIN = 'https://api.smartcar.com/'
+  VEHICLE_API_ORIGIN = 'https://vehicle.api.smartcar.com'
   MANAGEMENT_API_ORIGIN = 'https://management.smartcar.com'
   PATHS = {
     compatibility: '/compatibility',
@@ -98,6 +99,49 @@ module Smartcar
       base_object.build_response(*base_object.get(
         PATHS[:compatibility],
         build_compatibility_params(vin, scope, country, options)
+      ))
+    end
+
+    # Module method to retrieve the Smartcar compatibility matrix for a given region.
+    # Provides the ability to filter by scope, make, and type.
+    #
+    # A compatible vehicle is a vehicle that:
+    # 1. has the hardware required for internet connectivity,
+    # 2. belongs to the makes and models Smartcar supports, and
+    # 3. supports the permissions.
+    #
+    # API Documentation - https://smartcar.com/docs/api-reference/compatibility/by-region-and-make
+    # @param region [String] One of the following regions: US, CA, or EUROPE
+    # @param options [Hash] Optional parameters
+    # @option options [Array<String>] :scope List of permissions to filter the matrix by
+    # @option options [String, Array<String>] :make List of makes to filter the matrix by
+    #   (space-separated string or array)
+    # @option options [String] :type Engine type to filter the matrix by (e.g., "ICE", "HEV", "PHEV", "BEV")
+    # @option options [String] :client_id Client ID that overrides ENV
+    # @option options [String] :client_secret Client Secret that overrides ENV
+    # @option options [String] :version API version to use, defaults to what is globally set
+    # @option options [String] :mode Determine what mode Smartcar Connect should be launched in.
+    #   Should be one of test, live or simulated.
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
+    #
+    # @return [OpenStruct] An object representing the compatibility matrix organized by make,
+    #  with each make containing an array of compatible models and a meta attribute with response headers.
+    def get_compatibility_matrix(region, options = {})
+      raise Base::InvalidParameterValue.new, 'region is a required field' if region.nil? || region.empty?
+
+      base_object = Base.new(
+        {
+          version: options[:version] || Smartcar.get_api_version,
+          auth_type: Base::BASIC,
+          service: options[:service]
+        }
+      )
+
+      base_object.token = generate_basic_auth(options, base_object)
+
+      base_object.build_response(*base_object.get(
+        "#{PATHS[:compatibility]}/matrix",
+        build_compatibility_matrix_params(region, options)
       ))
     end
 
@@ -224,6 +268,45 @@ module Smartcar
       ))
     end
 
+    # Module method to retrieve vehicle information using the v3 API.
+    #
+    # API Documentation - https://smartcar.com/docs/api-reference/get-vehicle
+    # @param vehicle_id [String] The vehicle ID
+    # @param token [String] Access token
+    # @param options [Hash] Optional parameters
+    # @option options [Hash] :flags A hash of flag name string as key and a string or boolean value.
+    # @option options [Faraday::Connection] :service Optional connection object to be used for requests
+    #
+    # @return [OpenStruct] An object with a "body" attribute containing the vehicle data
+    #   and a "headers" attribute containing the response headers.
+    def get_vehicle(vehicle_id:, token:, options: {})
+      raise Base::InvalidParameterValue.new, 'vehicle_id is a required field' if vehicle_id.nil? || vehicle_id.empty?
+      raise Base::InvalidParameterValue.new, 'token is a required field' if token.nil? || token.empty?
+
+      vehicle_service = Faraday.new(
+        url: ENV['SMARTCAR_VEHICLE_API_ORIGIN'] || VEHICLE_API_ORIGIN,
+        request: { timeout: DEFAULT_REQUEST_TIMEOUT }
+      )
+
+      query_params = { flags: stringify_params(options[:flags]) }
+
+      response = vehicle_service.get do |request|
+        request.headers['Authorization'] = "Bearer #{token}"
+        request.headers['Content-Type'] = 'application/json'
+        request.headers['User-Agent'] =
+          "Smartcar/#{VERSION} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
+
+        complete_path = "/v3/vehicles/#{vehicle_id}"
+        complete_path += "?#{URI.encode_www_form(query_params.compact)}" unless query_params.empty?
+        request.url complete_path
+      end
+
+      raise build_error(response.status, response.body, response.headers) unless [200, 204].include?(response.status)
+
+      body = response.body.empty? ? '{}' : response.body
+      build_v3_response(body, response.headers.to_h)
+    end
+
     # returns auth token for Basic vehicle management auth
     #
     # @return [String] Base64 encoding of default:amt
@@ -249,6 +332,29 @@ module Smartcar
         mode = 'test'
       end
       query_params[:mode] = mode unless mode.nil?
+      query_params
+    end
+
+    def build_compatibility_matrix_params(region, options)
+      query_params = { region: region }
+
+      # Handle scope - convert array to space-separated string
+      if options[:scope]
+        query_params[:scope] = options[:scope].is_a?(Array) ? options[:scope].join(' ') : options[:scope]
+      end
+
+      # Handle make - convert array to space-separated string
+      if options[:make]
+        query_params[:make] = options[:make].is_a?(Array) ? options[:make].join(' ') : options[:make]
+      end
+
+      # Handle type
+      query_params[:type] = options[:type] if options[:type]
+
+      # Handle mode
+      mode = determine_mode(options[:test_mode], options[:mode])
+      query_params[:mode] = mode unless mode.nil?
+
       query_params
     end
 

@@ -6,6 +6,87 @@ require_relative '../../spec_helper'
 RSpec.describe Smartcar::Vehicle do
   subject { Smartcar::Vehicle }
 
+  describe 'V3' do
+    before(:context) do
+      access_token = 'test-data-token'
+      vehicle_id = 'tst2e255-d3c8-4f90-9fec-e6e68b98e9cb'
+      @vehicle = Smartcar::Vehicle.new(token: access_token, id: vehicle_id)
+    end
+
+    describe '#get_signals' do
+      it 'should return signal data' do
+        result = @vehicle.get_signals
+        expect(result.body.data.length).to eq(2)
+
+        odometer_signal = result.body.data.find { |signal| signal.attributes.code == 'odometer-traveleddistance' }
+
+        # Check signal structure
+        expect(odometer_signal.id).to be_a(String)
+        expect(odometer_signal.type).to eq('signal')
+
+        # Check attributes
+        expect(odometer_signal.attributes.code).to eq('odometer-traveleddistance')
+        expect(odometer_signal.attributes.name).to be_a(String)
+        expect(odometer_signal.attributes.group).to be_a(String)
+        expect(odometer_signal.attributes.status.value).to eq('SUCCESS')
+
+        # Check body values
+        expect(odometer_signal.attributes.body.value.is_a?(Numeric)).to eq(true)
+        expect(odometer_signal.attributes.body.unit).to be_a(String)
+
+        # Check meta
+        expect(odometer_signal.meta.retrieved_at.is_a?(Numeric)).to eq(true)
+        expect(odometer_signal.meta.oem_updated_at.is_a?(Numeric)).to eq(true)
+
+        # Check links
+        expect(odometer_signal.links.self).to be_a(String)
+
+        # Check top-level meta
+        expect(result.body.meta.total_count).to eq(2)
+        expect(result.body.meta.page_size).to eq(2)
+        expect(result.body.meta.page).to eq(1)
+
+        # Check top-level links
+        expect(result.body.links.self).to be_a(String)
+
+        # Check included vehicle data
+        expect(result.body.included.vehicle.id).to be_a(String)
+        expect(result.body.included.vehicle.type).to eq('vehicle')
+        expect(result.body.included.vehicle.attributes.make).to be_a(String)
+        expect(result.body.included.vehicle.attributes.model).to be_a(String)
+        expect(result.body.included.vehicle.attributes.year).to be_a(String)
+      end
+    end
+
+    describe '#get_signal' do
+      it 'should return signal data' do
+        signal_code = 'odometer-traveleddistance'
+        result = @vehicle.get_signal(signal_code)
+
+        # Check signal structure
+        expect(result.body.id).to be_a(String)
+        expect(result.body.type).to eq('signal')
+
+        # Check attributes
+        expect(result.body.attributes.code).to eq('odometer-traveleddistance')
+        expect(result.body.attributes.name).to be_a(String)
+        expect(result.body.attributes.group).to be_a(String)
+        expect(result.body.attributes.status.value).to eq('SUCCESS')
+
+        # Check body values
+        expect(result.body.attributes.body.value.is_a?(Numeric)).to eq(true)
+        expect(result.body.attributes.body.unit).to be_a(String)
+
+        # Check meta
+        expect(result.body.meta.retrieved_at.is_a?(Numeric)).to eq(true)
+        expect(result.body.meta.oem_updated_at.is_a?(Numeric)).to eq(true)
+
+        # Check links
+        expect(result.body.links.self).to be_a(String)
+      end
+    end
+  end
+
   describe 'Data methods' do
     before(:context) do
       @token = AuthHelper.run_auth_flow_and_get_tokens[:access_token]

@@ -15,12 +15,19 @@ module Smartcar
 
     # gets a given env variable, checks for existence and throws exception if not present
     # @param config_name [String] key of the env variable
+    # @param options [Hash] options hash, supports :nullable key (default: false)
     #
     # @return [String] value of the env variable
-    def get_config(config_name)
+    def get_config(config_name, options = {})
       # ENV.MODE is set to test by e2e tests.
       config_name = "E2E_#{config_name}" if ENV['MODE'] == 'test'
-      raise Smartcar::ConfigNotFound, "Environment variable #{config_name} not found !" unless ENV[config_name]
+
+      unless ENV[config_name]
+        nullable = options.fetch(:nullable, false)
+        return nil if nullable
+
+        raise Smartcar::ConfigNotFound, "Environment variable #{config_name} not found !"
+      end
 
       ENV.fetch(config_name, nil)
     end
@@ -48,6 +55,30 @@ module Smartcar
           recurse_over_arrays: true
         )
 
+      else
+        obj
+      end
+    end
+
+    # Helper method to convert string from camelCase or kebab-case to snake_case
+    def to_snake_case(str)
+      str.to_s
+         .gsub('-', '_') # Convert kebab-case to snake_case
+         .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+         .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+         .downcase
+    end
+
+    # Helper method to recursively convert hash keys to snake_case
+    def deep_transform_keys_to_snake_case(obj)
+      case obj
+      when Array
+        obj.map { |el| deep_transform_keys_to_snake_case(el) }
+      when Hash
+        obj.each_with_object({}) do |(key, value), result|
+          new_key = to_snake_case(key)
+          result[new_key] = deep_transform_keys_to_snake_case(value)
+        end
       else
         obj
       end
@@ -90,6 +121,19 @@ module Smartcar
         response.meta = build_meta(headers)
       end
       response
+    end
+
+    def build_v3_response(body, headers)
+      body_data = body.is_a?(String) ? JSON.parse(body) : body
+      headers_data = headers.is_a?(String) ? JSON.parse(headers) : headers
+
+      body_snake = deep_transform_keys_to_snake_case(body_data)
+      headers_snake = deep_transform_keys_to_snake_case(headers_data)
+
+      OpenStruct.new(
+        body: json_to_ostruct(body_snake),
+        headers: json_to_ostruct(headers_snake)
+      )
     end
 
     def build_aliases(response, aliases)

@@ -50,13 +50,11 @@ RSpec.describe Smartcar::AuthClient do
   end
 
   context 'constructor' do
-    it 'raises error if redirect URL is not present' do
+    it 'does not raise error if redirect URL is not present (optional parameter)' do
       redirect_url = ENV.fetch('E2E_SMARTCAR_REDIRECT_URI', nil)
       ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
 
-      expect { Smartcar::AuthClient.new({}) }.to(raise_error do |error|
-        expect(error.message).to eq('Environment variable E2E_SMARTCAR_REDIRECT_URI not found !')
-      end)
+      expect { Smartcar::AuthClient.new({}) }.not_to raise_error
       ENV['E2E_SMARTCAR_REDIRECT_URI'] = redirect_url
     end
 

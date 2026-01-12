@@ -161,4 +161,88 @@ RSpec.describe Smartcar::AuthClient do
       subject.send(:auth_client)
     end
   end
+
+  context 'optional parameters' do
+    let(:obj_without_redirect) { double('dummy object without redirect_uri') }
+
+    it 'should work without scope parameter' do
+      client = Smartcar::AuthClient.new({
+                                          redirect_uri: 'test_url',
+                                          client_id: 'SMARTCAR_CLIENT_ID',
+                                          client_secret: 'SMARTCAR_CLIENT_SECRET',
+                                          mode: 'test'
+                                        })
+      allow(client).to receive_message_chain(:connect_client, :auth_code).and_return(obj)
+
+      expect(obj).to receive(:authorize_url) do |params|
+        expect(params[:response_type]).to eq(Smartcar::CODE)
+        expect(params[:mode]).to eq('test')
+        expect(params[:redirect_uri]).to eq('test_url')
+        expect(params[:state]).to eq('test_state')
+        expect(params).not_to have_key(:scope)
+        'result'
+      end
+
+      expect(client.get_auth_url({ state: 'test_state' })).to eq 'result'
+    end
+
+    it 'should work without redirect_uri parameter' do
+      # Temporarily remove the E2E_SMARTCAR_REDIRECT_URI env var to test without redirect_uri
+      original_redirect = ENV.fetch('E2E_SMARTCAR_REDIRECT_URI', nil)
+      ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
+
+      client = Smartcar::AuthClient.new({
+                                          client_id: 'SMARTCAR_CLIENT_ID',
+                                          client_secret: 'SMARTCAR_CLIENT_SECRET',
+                                          mode: 'test'
+                                        })
+
+      expect(client.redirect_uri).to be_nil
+
+      allow(client).to receive_message_chain(:connect_client, :auth_code).and_return(obj_without_redirect)
+
+      expect(obj_without_redirect).to receive(:authorize_url) do |params|
+        expect(params[:response_type]).to eq(Smartcar::CODE)
+        expect(params[:mode]).to eq('test')
+        expect(params[:scope]).to eq('read_odometer')
+        expect(params).not_to have_key(:redirect_uri)
+        'result'
+      end
+
+      expect(client.get_auth_url(['read_odometer'], {})).to eq 'result'
+
+      # Restore the environment variable
+      ENV['E2E_SMARTCAR_REDIRECT_URI'] = original_redirect if original_redirect
+    end
+
+    it 'should work without both scope and redirect_uri' do
+      # Temporarily remove the E2E_SMARTCAR_REDIRECT_URI env var to test without redirect_uri
+      original_redirect = ENV.fetch('E2E_SMARTCAR_REDIRECT_URI', nil)
+      ENV.delete('E2E_SMARTCAR_REDIRECT_URI')
+
+      client = Smartcar::AuthClient.new({
+                                          client_id: 'SMARTCAR_CLIENT_ID',
+                                          client_secret: 'SMARTCAR_CLIENT_SECRET',
+                                          mode: 'test'
+                                        })
+
+      expect(client.redirect_uri).to be_nil
+
+      allow(client).to receive_message_chain(:connect_client, :auth_code).and_return(obj_without_redirect)
+
+      expect(obj_without_redirect).to receive(:authorize_url) do |params|
+        expect(params[:response_type]).to eq(Smartcar::CODE)
+        expect(params[:mode]).to eq('test')
+        expect(params[:state]).to eq('test_state')
+        expect(params).not_to have_key(:scope)
+        expect(params).not_to have_key(:redirect_uri)
+        'result'
+      end
+
+      expect(client.get_auth_url({ state: 'test_state' })).to eq 'result'
+
+      # Restore the environment variable
+      ENV['E2E_SMARTCAR_REDIRECT_URI'] = original_redirect if original_redirect
+    end
+  end
 end

@@ -371,6 +371,34 @@ module Smartcar
       process_batch_response(response, headers)
     end
 
+    # Retrieve a specific signal by signal code from the vehicle.
+    # Uses the Vehicle API (v3) endpoint.
+    #
+    # API Documentation - https://smartcar.com/docs/api-reference/get-signal
+    #
+    # @param signal_code [String] The code of the signal to retrieve.
+    #
+    # @return [OpenStruct] An object with a "body" attribute containing the signal data
+    #   and a "headers" attribute containing the response headers.
+    def get_signal(signal_code)
+      raise InvalidParameterValue.new, 'signal_code is a required field' if signal_code.nil? || signal_code.empty?
+
+      path = "/vehicles/#{id}/signals/#{signal_code}"
+      request_v3(path)
+    end
+
+    # Retrieve all available signals from the vehicle.
+    # Uses the Vehicle API (v3) endpoint.
+    #
+    # API Documentation - https://smartcar.com/docs/api-reference/get-signals
+    #
+    # @return [OpenStruct] An object with a "body" attribute containing all signals data
+    #   and a "headers" attribute containing the response headers.
+    def get_signals
+      path = "/vehicles/#{id}/signals"
+      request_v3(path)
+    end
+
     # General purpose method to make requests to the Smartcar API - can be
     # used to make requests to brand specific endpoints.
     #
@@ -386,6 +414,36 @@ module Smartcar
       raw_response, headers = send(method.downcase, path, @query_params, body, headers)
       meta = build_meta(headers)
       json_to_ostruct({ body: raw_response, meta: meta })
+    end
+
+    private
+
+    # Makes a request to the vehicles API using the vehicle API origin and v3 version.
+    #
+    # @param path [String] The API path to request.
+    #
+    # @return [OpenStruct] An object with body and headers attributes.
+    def request_v3(path)
+      vehicle_service = Faraday.new(
+        url: ENV['SMARTCAR_VEHICLE_API_ORIGIN'] || VEHICLE_API_ORIGIN,
+        request: { timeout: DEFAULT_REQUEST_TIMEOUT }
+      )
+
+      response = vehicle_service.get do |request|
+        request.headers['Authorization'] = "Bearer #{token}"
+        request.headers['Content-Type'] = 'application/json'
+        request.headers['User-Agent'] =
+          "Smartcar/#{VERSION} (#{RbConfig::CONFIG['host_os']}; #{RbConfig::CONFIG['arch']}) Ruby v#{RUBY_VERSION}"
+
+        complete_path = "/v3#{path}"
+        complete_path += "?#{URI.encode_www_form(@query_params.compact)}" unless @query_params.empty?
+        request.url complete_path
+      end
+
+      handle_error(response)
+
+      body = response.body.empty? ? '{}' : response.body
+      build_v3_response(body, response.headers.to_h)
     end
   end
 end
