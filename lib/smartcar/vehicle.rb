@@ -418,7 +418,7 @@ module Smartcar
 
     private
 
-    # Makes a request to the vehicles API using the vehicle API origin and v3 version.
+    # Makes a request to the v3 vehicles API using the vehicle API origin
     #
     # @param path [String] The API path to request.
     #
