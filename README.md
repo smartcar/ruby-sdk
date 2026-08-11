@@ -1,6 +1,8 @@
 
 # Smartcar Ruby SDK [![Gem Version][gem-url]][gem-image]
 
+> **Maintenance mode.** This SDK receives security patches through December 1, 2026, then no further updates, including security. The package stays published and existing integrations keep working. For new integrations, call the Smartcar API directly over HTTP: [Making API Requests](https://smartcar.com/docs/getting-started/how-to/making-api-requests).
+
 Ruby gem library to quickly get started with the Smartcar API.
 
 ## Overview
